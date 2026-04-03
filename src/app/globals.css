@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 320 63% 98%; /* Ultra light pink/white */
+    --foreground: 343 71% 12%; /* Deepest burgundy */
+    --card: 0 0% 100%;
+    --card-foreground: 343 71% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 343 71% 15%;
+    --primary: 343 71% 27%; /* #781430 Burgundy */
+    --primary-foreground: 320 63% 98%;
+    --secondary: 320 63% 87%; /* #f4cbe7 Soft Pink */
+    --secondary-foreground: 343 71% 20%;
+    --muted: 320 20% 94%;
+    --muted-foreground: 343 20% 40%;
+    --accent: 320 63% 87%;
+    --accent-foreground: 343 71% 27%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 343 20% 90%;
+    --input: 343 20% 90%;
+    --ring: 343 71% 27%;
+    --radius: 2rem;
+  }
+
+  .dark {
+    --background: 343 71% 12%; /* Deep Burgundy background */
+    --foreground: 320 63% 98%;
+    --card: 343 71% 15%;
+    --card-foreground: 320 63% 98%;
+    --popover: 343 71% 15%;
+    --popover-foreground: 320 63% 98%;
+    --primary: 320 63% 87%; /* Soft Pink primary in dark mode */
+    --primary-foreground: 343 71% 15%;
+    --secondary: 343 71% 20%;
+    --secondary-foreground: 320 63% 98%;
+    --muted: 343 71% 8%;
+    --muted-foreground: 320 20% 70%;
+    --accent: 343 71% 25%;
+    --accent-foreground: 320 63% 98%;
+    --border: 343 71% 20%;
+    --input: 343 71% 20%;
+    --ring: 320 63% 87%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased transition-colors duration-700;
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(320, 63%, 94%, 0.8) 0, transparent 40%),
+      radial-gradient(at 100% 100%, hsla(343, 71%, 92%, 0.8) 0, transparent 40%),
+      radial-gradient(at 50% 50%, hsla(320, 63%, 97%, 0.5) 0, transparent 100%);
+    background-attachment: fixed;
+    line-height: 1.6;
+    letter-spacing: -0.01em;
+  }
+
+  .dark body {
+    background-image: 
+      radial-gradient(at 0% 0%, hsla(343, 71% , 18%, 1) 0, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(343, 71%, 14%, 1) 0, transparent 50%);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline;
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/40 dark:bg-black/20 backdrop-blur-xl border border-white/40 dark:border-white/5;
+  }
+  .glass-card {
+    @apply glass shadow-[0_8px_32px_0_rgba(120,20,48,0.05)] hover:shadow-[0_8px_32px_0_rgba(120,20,48,0.1)] transition-all duration-500;
+  }
+  .text-glow {
+    text-shadow: 0 0 30px hsla(var(--primary) / 0.3);
+  }
+  .aura-glow {
+    box-shadow: 0 0 80px -20px hsla(var(--primary) / 0.2);
+  }
+  .font-luxury {
+    letter-spacing: 0.4em;
+    @apply uppercase font-body font-bold text-[10px];
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+}

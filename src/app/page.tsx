@@ -17,7 +17,7 @@ export default function Home() {
     <div className="min-h-screen flex flex-col selection:bg-primary/10">
       <Navbar />
       
-      <main className="flex-1">
+      <main className="flex-1 overflow-x-hidden w-full">
         {/* Cinematic Hero Section */}
         <section className="relative h-[100vh] min-h-[800px] flex items-center justify-center overflow-hidden">
           <div className="container mx-auto px-4 h-[90%] py-8">
@@ -42,7 +42,7 @@ export default function Home() {
                   </Badge>
                   
                   <div className="space-y-4">
-                    <h1 className="font-headline text-8xl md:text-[14rem] leading-[0.8] tracking-tighter text-glow">
+                    <h1 className="font-headline text-fluid-hero leading-[0.8] tracking-tighter text-glow">
                       Ethereal <br />
                       <span className="italic font-light text-secondary">Glow</span>
                     </h1>
@@ -83,7 +83,7 @@ export default function Home() {
               <div className="space-y-16">
                 <div className="space-y-8">
                   <Badge className="bg-primary/5 text-primary border-primary/20 px-8 py-3 rounded-full uppercase tracking-[0.5em] text-[10px] font-bold">Our Philosophy</Badge>
-                  <h2 className="font-headline text-7xl md:text-9xl tracking-tighter leading-tight">Alchemy of <br /><span className="italic font-light text-primary/60">Light</span></h2>
+                  <h2 className="font-headline text-fluid-h1 tracking-tighter leading-tight">Alchemy of <br /><span className="italic font-light text-primary/60">Light</span></h2>
                   <p className="text-muted-foreground text-xl md:text-2xl leading-relaxed font-body font-medium italic max-w-xl">
                     "We do not merely treat the skin; we restore the radiant resonance of your natural aura."
                   </p>
@@ -128,7 +128,7 @@ export default function Home() {
             <div className="flex flex-col md:flex-row justify-between items-end mb-32 gap-12">
               <div className="space-y-8 max-w-3xl">
                 <span className="text-primary font-luxury">Seasonal Edit</span>
-                <h2 className="font-headline text-7xl md:text-9xl tracking-tighter">Essential <br /><span className="italic font-light">Layers</span></h2>
+                <h2 className="font-headline text-fluid-h1 tracking-tighter">Essential <br /><span className="italic font-light">Layers</span></h2>
                 <p className="text-muted-foreground font-body text-xs uppercase tracking-[0.4em] font-bold leading-relaxed opacity-60">
                   Curated sequences for deep hydration and cellular renewal.
                 </p>
@@ -166,7 +166,7 @@ export default function Home() {
                 </div>
                 
                 <div className="space-y-6">
-                  <h2 className="font-headline text-8xl md:text-[10rem] tracking-tighter leading-[0.85] text-glow">
+                  <h2 className="font-headline text-fluid-h1 tracking-tighter leading-[0.85] text-glow">
                     Digital <br />
                     <span className="italic font-light text-secondary">Concierge</span>
                   </h2>

@@ -5,13 +5,15 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ShoppingBag, Search, User, Sparkles, Menu, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useTheme } from "next-themes";
 import { cn } from '@/lib/utils';
+import { useCartStore } from '@/lib/store/useCartStore';
 
 export function Navbar() {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const cartItemsCount = useCartStore((state) => state.cartItemsCount());
 
   useEffect(() => {
     setMounted(true);
@@ -30,6 +32,7 @@ export function Navbar() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[300px] border-none bg-background">
+                <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
                 <nav className="flex flex-col gap-8 mt-12 px-4">
                   <Link href="/" className="font-headline text-3xl text-primary">Lueur Skin</Link>
                   <div className="space-y-4 flex flex-col font-body uppercase tracking-[0.2em] text-[10px] font-bold">
@@ -83,15 +86,19 @@ export function Navbar() {
             <Button variant="ghost" size="icon" className="hidden sm:flex text-primary rounded-full hover:bg-primary/5">
               <Search className="h-4 w-4" />
             </Button>
-            <Link href="/account">
+            <Link href="/account" className="hidden md:flex">
               <Button variant="ghost" size="icon" className="text-primary rounded-full hover:bg-primary/5">
                 <User className="h-4 w-4" />
               </Button>
             </Link>
-            <Link href="/cart">
+            <Link href="/cart" className="hidden md:flex">
               <Button variant="ghost" size="icon" className="relative text-primary rounded-full hover:bg-primary/5">
                 <ShoppingBag className="h-4 w-4" />
-                <span className="absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-primary-foreground shadow-sm">0</span>
+                {mounted && cartItemsCount > 0 && (
+                  <span className="absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-primary-foreground shadow-sm">
+                    {cartItemsCount}
+                  </span>
+                )}
               </Button>
             </Link>
           </div>

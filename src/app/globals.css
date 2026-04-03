@@ -24,6 +24,7 @@
     --input: 343 20% 90%;
     --ring: 343 71% 27%;
     --radius: 2rem;
+    --mobile-nav-height: 5rem;
   }
 
   .dark {
@@ -60,6 +61,8 @@
     background-attachment: fixed;
     line-height: 1.6;
     letter-spacing: -0.01em;
+    touch-action: manipulation;
+    font-size: clamp(1rem, 1.5vw + 0.5rem, 1.125rem);
   }
 
   .dark body {

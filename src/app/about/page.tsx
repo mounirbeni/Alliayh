@@ -1,126 +1,81 @@
-
 import Image from 'next/image';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Badge } from '@/components/ui/badge';
-import { Heart, Leaf, Sun, Award, Sparkles } from 'lucide-react';
+
+export const metadata = {
+  title: 'Our Story | Lueur Skin',
+  description: 'The narrative and botanical alchemy behind Lueur Skin by Alliyah.',
+};
 
 export default function AboutPage() {
-  const brandImage = PlaceHolderImages.find(img => img.id === 'brand-story');
-
   return (
-    <div className="min-h-screen flex flex-col bg-background">
+    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/10">
       <Navbar />
       
-      <main className="flex-1">
-        {/* Story Hero */}
-        <section className="relative py-24 md:py-32 overflow-hidden bg-primary/5">
-          <div className="container mx-auto px-4 relative z-10 text-center space-y-8">
-            <Badge variant="outline" className="border-primary text-primary font-headline uppercase tracking-widest px-6 py-1">Since 2021</Badge>
-            <h1 className="font-headline text-5xl md:text-7xl leading-tight tracking-tight max-w-4xl mx-auto">
-              Redefining <span className="italic">Luminosity</span> Through Conscious Luxury
+      <main className="flex-1 py-12 lg:py-24 overflow-x-hidden">
+        <div className="container mx-auto px-4 max-w-5xl">
+          <div className="space-y-12 mb-20 text-center">
+            <h1 className="font-headline text-fluid-hero tracking-tighter leading-tight text-glow">
+              Our <span className="italic font-light text-primary/80">Story</span>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto italic leading-relaxed">
-              Lueur Skin by Alliyah was founded on a simple belief: your skin is your aura. It reflects your health, your emotions, and your inner light.
+            <p className="text-xl md:text-2xl text-muted-foreground font-body max-w-2xl mx-auto leading-relaxed italic opacity-90">
+              "To harmonize the profound depth of nature with the exactness of science."
             </p>
           </div>
-        </section>
 
-        {/* Philosophy */}
-        <section className="py-24 container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
-            <div className="relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl">
-              <Image
-                src={brandImage?.imageUrl || "https://picsum.photos/seed/brand/800/1000"}
-                alt="Brand philosophy"
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
+            <div className="relative aspect-[4/5] rounded-[4rem] overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)]">
+              <Image 
+                src="/products/sea-moss-facts.jpg"
+                alt="Alliyah formulating skincare"
                 fill
-                className="object-cover"
-                data-ai-hint="natural beauty botanicals"
+                className="object-cover group-hover:scale-105 transition-transform duration-[10s]"
+              />
+              <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
+            </div>
+            
+            <div className="space-y-8">
+              <Badge className="bg-primary/5 text-primary border-primary/20 px-6 py-2 rounded-full uppercase tracking-widest text-[10px] font-bold">The Founder</Badge>
+              <h2 className="font-headline text-4xl tracking-tight">Meet Alliyah</h2>
+              <div className="space-y-6 text-muted-foreground font-body leading-relaxed text-sm md:text-base">
+                <p>
+                  Lueur Skin began as a personal quest to heal compromised skin without resorting to harsh, barrier-stripping chemicals. Alliyah traveled globally, studying ancient botanical remedies and modern dermal science.
+                </p>
+                <p>
+                  By isolating the pure actives within sea moss, burdock root, and rare botanicals, she developed formulas that didn't just mask imperfections, but fundamentally rebuilt the skin's functional health.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-20">
+             <div className="space-y-8 lg:order-1 order-2">
+              <Badge className="bg-primary/5 text-primary border-primary/20 px-6 py-2 rounded-full uppercase tracking-widest text-[10px] font-bold">The Standard</Badge>
+              <h2 className="font-headline text-4xl tracking-tight">Zero Compromise</h2>
+              <div className="space-y-6 text-muted-foreground font-body leading-relaxed text-sm md:text-base">
+                <p>
+                  Every Lueur Skin product is meticulously crafted in small batches. We source our Sea Moss directly from protected waters and utilize cold-press extraction to ensure the living enzymes remain intact.
+                </p>
+                <p>
+                  Our commitment to purity means zero artificial fragrances, parabens, or synthetic dyes. Just the absolute pinnacle of natural efficacy.
+                </p>
+              </div>
+            </div>
+
+            <div className="relative aspect-square rounded-[4rem] overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] lg:order-2 order-1">
+              <Image 
+                src="/products/glow-tea.jpg"
+                alt="Ingredients macro shot"
+                fill
+                className="object-cover group-hover:scale-105 transition-transform duration-[10s]"
               />
             </div>
-            <div className="space-y-12">
-              <div className="space-y-6">
-                <h2 className="font-headline text-4xl leading-tight">A Modern Alchemy</h2>
-                <p className="text-muted-foreground text-lg leading-relaxed font-body">
-                  Our journey began in a small atelier, where our founders—a molecular biologist and a master herbalist—sought to merge their worlds. They believed that clinical results shouldn't come at the cost of the sensory experience.
-                </p>
-                <p className="text-muted-foreground text-lg leading-relaxed font-body">
-                  Today, Lueur Skin by Alliyah represents that harmony. We take high-performance actives like stabilized Vitamin C and peptides, and suspend them in nutrient-dense botanical oils. The result is skincare that performs like medicine but feels like a vacation.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-6">
-                <div className="space-y-3">
-                  <div className="h-12 w-12 bg-secondary/30 rounded-full flex items-center justify-center">
-                    <Leaf className="h-6 w-6 text-primary" />
-                  </div>
-                  <h4 className="font-headline uppercase tracking-widest text-sm">Vegan & Pure</h4>
-                  <p className="text-sm text-muted-foreground italic font-body">100% plant-derived formulas without compromise on performance.</p>
-                </div>
-                <div className="space-y-3">
-                  <div className="h-12 w-12 bg-secondary/30 rounded-full flex items-center justify-center">
-                    <Sun className="h-6 w-6 text-primary" />
-                  </div>
-                  <h4 className="font-headline uppercase tracking-widest text-sm">Ethical Glow</h4>
-                  <p className="text-sm text-muted-foreground italic font-body">Carbon-neutral shipping and fully recyclable artisanal packaging.</p>
-                </div>
-              </div>
-            </div>
           </div>
-        </section>
 
-        {/* Timeline/Mission */}
-        <section className="py-24 bg-white/50 border-y border-primary/5">
-          <div className="container mx-auto px-4">
-            <div className="max-w-4xl mx-auto text-center space-y-16">
-              <h2 className="font-headline text-4xl uppercase tracking-widest">Our Guiding Light</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
-                <div className="space-y-4 p-8 bg-white rounded-[2rem] shadow-sm">
-                  <Award className="h-10 w-10 text-primary mx-auto" />
-                  <h3 className="font-headline text-xl">Quality Above All</h3>
-                  <p className="text-sm text-muted-foreground italic font-body">Small batch production ensures that every bottle meets our stringent standards for potency and purity.</p>
-                </div>
-                <div className="space-y-4 p-8 bg-white rounded-[2rem] shadow-sm">
-                  <Heart className="h-10 w-10 text-primary mx-auto" />
-                  <h3 className="font-headline text-xl">Self-Care Ritual</h3>
-                  <p className="text-sm text-muted-foreground italic font-body">We view skincare as a meditative practice—a few minutes each day dedicated solely to your well-being.</p>
-                </div>
-                <div className="space-y-4 p-8 bg-white rounded-[2rem] shadow-sm">
-                  <Sparkles className="h-10 w-10 text-primary mx-auto" />
-                  <h3 className="font-headline text-xl">Radical Clarity</h3>
-                  <p className="text-sm text-muted-foreground italic font-body">Complete ingredient transparency. No secrets, no fillers, just honest results for your skin.</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Contact Info */}
-        <section className="py-24 container mx-auto px-4">
-          <div className="max-w-3xl mx-auto bg-white p-12 rounded-[3rem] border border-primary/20 text-center space-y-8 shadow-sm">
-            <h2 className="font-headline text-4xl">Connect With Alliyah</h2>
-            <p className="text-muted-foreground italic font-body">Whether you have questions about your routine or want to discuss the science behind our ingredients, we're here for you.</p>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-8 font-headline">
-              <div className="space-y-2">
-                <h4 className="uppercase tracking-widest text-[10px] font-bold text-primary">General Inquiry</h4>
-                <p className="text-sm">hello@lueuraura.com</p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="uppercase tracking-widest text-[10px] font-bold text-primary">Concierge Support</h4>
-                <p className="text-sm">+1 (888) 555-GLOW</p>
-              </div>
-              <div className="space-y-2">
-                <h4 className="uppercase tracking-widest text-[10px] font-bold text-primary">Press & Media</h4>
-                <p className="text-sm">press@lueuraura.com</p>
-              </div>
-            </div>
-          </div>
-        </section>
+        </div>
       </main>
-
+      
       <Footer />
     </div>
   );

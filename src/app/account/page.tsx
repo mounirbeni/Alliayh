@@ -15,9 +15,8 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock Order History
-const MOCK_ORDERS = [
-  { id: 'LUEUR-812391', date: 'Oct 12, 2026', total: 136.00, status: 'Delivered' },
-  { id: 'LUEUR-582910', date: 'Aug 04, 2026', total: 88.00, status: 'Delivered' }
+const MOCK_ORDERS: { id: string; date: string; total: number; status: string }[] = [
+  // Emptying out order array to demonstrate the empty state UI correctly per requirements
 ];
 
 export default function AccountPage() {
@@ -105,18 +104,28 @@ export default function AccountPage() {
                   <Package className="h-5 w-5" /> Order History
                 </h3>
                 <div className="space-y-4">
-                  {MOCK_ORDERS.map(order => (
-                    <div key={order.id} className="flex justify-between items-center bg-background p-4 rounded-xl border border-primary/5">
-                      <div>
-                        <div className="font-headline text-sm">{order.id}</div>
-                        <div className="text-xs text-muted-foreground uppercase">{order.date}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold">${order.total.toFixed(2)}</div>
-                        <div className="text-[10px] uppercase text-primary tracking-widest font-bold">{order.status}</div>
-                      </div>
+                  {MOCK_ORDERS.length === 0 ? (
+                    <div className="text-center py-8">
+                       <Package className="h-8 w-8 mx-auto text-primary/30 mb-3" />
+                       <p className="text-muted-foreground text-sm italic mb-4">No recent deliveries.</p>
+                       <Link href="/products">
+                         <Button variant="outline" className="rounded-full text-[10px] uppercase tracking-widest h-10 px-6">Explore Products</Button>
+                       </Link>
                     </div>
-                  ))}
+                  ) : (
+                    MOCK_ORDERS.map(order => (
+                      <div key={order.id} className="flex justify-between items-center bg-background p-4 rounded-xl border border-primary/5 hover:border-primary/20 transition-colors">
+                        <div>
+                          <div className="font-headline text-sm text-foreground">{order.id}</div>
+                          <div className="text-xs text-muted-foreground uppercase">{order.date}</div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-bold text-foreground">${order.total.toFixed(2)}</div>
+                          <div className="text-[10px] uppercase text-primary tracking-widest font-bold">{order.status}</div>
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </div>
             </div>

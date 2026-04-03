@@ -1,7 +1,7 @@
 export interface Product {
   id: string;
   name: string;
-  category: 'Cleansers' | 'Serums' | 'Moisturizers' | 'Masks' | 'Toners';
+  category: 'Gummies' | 'Tea' | 'Wellness' | 'Serums';
   price: number;
   description: string;
   ingredients: string[];
@@ -15,80 +15,54 @@ export interface Product {
 export const PRODUCTS: Product[] = [
   {
     id: '1',
-    name: 'Silk Radiance Gentle Foam',
-    category: 'Cleansers',
-    price: 42,
-    description: 'A luxurious foaming cleanser by Alliyah that removes impurities while maintaining your skin\'s natural moisture barrier. Infused with silk amino acids and rare botanical extracts.',
-    ingredients: ['Water', 'Glycerin', 'Silk Amino Acids', 'Aloe Vera Leaf Juice', 'Green Tea Extract'],
-    usage: 'Massage 1-2 pumps onto damp skin morning and night. Rinse thoroughly with lukewarm water.',
-    benefits: ['Deeply cleanses without stripping', 'Leaves skin feeling soft and hydrated', 'Calms inflammation'],
-    image: 'product-cleanser',
-    rating: 4.8,
-    reviewsCount: 124
+    name: 'Sea Moss Gummies',
+    category: 'Gummies',
+    price: 45,
+    description: 'Nourish your body and skin from the inside out with our organic Sea Moss Gummies. Formulated with Bladderwrack and Burdock Root for comprehensive wellness and a clarified complexion.',
+    ingredients: ['Organic Irish Sea Moss', 'Organic Bladderwrack', 'Organic Burdock Root', 'Vitamin C', 'Zinc', 'Vitamin D'],
+    usage: 'Take 2 gummies during the day or at night. Chew thoroughly before swallowing.',
+    benefits: ['Supports cellular function', 'Natural antioxidant source', 'Promotes a clear, radiant complexion'],
+    image: '/products/sea-moss-gummies.jpg',
+    rating: 4.9,
+    reviewsCount: 156
   },
   {
     id: '2',
-    name: 'Aura Glow Vitamin C Serum',
-    category: 'Serums',
-    price: 88,
-    description: 'A potent antioxidant serum designed to brighten the complexion and even skin tone. Features a stable form of Vitamin C and Ferulic Acid in a sophisticated delivery system.',
-    ingredients: ['15% Vitamin C (THD Ascorbate)', 'Ferulic Acid', 'Vitamin E', 'Hyaluronic Acid'],
-    usage: 'Apply 3-4 drops to clean, dry skin every morning before moisturizer and SPF.',
-    benefits: ['Brightens dull skin', 'Fades hyperpigmentation', 'Protects against environmental stressors'],
-    image: 'product-serum',
-    rating: 4.9,
-    reviewsCount: 312
+    name: 'Lueur Glow Tea',
+    category: 'Tea',
+    price: 28,
+    description: 'Enhance your natural aura with our proprietary herbal blend. Formulated to relieve fatigue, moisturize, and plump the skin from the inside out.',
+    ingredients: ['Cassia seeds', 'Coix seeds', 'Mulberry leaves', 'Goji berries', 'Rose flower', 'White grass root'],
+    usage: 'Drink everyday. Pour a cup of near boiling water over one tea bag. Infuse for at least 5-7 minutes. Brew 1 tea bag 1-3 times a day.',
+    benefits: ['Improves complexion', 'Relieves fatigue and dullness', 'Moisturizes and plumps skin'],
+    image: '/products/glow-tea.jpg',
+    rating: 4.8,
+    reviewsCount: 203
   },
   {
     id: '3',
-    name: 'Luminous Dew Day Cream',
-    category: 'Moisturizers',
-    price: 64,
-    description: 'A lightweight yet deeply hydrating moisturizer that creates a dewy, radiant finish. Perfect for all skin types, especially under makeup for the signature Alliyah glow.',
-    ingredients: ['Squalane', 'Rosehip Oil', 'Niacinamide', 'Ceramides NP/AP/EOP'],
-    usage: 'Apply a dime-sized amount to face and neck as the final step of your morning routine.',
-    benefits: ['Intense hydration', 'Strengthens skin barrier', 'Creates natural glow'],
-    image: 'product-moisturizer',
-    rating: 4.7,
-    reviewsCount: 185
-  },
-  {
-    id: '4',
-    name: 'Celestial Overnight Mask',
-    category: 'Masks',
-    price: 78,
-    description: 'Wake up to transformed skin. This overnight treatment deeply replenishes moisture and promotes skin renewal while you sleep. A centerpiece of the Lueur ritual.',
-    ingredients: ['Bakuchiol', 'Peptides', 'Melatonin', 'Shea Butter'],
-    usage: 'Apply generously to clean skin twice a week in the evening. Leave on overnight.',
-    benefits: ['Plumps fine lines', 'Deeply nourishing', 'Evens skin texture'],
-    image: 'product-mask',
-    rating: 4.9,
+    name: 'Sea Moss Gummies (2-Pack)',
+    category: 'Gummies',
+    price: 80,
+    description: 'Our top-selling Organic Sea Moss Gummies bundled for extended wellness. Formulated with Bladderwrack and Burdock Root for optimal health benefits.',
+    ingredients: ['Organic Irish Sea Moss', 'Organic Bladderwrack', 'Organic Burdock Root', 'Vitamin C', 'Zinc'],
+    usage: 'Take 2 gummies during the day or at night. Chew thoroughly before swallowing.',
+    benefits: ['Extended 60-day supply', 'Supports cellular function', 'Promotes a clear complexion'],
+    image: '/products/sea-moss-usage.jpg',
+    rating: 5.0,
     reviewsCount: 89
   },
   {
-    id: '5',
-    name: 'Ever-Bright Eye Essence',
-    category: 'Serums',
-    price: 52,
-    description: 'A targeted treatment for the delicate eye area. Reduces puffiness and dark circles while smoothing fine lines for a rested, elegant look.',
-    ingredients: ['Caffeine', 'Peptides', 'Cucumber Extract', 'Sodium Hyaluronate'],
-    usage: 'Gently dab a small amount around the orbital bone morning and night.',
-    benefits: ['Reduces dark circles', 'Debuffs tired eyes', 'Hydrates fine lines'],
-    image: 'product-eye-cream',
-    rating: 4.6,
-    reviewsCount: 95
-  },
-  {
-    id: '6',
-    name: 'Pure Balance Toning Mist',
-    category: 'Toners',
-    price: 36,
-    description: 'A refreshing, pH-balancing mist that preps the skin for serums and provides a boost of botanical hydration throughout the day.',
-    ingredients: ['Witch Hazel', 'Rose Water', 'Calendula Extract', 'Probiotics'],
-    usage: 'Mist over face after cleansing or anytime skin needs a refresh.',
-    benefits: ['Refines pores', 'Hydrates instantly', 'Soothes irritation'],
-    image: 'product-toner',
-    rating: 4.7,
+    id: '4',
+    name: 'Glow Tea (Double Archive)',
+    category: 'Tea',
+    price: 48,
+    description: 'Double the radiance. Secure a lasting supply of our complexion-enhancing Glow Tea herbal blend.',
+    ingredients: ['Cassia seeds', 'Coix seeds', 'Mulberry leaves', 'Goji berries', 'Rose flower'],
+    usage: 'Drink everyday. Pour near boiling water over one tea bag. Infuse for 5-7 minutes.',
+    benefits: ['60-day supply', 'Relieves fatigue', 'Improves complexion naturally'],
+    image: '/products/glow-tea-instructions.jpg',
+    rating: 4.9,
     reviewsCount: 112
   }
 ];

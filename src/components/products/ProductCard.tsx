@@ -44,7 +44,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
       {/* Immersive Image Container */}
       <Link href={`/products/${product.id}`} className="relative aspect-[4/5] overflow-hidden m-5 rounded-[2.5rem]">
         <Image
-          src={placeholder?.imageUrl || "https://picsum.photos/600/800"}
+          src={product.image.startsWith('/') ? product.image : (placeholder?.imageUrl || "https://picsum.photos/600/800")}
           alt={product.name}
           fill
           className="object-cover transition-transform duration-[2s] ease-out group-hover:scale-110"

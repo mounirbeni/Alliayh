@@ -23,7 +23,7 @@ export default function Home() {
           <div className="container mx-auto px-4 h-[90%] py-8">
             <div className="relative h-full w-full rounded-[5rem] overflow-hidden group shadow-[0_50px_100px_-20px_rgba(0,0,0,0.2)]">
               <Image
-                src={heroImage?.imageUrl || "https://picsum.photos/seed/skin-aura/1600/1000"}
+                src="/products/glow-tea.jpg"
                 alt="Lueur Skin Radiant Aura"
                 fill
                 className="object-cover brightness-[0.75] scale-105 group-hover:scale-100 transition-transform duration-[20s] ease-out"
@@ -109,7 +109,7 @@ export default function Home() {
 
               <div className="relative aspect-[3/4] rounded-[5rem] overflow-hidden aura-glow group">
                 <Image
-                  src="https://picsum.photos/seed/philosophy/900/1200"
+                  src="/products/sea-moss-gummies.jpg"
                   alt="Ritual detail"
                   fill
                   className="object-cover transition-transform duration-[15s] group-hover:scale-110"
@@ -184,7 +184,7 @@ export default function Home() {
 
               <div className="relative aspect-[4/5] w-full max-w-lg mx-auto overflow-hidden rounded-[5rem] shadow-4xl group animate-float">
                 <Image
-                  src="https://picsum.photos/seed/ai-lab/1000/1250"
+                  src="/products/sea-moss-facts.jpg"
                   alt="AI advisor analysis"
                   fill
                   className="object-cover scale-110 group-hover:scale-100 transition-transform duration-[8s]"

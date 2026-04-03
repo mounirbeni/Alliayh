@@ -217,7 +217,7 @@ export default function CheckoutPage() {
                     return (
                       <div key={item.id} className="flex gap-4 items-center">
                         <div className="relative w-16 h-20 rounded-lg overflow-hidden shrink-0">
-                          <Image src={placeholder?.imageUrl || "https://picsum.photos/100/150"} alt={item.name} fill className="object-cover" />
+                          <Image src={item.image?.startsWith('/') ? item.image : '/products/glow-tea.jpg'} alt={item.name} fill className="object-cover object-center" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-headline text-sm truncate">{item.name}</h4>

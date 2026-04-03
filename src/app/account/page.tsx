@@ -161,7 +161,7 @@ export default function AccountPage() {
                           </Button>
                           
                           <Link href={`/products/${product.id}`} className="relative aspect-square rounded-xl overflow-hidden block">
-                            <Image src={placeholder?.imageUrl || "https://picsum.photos/300/300"} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                            <Image src={product.image?.startsWith('/') ? product.image : '/products/sea-moss-gummies.jpg'} alt={product.name} fill className="object-cover object-center group-hover:scale-105 transition-transform duration-700" />
                           </Link>
                           
                           <div className="flex-1">

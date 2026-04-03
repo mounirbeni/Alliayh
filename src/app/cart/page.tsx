@@ -56,10 +56,10 @@ export default function CartPage() {
                     <div key={item.id} className="flex flex-col sm:flex-row gap-6 p-6 bg-white dark:bg-black/20 rounded-[2rem] border border-primary/10 items-center">
                       <div className="relative w-32 h-40 rounded-2xl overflow-hidden shrink-0">
                         <Image
-                          src={placeholder?.imageUrl || "https://picsum.photos/300/400"}
+                          src={item.image?.startsWith('/') ? item.image : '/products/sea-moss-gummies.jpg'}
                           alt={item.name}
                           fill
-                          className="object-cover"
+                          className="object-cover object-center"
                         />
                       </div>
                       

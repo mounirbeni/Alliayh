@@ -77,10 +77,10 @@ export default function WishlistPage() {
                     
                     <Link href={`/products/${product.id}`} className="relative aspect-square rounded-[2rem] overflow-hidden block">
                       <Image 
-                        src={product.image.startsWith('/') ? product.image : (placeholder?.imageUrl || "https://picsum.photos/400/400")} 
+                        src={product.image.startsWith('/') ? product.image : '/products/sea-moss-gummies.jpg'} 
                         alt={product.name} 
                         fill 
-                        className="object-cover group-hover:scale-105 transition-transform duration-[4s]" 
+                        className="object-cover object-center group-hover:scale-105 transition-transform duration-[4s]" 
                       />
                     </Link>
                     

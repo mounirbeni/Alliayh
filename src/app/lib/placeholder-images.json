@@ -3,51 +3,51 @@
   "placeholderImages": [
     {
       "id": "hero-skin",
-      "description": "Radiant skin close-up",
-      "imageUrl": "https://picsum.photos/seed/skin1/1200/600",
+      "description": "Lueur Skin Hero",
+      "imageUrl": "/products/glow-tea.jpg",
       "imageHint": "skincare glow"
     },
     {
       "id": "product-cleanser",
-      "description": "Gentle Foam Cleanser",
-      "imageUrl": "https://picsum.photos/seed/p1/600/800",
-      "imageHint": "skincare bottle"
+      "description": "Sea Moss Gummies",
+      "imageUrl": "/products/sea-moss-gummies.jpg",
+      "imageHint": "wellness gummies"
     },
     {
       "id": "product-serum",
-      "description": "Vitamin C Radiance Serum",
-      "imageUrl": "https://picsum.photos/seed/p2/600/800",
-      "imageHint": "serum dropper"
+      "description": "Glow Tea",
+      "imageUrl": "/products/glow-tea.jpg",
+      "imageHint": "glow tea bottle"
     },
     {
       "id": "product-moisturizer",
-      "description": "Dewy Day Cream",
-      "imageUrl": "https://picsum.photos/seed/p3/600/800",
-      "imageHint": "moisturizer jar"
+      "description": "Sea Moss Facts",
+      "imageUrl": "/products/sea-moss-facts.jpg",
+      "imageHint": "sea moss product"
     },
     {
       "id": "product-mask",
-      "description": "Overnight Glow Mask",
-      "imageUrl": "https://picsum.photos/seed/p4/600/800",
-      "imageHint": "face mask"
+      "description": "Glow Tea Instructions",
+      "imageUrl": "/products/glow-tea-instructions.jpg",
+      "imageHint": "wellness product"
     },
     {
       "id": "brand-story",
-      "description": "Natural ingredients",
-      "imageUrl": "https://picsum.photos/seed/natural/800/600",
-      "imageHint": "nature plants"
+      "description": "Sea Moss Gummies",
+      "imageUrl": "/products/sea-moss-gummies.jpg",
+      "imageHint": "wellness gummies"
     },
     {
       "id": "product-eye-cream",
-      "description": "Awakening Eye Cream",
-      "imageUrl": "https://picsum.photos/seed/p5/600/800",
-      "imageHint": "eye cream"
+      "description": "Glow Tea",
+      "imageUrl": "/products/glow-tea.jpg",
+      "imageHint": "botanical product"
     },
     {
       "id": "product-toner",
-      "description": "Balancing Mist",
-      "imageUrl": "https://picsum.photos/seed/p6/600/800",
-      "imageHint": "mist spray"
+      "description": "Sea Moss Facts",
+      "imageUrl": "/products/sea-moss-facts.jpg",
+      "imageHint": "sea moss wellness"
     }
   ]
 }

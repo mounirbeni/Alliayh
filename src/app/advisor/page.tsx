@@ -217,8 +217,9 @@ export default function AdvisorPage() {
                     <Card key={i} className="border-none shadow-none bg-white/40 p-1 rounded-[3rem] overflow-hidden group">
                       <div className="flex flex-col md:flex-row gap-10 p-10">
                         <div className="w-full md:w-48 aspect-square relative rounded-[2rem] overflow-hidden bg-white shadow-xl flex-shrink-0">
+                          {/* Cycle through our real product images */}
                           <Image
-                            src={`https://picsum.photos/seed/${rec.productName}/400/400`}
+                            src={['/products/sea-moss-gummies.jpg', '/products/glow-tea.jpg', '/products/sea-moss-facts.jpg'][i % 3]}
                             alt={rec.productName}
                             fill
                             className="object-cover transition-transform duration-700 group-hover:scale-110"

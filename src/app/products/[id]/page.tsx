@@ -154,18 +154,19 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
             <div className="space-y-6">
               <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-white shadow-lg">
                 <Image
-                  src={placeholder?.imageUrl || "https://picsum.photos/1200/1500"}
+                  src={product.image.startsWith('/') ? product.image : '/products/sea-moss-gummies.jpg'}
                   alt={product.name}
                   fill
-                  className="object-cover"
+                  className="object-cover object-center"
                   priority
                 />
                 <Badge className="absolute top-6 left-6 bg-white/90 text-foreground border-none font-headline px-4 py-1 uppercase tracking-widest text-xs z-10">{product.category}</Badge>
               </div>
+              {/* Thumbnail strip — real images cycling through available assets */}
               <div className="grid grid-cols-4 gap-4">
-                {[1, 2, 3, 4].map(i => (
+                {['/products/sea-moss-gummies.jpg', '/products/sea-moss-facts.jpg', '/products/glow-tea.jpg', '/products/glow-tea-instructions.jpg'].map((src, i) => (
                   <div key={i} className="relative aspect-square rounded-2xl overflow-hidden border border-border cursor-pointer hover:border-primary transition-colors">
-                    <Image src={`https://picsum.photos/seed/thumb${i}${id}/300/300`} alt="Thumbnail" fill className="object-cover" />
+                    <Image src={src} alt={`Product view ${i + 1}`} fill className="object-cover" />
                   </div>
                 ))}
               </div>

@@ -32,6 +32,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const [isLoading, setIsLoading] = useState(true);
   
   const [quantity, setQuantity] = useState(1);
+  const [isSubscription, setIsSubscription] = useState(false);
   const { addItem } = useCartStore();
   const { toggleWishlist, isInWishlist } = useWishlistStore();
   const { user } = useAuthStore();
@@ -67,7 +68,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
   const handleAddToCart = () => {
     if (product) {
-      addItem(product, quantity);
+      addItem(product, quantity, isSubscription, '30 Days');
       toast({
         title: "Added to Bag",
         description: `${quantity}x ${product.name} has been added to your bag.`,
@@ -189,7 +190,17 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                   <span className="text-muted-foreground text-xs uppercase tracking-widest">{reviews.length} Reviews</span>
                 </div>
-                <div className="text-3xl font-headline text-primary-foreground">${product.price}.00</div>
+                <div className="text-3xl font-headline text-primary-foreground">
+                  {isSubscription ? (
+                    <div className="flex items-center gap-3">
+                      <span className="line-through text-muted-foreground text-xl">${product.price}.00</span>
+                      <span>${Math.round(product.price * 0.85)}.00</span>
+                      <span className="text-[10px] bg-secondary/20 text-secondary px-3 py-1 rounded-full uppercase tracking-widest font-bold">15% Off</span>
+                    </div>
+                  ) : (
+                    <span>${product.price}.00</span>
+                  )}
+                </div>
               </div>
 
               <p className="text-lg text-muted-foreground leading-relaxed italic">
@@ -197,6 +208,29 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
               </p>
 
               <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4">
+                  <div 
+                    onClick={() => setIsSubscription(false)}
+                    className={cn(
+                      "cursor-pointer border rounded-3xl p-5 transition-all flex flex-col justify-center items-center gap-2 text-center",
+                      !isSubscription ? "border-primary bg-primary/5 shadow-inner" : "border-primary/10 hover:border-primary/30 bg-background"
+                    )}
+                  >
+                    <span className="font-headline uppercase tracking-widest text-xs opacity-80">One-Time</span>
+                    <span className="text-lg font-bold">${product.price}</span>
+                  </div>
+                  <div 
+                    onClick={() => setIsSubscription(true)}
+                    className={cn(
+                      "cursor-pointer border rounded-3xl p-5 transition-all flex flex-col justify-center items-center gap-2 text-center relative overflow-hidden",
+                      isSubscription ? "border-secondary bg-secondary/10 shadow-inner" : "border-primary/10 hover:border-secondary/30 bg-background"
+                    )}
+                  >
+                    <span className="font-headline uppercase tracking-widest text-xs opacity-80">Subscribe</span>
+                    <span className="text-lg font-bold text-secondary">${Math.round(product.price * 0.85)} <span className="text-[10px] uppercase font-normal tracking-widest text-muted-foreground">/ month</span></span>
+                  </div>
+                </div>
+
                 <div className="flex items-center gap-4">
                   <div className="flex items-center border border-primary/20 rounded-full p-1 bg-white/50 dark:bg-black/20">
                     <button 

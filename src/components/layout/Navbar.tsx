@@ -41,6 +41,8 @@ export function Navbar() {
                       <Sparkles className="h-3 w-3" /> AI Advisor
                     </Link>
                     <Link href="/about" className="hover:text-primary transition-colors">Our Narrative</Link>
+                    <Link href="/journal" className="hover:text-primary transition-colors">The Journal</Link>
+                    <Link href="/glossary" className="hover:text-primary transition-colors">Botanical Glossary</Link>
                   </div>
                 </nav>
               </SheetContent>
@@ -58,7 +60,7 @@ export function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden md:flex items-center gap-12 text-[10px] uppercase tracking-[0.25em] font-body font-bold text-foreground/70">
+          <nav className="hidden md:flex items-center gap-8 lg:gap-12 text-[10px] uppercase tracking-[0.25em] font-body font-bold text-foreground/70">
             <Link href="/products" className="hover:text-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-[1px] after:w-0 after:bg-primary after:transition-all hover:after:w-full">
               Collection
             </Link>
@@ -68,6 +70,12 @@ export function Navbar() {
             </Link>
             <Link href="/about" className="hover:text-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-[1px] after:w-0 after:bg-primary after:transition-all hover:after:w-full">
               Narrative
+            </Link>
+            <Link href="/journal" className="hover:text-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-[1px] after:w-0 after:bg-primary after:transition-all hover:after:w-full hidden lg:block">
+              Journal
+            </Link>
+            <Link href="/glossary" className="hover:text-primary transition-colors relative after:absolute after:bottom-[-4px] after:left-0 after:h-[1px] after:w-0 after:bg-primary after:transition-all hover:after:w-full hidden lg:block">
+              Glossary
             </Link>
           </nav>
 

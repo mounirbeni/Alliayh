@@ -53,7 +53,7 @@ export default function CartPage() {
                   const placeholder = PlaceHolderImages.find(img => img.id === item.image);
                   
                   return (
-                    <div key={item.id} className="flex flex-col sm:flex-row gap-6 p-6 bg-white dark:bg-black/20 rounded-[2rem] border border-primary/10 items-center">
+                    <div key={item.cartItemId} className="flex flex-col sm:flex-row gap-6 p-6 bg-white dark:bg-black/20 rounded-[2rem] border border-primary/10 items-center">
                       <div className="relative w-32 h-40 rounded-2xl overflow-hidden shrink-0">
                         <Image
                           src={item.image?.startsWith('/') ? item.image : '/products/sea-moss-gummies.jpg'}
@@ -66,24 +66,36 @@ export default function CartPage() {
                       <div className="flex-1 space-y-4">
                         <div className="flex justify-between items-start">
                           <div>
-                            <span className="text-[10px] text-muted-foreground font-body font-bold uppercase tracking-[0.2em]">{item.category}</span>
+                            <div className="flex items-center gap-2 mb-1">
+                               <span className="text-[10px] text-muted-foreground font-body font-bold uppercase tracking-[0.2em]">{item.category}</span>
+                               {item.isSubscription && (
+                                 <span className="text-[8px] bg-secondary/20 text-secondary uppercase tracking-widest px-2 py-0.5 rounded-full font-bold">
+                                   Delivery every {item.subscriptionInterval}
+                                 </span>
+                               )}
+                            </div>
                             <h3 className="font-headline text-2xl tracking-tight mt-1">
                               <Link href={`/products/${item.id}`} className="hover:text-primary transition-colors">{item.name}</Link>
                             </h3>
                           </div>
-                          <div className="font-headline text-xl">${item.price * item.quantity}</div>
+                          <div className="text-right">
+                             {item.isSubscription && item.originalPrice && (
+                                <div className="text-sm line-through text-muted-foreground">${item.originalPrice * item.quantity}</div>
+                             )}
+                             <div className="font-headline text-xl">${item.price * item.quantity}</div>
+                          </div>
                         </div>
                         
                         <div className="flex items-center justify-between pt-4 border-t border-primary/5">
                           <div className="flex items-center border border-border rounded-full p-1 bg-background">
                             <button 
                               className="w-8 h-8 flex items-center justify-center text-lg font-bold rounded-full hover:bg-muted transition-colors"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
                             >-</button>
                             <span className="w-10 text-center font-headline text-sm">{item.quantity}</span>
                             <button 
                               className="w-8 h-8 flex items-center justify-center text-lg font-bold rounded-full hover:bg-muted transition-colors"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
                             >+</button>
                           </div>
                           
@@ -91,7 +103,7 @@ export default function CartPage() {
                             variant="ghost" 
                             size="icon" 
                             className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-full"
-                            onClick={() => removeItem(item.id)}
+                            onClick={() => removeItem(item.cartItemId)}
                           >
                             <Trash2 className="h-5 w-5" />
                           </Button>

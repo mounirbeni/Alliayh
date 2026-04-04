@@ -53,6 +53,8 @@ export function Footer() {
             <ul className="space-y-4 text-[10px] text-muted-foreground font-body font-bold uppercase tracking-[0.2em]">
               <li><Link href="/advisor" className="hover:text-primary transition-colors">Digital Consultation</Link></li>
               <li><Link href="/about" className="hover:text-primary transition-colors">Brand Narrative</Link></li>
+              <li><Link href="/journal" className="hover:text-primary transition-colors">The Journal</Link></li>
+              <li><Link href="/glossary" className="hover:text-primary transition-colors">Glossary</Link></li>
               <li><Link href="/contact" className="hover:text-primary transition-colors">Concierge</Link></li>
               <li><Link href="/faq" className="hover:text-primary transition-colors">Ritual Guide</Link></li>
             </ul>

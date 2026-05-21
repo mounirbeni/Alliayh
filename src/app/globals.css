@@ -1,0 +1,72 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 320 63% 98%;
+    --foreground: 343 71% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 343 71% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 343 71% 15%;
+    --primary: 343 71% 27%; /* #781430 Burgundy */
+    --primary-foreground: 320 63% 98%;
+    --secondary: 320 63% 87%; /* #f4cbe7 Soft Pink */
+    --secondary-foreground: 343 71% 20%;
+    --muted: 320 20% 94%;
+    --muted-foreground: 343 20% 40%;
+    --accent: 320 63% 87%;
+    --accent-foreground: 343 71% 27%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 343 20% 90%;
+    --input: 343 20% 90%;
+    --ring: 343 71% 27%;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 343 71% 12%;
+    --foreground: 320 63% 98%;
+    --card: 343 71% 15%;
+    --card-foreground: 320 63% 98%;
+    --popover: 343 71% 15%;
+    --popover-foreground: 320 63% 98%;
+    --primary: 320 63% 87%;
+    --primary-foreground: 343 71% 15%;
+    --secondary: 343 71% 20%;
+    --secondary-foreground: 320 63% 98%;
+    --muted: 343 71% 8%;
+    --muted-foreground: 320 20% 70%;
+    --accent: 343 71% 25%;
+    --accent-foreground: 320 63% 98%;
+    --border: 343 71% 20%;
+    --input: 343 71% 20%;
+    --ring: 320 63% 87%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+    line-height: 1.6;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-headline;
+    text-wrap: balance;
+  }
+}
+
+@layer utilities {
+  .text-luxury {
+    @apply font-body font-bold uppercase tracking-[0.4em] text-[10px];
+  }
+  .glass {
+    @apply backdrop-blur-md bg-white/30 border border-white/20;
+  }
+}

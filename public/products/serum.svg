@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" fill="none">
+  <defs>
+    <linearGradient id="bg2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8eaf8"/>
+      <stop offset="100%" stop-color="#e8ccf0"/>
+    </linearGradient>
+    <linearGradient id="dropper" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f5ecf8"/>
+      <stop offset="40%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e8d8f0"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="750" fill="url(#bg2)"/>
+  <!-- frame -->
+  <rect x="40" y="40" width="520" height="670" fill="none" stroke="#5c1528" stroke-width="0.5" opacity="0.15"/>
+  <line x1="40" y1="40" x2="70" y2="40" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="40" x2="40" y2="70" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="530" y2="40" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="560" y2="70" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="70" y2="710" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="40" y2="680" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="530" y2="710" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="560" y2="680" stroke="#5c1528" stroke-width="1" opacity="0.4"/>
+  <!-- dropper tip -->
+  <ellipse cx="300" cy="108" rx="10" ry="14" fill="#781430" opacity="0.9"/>
+  <rect x="296" y="122" width="8" height="30" fill="#781430" opacity="0.8"/>
+  <!-- dropper cap -->
+  <rect x="278" y="152" width="44" height="64" rx="22" fill="#781430" opacity="0.85"/>
+  <!-- bottle neck -->
+  <rect x="288" y="216" width="24" height="36" fill="url(#dropper)" stroke="#c8a0dc" stroke-width="1"/>
+  <!-- bottle body — tall, narrow, elegant -->
+  <rect x="252" y="252" width="96" height="330" rx="16" fill="url(#dropper)" stroke="#c8a0dc" stroke-width="1.2"/>
+  <rect x="252" y="572" width="96" height="16" rx="8" fill="#c8a0dc" opacity="0.45"/>
+  <!-- label -->
+  <rect x="264" y="308" width="72" height="220" rx="6" fill="white" opacity="0.78"/>
+  <!-- text -->
+  <text x="300" y="346" font-family="Georgia,serif" font-size="9" fill="#5c1528" text-anchor="middle" letter-spacing="4" opacity="0.75">LUEUR SKIN</text>
+  <text x="300" y="361" font-family="Georgia,serif" font-size="7" fill="#5c1528" text-anchor="middle" opacity="0.5" letter-spacing="2">by Alliyah</text>
+  <line x1="272" y1="372" x2="328" y2="372" stroke="#5c1528" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="400" font-family="Georgia,serif" font-size="13" fill="#5c1528" text-anchor="middle" letter-spacing="1">Aura Glow</text>
+  <text x="300" y="420" font-family="Georgia,serif" font-size="13" fill="#5c1528" text-anchor="middle" letter-spacing="1">Concentrate</text>
+  <line x1="272" y1="434" x2="328" y2="434" stroke="#5c1528" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="455" font-family="Arial,sans-serif" font-size="8" fill="#5c1528" text-anchor="middle" letter-spacing="3" opacity="0.55">30 ML</text>
+  <text x="300" y="472" font-family="Arial,sans-serif" font-size="7.5" fill="#5c1528" text-anchor="middle" opacity="0.4">SERUMS</text>
+  <!-- shine -->
+  <ellipse cx="265" cy="380" rx="5" ry="50" fill="white" opacity="0.2"/>
+  <!-- footer -->
+  <text x="300" y="680" font-family="Arial,sans-serif" font-size="8" fill="#5c1528" text-anchor="middle" letter-spacing="4" opacity="0.35">BOTANICAL · CLINICAL · CRUELTY FREE</text>
+</svg>

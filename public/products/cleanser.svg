@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" fill="none">
+  <defs>
+    <linearGradient id="bg1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf0f8"/>
+      <stop offset="100%" stop-color="#f0d4ea"/>
+    </linearGradient>
+    <linearGradient id="bottle1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f8eef5"/>
+      <stop offset="45%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#eddae8"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="750" fill="url(#bg1)"/>
+  <!-- frame lines -->
+  <rect x="40" y="40" width="520" height="670" fill="none" stroke="#781430" stroke-width="0.5" opacity="0.15"/>
+  <line x1="40" y1="40" x2="70" y2="40" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="40" x2="40" y2="70" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="530" y2="40" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="560" y2="70" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="70" y2="710" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="40" y2="680" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="530" y2="710" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="560" y2="680" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <!-- pump dispenser top -->
+  <rect x="285" y="110" width="30" height="8" rx="4" fill="#781430" opacity="0.85"/>
+  <rect x="298" y="118" width="6" height="68" rx="3" fill="#781430" opacity="0.7"/>
+  <!-- bottle body -->
+  <path d="M210 195 Q210 182 220 178 L380 178 Q390 182 390 195" fill="url(#bottle1)" stroke="#d8aac8" stroke-width="1.2"/>
+  <rect x="210" y="195" width="180" height="360" rx="22" fill="url(#bottle1)" stroke="#d8aac8" stroke-width="1.2"/>
+  <rect x="210" y="545" width="180" height="20" rx="10" fill="#d8aac8" opacity="0.5"/>
+  <!-- label zone -->
+  <rect x="228" y="258" width="144" height="220" rx="8" fill="white" opacity="0.78"/>
+  <!-- product text -->
+  <text x="300" y="298" font-family="Georgia,serif" font-size="10" fill="#781430" text-anchor="middle" letter-spacing="4" opacity="0.75">LUEUR SKIN</text>
+  <text x="300" y="314" font-family="Georgia,serif" font-size="8" fill="#781430" text-anchor="middle" opacity="0.5" letter-spacing="2">by Alliyah</text>
+  <line x1="248" y1="326" x2="352" y2="326" stroke="#781430" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="356" font-family="Georgia,serif" font-size="15" fill="#781430" text-anchor="middle" letter-spacing="1">Silk Radiance</text>
+  <text x="300" y="378" font-family="Georgia,serif" font-size="15" fill="#781430" text-anchor="middle" letter-spacing="1">Cleanser</text>
+  <line x1="248" y1="393" x2="352" y2="393" stroke="#781430" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="415" font-family="Arial,sans-serif" font-size="9" fill="#781430" text-anchor="middle" letter-spacing="3" opacity="0.55">150 ML</text>
+  <text x="300" y="433" font-family="Arial,sans-serif" font-size="8" fill="#781430" text-anchor="middle" opacity="0.4">CLEANSERS</text>
+  <!-- shine highlight -->
+  <ellipse cx="230" cy="330" rx="7" ry="55" fill="white" opacity="0.22"/>
+  <!-- footer text -->
+  <text x="300" y="680" font-family="Arial,sans-serif" font-size="8" fill="#781430" text-anchor="middle" letter-spacing="4" opacity="0.35">BOTANICAL · CLINICAL · CRUELTY FREE</text>
+</svg>

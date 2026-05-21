@@ -1,0 +1,352 @@
+{
+  "locale": "en",
+  "seo": {
+    "title": "Lueur Skin by Alliyah | Elegance in Skincare",
+    "description": "Premium skincare solutions for your unique glow. Experience the luxury of Lueur Skin by Alliyah.",
+    "ogTitle": "Lueur Skin by Alliyah",
+    "ogDescription": "High-performance botanical skincare for luminous rituals."
+  },
+  "brand": {
+    "name": "Lueur Skin",
+    "tagline": "By Alliyah",
+    "description": "Elite botanical skincare with clinical precision and luminous textures."
+  },
+  "language": {
+    "label": "EN",
+    "switchTo": "Switch language to {language}"
+  },
+  "a11y": {
+    "openMenu": "Open navigation menu",
+    "openCart": "Open shopping bag",
+    "openHighlights": "Open skin advisor",
+    "selectProductImage": "Select product image {index}",
+    "cartQuantity": "Cart quantity controls"
+  },
+  "cookie": {
+    "title": "Cookie preferences",
+    "description": "Only essential cookies are enabled by default. Analytics and marketing trackers remain blocked until you provide explicit consent.",
+    "essential": "Essential only",
+    "acceptAll": "Accept all",
+    "rejectNonEssential": "Reject non-essential"
+  },
+  "nav": {
+    "collection": "Collection",
+    "advisor": "Skin Advisor",
+    "story": "Our Story",
+    "journal": "Journal",
+    "cart": "Bag",
+    "addToBag": "Add to Bag",
+    "checkout": "Checkout"
+  },
+  "home": {
+    "kicker": "Botanical Glow Rituals",
+    "title": "Pure Light, Refined",
+    "subtitle": "High-performance botanical skincare with a luminous finish, designed for elevated modern routines.",
+    "cta": "Shop Collection",
+    "philosophyTitle": "Alchemy of Light",
+    "philosophyText": "We blend clinical actives with rare botanicals to restore luminosity, texture, and barrier balance.",
+    "bestSellersTitle": "Best Sellers",
+    "testimonialsTitle": "Real Results",
+    "testimonialText": "My skin texture and luminosity improved within the first weeks.",
+    "testimonialNames": ["Marta", "Sofia", "Ines"]
+  },
+  "footer": {
+    "shipping": "Shipping & Returns",
+    "terms": "Terms & Conditions",
+    "privacy": "Privacy Policy",
+    "cookies": "Cookie Policy",
+    "accessibility": "Accessibility",
+    "contact": "Contact",
+    "faq": "Ritual Guide"
+  },
+  "advisor": {
+    "title": "Skin Advisor",
+    "subtitle": "Complete the diagnostic to receive a personalized ritual, powered by AI.",
+    "submit": "Generate Ritual",
+    "skinTypeLabel": "Skin type",
+    "skinTypeOptions": {
+      "oily": "Oily",
+      "dry": "Dry",
+      "combination": "Combination / Mixed",
+      "sensitive": "Sensitive",
+      "normal": "Normal"
+    },
+    "fields": {
+      "skinType": {
+        "label": "Skin type",
+        "placeholder": "Select your skin type"
+      },
+      "concerns": {
+        "label": "Skin concerns",
+        "placeholder": "spots, redness, dryness, fine lines…",
+        "helper": "Separate multiple concerns with commas"
+      },
+      "goals": {
+        "label": "Skincare goals",
+        "placeholder": "hydration, luminosity, firming…",
+        "helper": "Separate multiple goals with commas"
+      }
+    },
+    "validation": {
+      "required": "Required field",
+      "skinType": "Please select your skin type.",
+      "minConcerns": "Please describe at least one concern.",
+      "minGoals": "Please describe at least one goal."
+    },
+    "loading": "Generating your personalized ritual…",
+    "results": {
+      "title": "Your Personalized Ritual",
+      "subtitle": "Based on your skin profile, our AI aesthetician recommends:",
+      "product": "Recommended product",
+      "benefits": "Key benefits",
+      "howToUse": "How to use",
+      "tryAgain": "Start over",
+      "error": "Unable to generate recommendations. Please ensure your AI key is configured and try again."
+    }
+  },
+  "products": {
+    "explore": "Explore",
+    "filterAll": "All",
+    "details": {
+      "ingredients": "Ingredients Glossary",
+      "usage": "Usage Instructions",
+      "benefits": "Key Benefits",
+      "reviewsTitle": "User Reviews",
+      "reviewsSummary": "{count}+ verified reviews, average {rating}/5."
+    },
+    "items": {
+      "1": {
+        "name": "Silk Radiance Cleanser",
+        "category": "Cleansers",
+        "description": "A luxurious foaming calibration that removes impurities while maintaining the skin's natural moisture aura.",
+        "usage": "Massage onto damp skin morning and night. Rinse with lukewarm water.",
+        "ingredients": ["Water", "Glycerin", "Silk Amino Acids", "Aloe Vera Leaf Juice", "Green Tea Extract"],
+        "benefits": ["Deeply cleanses without stripping", "Softens skin texture", "Calms inflammation"]
+      },
+      "2": {
+        "name": "Aura Glow Concentrate",
+        "category": "Serums",
+        "description": "A potent antioxidant sequence designed to illuminate the complexion and architect a healthy glow.",
+        "usage": "Apply 3-4 drops to clean, dry skin before moisturizer.",
+        "ingredients": ["15% Vitamin C (THD Ascorbate)", "Ferulic Acid", "Vitamin E", "Hyaluronic Acid"],
+        "benefits": ["Illuminates dull skin", "Fades hyperpigmentation", "Protects against oxidation"]
+      },
+      "3": {
+        "name": "Luminous Dew Layer",
+        "category": "Moisturizers",
+        "description": "A molecularly optimized moisturizer that creates a dewy, radiant finish for the signature Alliyah glow.",
+        "usage": "Apply a dime-sized amount to face and neck as the final morning step.",
+        "ingredients": ["Squalane", "Rosehip Oil", "Niacinamide", "Ceramides"],
+        "benefits": ["Intense hydration", "Strengthens barrier", "Natural radiance"]
+      },
+      "4": {
+        "name": "Celestial Recovery Mask",
+        "category": "Masks",
+        "description": "An overnight botanical calibration that replenishes moisture and promotes cellular renewal.",
+        "usage": "Apply generously to clean skin twice weekly in the evening.",
+        "ingredients": ["Bakuchiol", "Peptides", "Melatonin", "Shea Butter"],
+        "benefits": ["Plumps fine lines", "Deeply nourishing", "Evens texture"]
+      }
+    }
+  },
+  "cart": {
+    "itemsCount": "{count} {label}",
+    "singleItem": "item",
+    "multipleItems": "items",
+    "empty": "Your bag is empty.",
+    "remove": "Remove",
+    "total": "Total"
+  },
+  "about": {
+    "kicker": "Our Story",
+    "title": "Born of Light",
+    "intro": "Lueur Skin was founded with one conviction: luminous, healthy skin is not a privilege — it is a science. We craft each formula where clinical precision meets botanical rarity, for rituals that perform visibly from day one.",
+    "philosophyTitle": "The Alchemy Principle",
+    "philosophyBody": "Every product begins with a singular question: what does this skin truly need? We partner with molecular biologists, master herbalists, and independent dermatologists to create formulations that restore luminosity, texture, and barrier balance from the very first application.",
+    "valuesTitle": "Our Commitments",
+    "values": [
+      {
+        "title": "Pure Ingredients",
+        "description": "Clinically validated botanical extracts with full traceability from soil to serum. Never synthetic fragrance. Never parabens. Always purposeful."
+      },
+      {
+        "title": "Clinical Efficacy",
+        "description": "Every formulation is independently tested for visible efficacy, dermatological safety, and long-term skin barrier compatibility before it reaches you."
+      },
+      {
+        "title": "Conscious Luxury",
+        "description": "Sustainable packaging, carbon-neutral shipping, and certified cruelty-free from the first prototype to the final product on your shelf."
+      }
+    ],
+    "closingQuote": "\"Radiance is not a trend. It is the result of understanding skin at its deepest level.\""
+  },
+  "journal": {
+    "kicker": "Editorial",
+    "title": "Journal",
+    "subtitle": "Notes on skin science, botanical ingredients, and the art of the ritual.",
+    "readMore": "Read article",
+    "articles": [
+      {
+        "category": "Ingredients",
+        "title": "The Complete Guide to Vitamin C in Skincare",
+        "excerpt": "Understanding the different forms of ascorbic acid — and how to maximize stability and absorption for a truly luminous result.",
+        "date": "2025-05-10",
+        "readTime": "6 min"
+      },
+      {
+        "category": "Science",
+        "title": "Skin Barrier Function: Why Everything Starts Here",
+        "excerpt": "The skin barrier is the foundation of every effective routine. Here is what compromises it — and how to restore it at the molecular level.",
+        "date": "2025-04-28",
+        "readTime": "8 min"
+      },
+      {
+        "category": "Ritual",
+        "title": "Designing Your Morning Ritual for Maximum Luminosity",
+        "excerpt": "Layering actives in the correct order changes everything. A step-by-step protocol for achieving the Alliyah glow each morning.",
+        "date": "2025-04-14",
+        "readTime": "5 min"
+      }
+    ]
+  },
+  "contact": {
+    "kicker": "Get in Touch",
+    "title": "Contact",
+    "subtitle": "Our concierge team responds within 24 hours on business days.",
+    "form": {
+      "name": "Full name",
+      "namePlaceholder": "Your name",
+      "email": "Email address",
+      "emailPlaceholder": "your@email.com",
+      "message": "Message",
+      "messagePlaceholder": "How can we help you?",
+      "send": "Send Message",
+      "success": "Message sent. We will be in touch shortly.",
+      "validation": {
+        "name": "Please enter your name.",
+        "email": "Please enter a valid email address.",
+        "message": "Please write at least 10 characters."
+      }
+    },
+    "info": {
+      "emailLabel": "Email",
+      "emailValue": "concierge@lueur.skin",
+      "hoursLabel": "Hours",
+      "hoursValue": "Mon–Fri, 9am–6pm GMT"
+    }
+  },
+  "faq": {
+    "kicker": "Support",
+    "title": "Ritual Guide",
+    "subtitle": "Answers to the most common questions about our formulations, usage, and orders.",
+    "items": [
+      {
+        "q": "Can I use the Aura Glow Concentrate every day?",
+        "a": "Yes. Our THD Ascorbate form of Vitamin C is the most photo-stable form available and is formulated for twice-daily use on clean, dry skin without irritation — even for sensitive skin types."
+      },
+      {
+        "q": "How long until I see visible results?",
+        "a": "Most clients report improved luminosity and smoother texture within 10–14 days. Clinical outcomes for hyperpigmentation and barrier repair typically emerge between 4–8 weeks of consistent use."
+      },
+      {
+        "q": "Are the products suitable for sensitive skin?",
+        "a": "All formulas are dermatologist-tested and free from sulfates, parabens, synthetic fragrances, and INCI-listed allergens. The Silk Radiance Cleanser is especially recommended for reactive and sensitized skin types."
+      },
+      {
+        "q": "In what order should I apply the products?",
+        "a": "Morning: (1) Silk Radiance Cleanser → (2) Aura Glow Concentrate → (3) Luminous Dew Layer. Evening: replace the moisturizer with Celestial Recovery Mask twice weekly. Always finish with SPF in the morning."
+      },
+      {
+        "q": "Do you ship outside of Portugal?",
+        "a": "We ship within the European Union with complimentary standard delivery on orders above €75. Express and international shipping options are available at checkout."
+      },
+      {
+        "q": "What is your return and exchange policy?",
+        "a": "We accept returns of unopened, sealed products within 30 days of delivery. Opened products may be eligible for exchange in the event of a verified adverse skin reaction. Contact our concierge team to initiate a return."
+      }
+    ]
+  },
+  "checkout": {
+    "title": "Secure Checkout",
+    "customerSection": "Customer Details",
+    "shippingSection": "Shipping Address",
+    "summarySection": "Order Summary",
+    "paymentSection": "Payment",
+    "paymentNote": "Secure 256-bit SSL encryption. Your card details are never stored on our servers.",
+    "placeOrder": "Place Order",
+    "emptyCart": "Your bag is empty.",
+    "backToShop": "Return to shop",
+    "processing": "Processing…",
+    "success": {
+      "title": "Order Confirmed",
+      "message": "Thank you for your order. A confirmation email has been sent to your address. We will begin preparing your ritual within 1 business day.",
+      "cta": "Continue Shopping"
+    },
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email address",
+      "phone": "Phone number (optional)",
+      "address": "Street address",
+      "city": "City",
+      "postalCode": "Postal / ZIP code",
+      "country": "Country",
+      "agree": "I agree to the Terms & Conditions and Privacy Policy"
+    },
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "free": "Free",
+    "total": "Total",
+    "validation": {
+      "required": "Required field",
+      "email": "Please enter a valid email address",
+      "postalCode": "Please enter a valid postal code",
+      "agree": "You must accept the terms to continue"
+    }
+  },
+  "legal": {
+    "about": {
+      "title": "Our Story",
+      "description": "Lueur Skin combines botanical excellence and clinical efficacy, designed for luminous daily rituals."
+    },
+    "journal": {
+      "title": "Journal",
+      "description": "Editorial notes on skin health, botanical ingredients, and elevated ritual practices."
+    },
+    "contact": {
+      "title": "Contact",
+      "description": "Concierge team available for product support, orders, and recommendations."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "Personal data processing, data subject rights, and legal basis under GDPR."
+    },
+    "faq": {
+      "title": "Ritual Guide",
+      "description": "Frequently asked questions about product usage, frequency, and active combinations."
+    },
+    "terms": {
+      "title": "Terms & Conditions",
+      "description": "Legal conditions for using the Lueur Skin platform and online purchases."
+    },
+    "accessibility": {
+      "title": "Accessibility",
+      "description": "Commitment to WCAG, keyboard navigation, and continuous accessibility improvements."
+    },
+    "cookies": {
+      "title": "Cookie Policy",
+      "description": "Explanation of essential and optional cookies with explicit consent management."
+    },
+    "shippingReturns": {
+      "title": "Shipping & Returns",
+      "description": "Detailed information about shipping times, costs, exchanges, and returns in the European Union."
+    },
+    "checkout": {
+      "title": "Secure Checkout",
+      "customerDetailsTitle": "Customer details",
+      "customerDetailsDescription": "Checkout form scaffold for address and payment.",
+      "protectedTransactionTitle": "Protected transaction",
+      "protectedTransactionDescription": "PCI-ready payment module placeholder."
+    }
+  }
+}

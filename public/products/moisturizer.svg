@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" fill="none">
+  <defs>
+    <linearGradient id="bg3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf5f0"/>
+      <stop offset="100%" stop-color="#f5e0d8"/>
+    </linearGradient>
+    <linearGradient id="jar" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f8f0ec"/>
+      <stop offset="40%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f0e0d8"/>
+    </linearGradient>
+    <linearGradient id="lid" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#9a2040"/>
+      <stop offset="100%" stop-color="#5c1528"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="750" fill="url(#bg3)"/>
+  <!-- frame -->
+  <rect x="40" y="40" width="520" height="670" fill="none" stroke="#781430" stroke-width="0.5" opacity="0.15"/>
+  <line x1="40" y1="40" x2="70" y2="40" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="40" x2="40" y2="70" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="530" y2="40" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="560" y2="70" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="70" y2="710" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="40" y2="680" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="530" y2="710" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="560" y2="680" stroke="#781430" stroke-width="1" opacity="0.4"/>
+  <!-- jar lid — wide, flat luxury lid -->
+  <ellipse cx="300" cy="262" rx="148" ry="22" fill="url(#lid)"/>
+  <rect x="152" y="230" width="296" height="52" rx="6" fill="url(#lid)"/>
+  <ellipse cx="300" cy="230" rx="148" ry="18" fill="#c04060"/>
+  <!-- lid label -->
+  <text x="300" y="256" font-family="Georgia,serif" font-size="10" fill="white" text-anchor="middle" letter-spacing="4" opacity="0.9">LUEUR SKIN</text>
+  <!-- jar body -->
+  <rect x="155" y="280" width="290" height="260" rx="10" fill="url(#jar)" stroke="#e0c8c0" stroke-width="1.2"/>
+  <ellipse cx="300" cy="540" rx="145" ry="16" fill="#e0c8c0" opacity="0.5"/>
+  <!-- label -->
+  <rect x="174" y="318" width="252" height="190" rx="7" fill="white" opacity="0.8"/>
+  <!-- text -->
+  <text x="300" y="360" font-family="Georgia,serif" font-size="10" fill="#781430" text-anchor="middle" letter-spacing="4" opacity="0.75">LUEUR SKIN</text>
+  <text x="300" y="377" font-family="Georgia,serif" font-size="8" fill="#781430" text-anchor="middle" opacity="0.5" letter-spacing="2">by Alliyah</text>
+  <line x1="218" y1="390" x2="382" y2="390" stroke="#781430" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="422" font-family="Georgia,serif" font-size="16" fill="#781430" text-anchor="middle" letter-spacing="1">Luminous</text>
+  <text x="300" y="446" font-family="Georgia,serif" font-size="16" fill="#781430" text-anchor="middle" letter-spacing="1">Dew Layer</text>
+  <line x1="218" y1="462" x2="382" y2="462" stroke="#781430" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="484" font-family="Arial,sans-serif" font-size="9" fill="#781430" text-anchor="middle" letter-spacing="3" opacity="0.55">50 ML</text>
+  <text x="300" y="500" font-family="Arial,sans-serif" font-size="8" fill="#781430" text-anchor="middle" opacity="0.4">MOISTURIZERS</text>
+  <!-- shine -->
+  <ellipse cx="174" cy="390" rx="7" ry="60" fill="white" opacity="0.2"/>
+  <!-- footer -->
+  <text x="300" y="680" font-family="Arial,sans-serif" font-size="8" fill="#781430" text-anchor="middle" letter-spacing="4" opacity="0.35">BOTANICAL · CLINICAL · CRUELTY FREE</text>
+</svg>

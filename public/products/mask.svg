@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" fill="none">
+  <defs>
+    <linearGradient id="bg4" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f8e8f4"/>
+      <stop offset="100%" stop-color="#e4cce0"/>
+    </linearGradient>
+    <linearGradient id="tube" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#f2e4ee"/>
+      <stop offset="45%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e8d4e4"/>
+    </linearGradient>
+    <linearGradient id="cap4" x1="0%" y1="100%" x2="0%" y2="0%">
+      <stop offset="0%" stop-color="#4a0c1e"/>
+      <stop offset="100%" stop-color="#781430"/>
+    </linearGradient>
+  </defs>
+  <rect width="600" height="750" fill="url(#bg4)"/>
+  <!-- frame -->
+  <rect x="40" y="40" width="520" height="670" fill="none" stroke="#3d0820" stroke-width="0.5" opacity="0.15"/>
+  <line x1="40" y1="40" x2="70" y2="40" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="40" x2="40" y2="70" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="530" y2="40" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="40" x2="560" y2="70" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="70" y2="710" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <line x1="40" y1="710" x2="40" y2="680" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="530" y2="710" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <line x1="560" y1="710" x2="560" y2="680" stroke="#3d0820" stroke-width="1" opacity="0.4"/>
+  <!-- tube cap (top) -->
+  <rect x="264" y="108" width="72" height="52" rx="10" fill="url(#cap4)"/>
+  <ellipse cx="300" cy="108" rx="36" ry="10" fill="#781430"/>
+  <!-- tube neck -->
+  <rect x="278" y="158" width="44" height="24" fill="url(#tube)" stroke="#d0a8c8" stroke-width="1"/>
+  <!-- tube body — wide, elegant -->
+  <rect x="188" y="182" width="224" height="400" rx="18" fill="url(#tube)" stroke="#d0a8c8" stroke-width="1.2"/>
+  <!-- crimped bottom -->
+  <rect x="188" y="562" width="224" height="28" rx="4" fill="#d0a8c8" opacity="0.6"/>
+  <line x1="188" y1="574" x2="412" y2="574" stroke="#b898b4" stroke-width="1.5" opacity="0.5"/>
+  <line x1="188" y1="582" x2="412" y2="582" stroke="#b898b4" stroke-width="1" opacity="0.3"/>
+  <!-- label zone -->
+  <rect x="204" y="232" width="192" height="270" rx="8" fill="white" opacity="0.78"/>
+  <!-- text -->
+  <text x="300" y="276" font-family="Georgia,serif" font-size="10" fill="#3d0820" text-anchor="middle" letter-spacing="4" opacity="0.75">LUEUR SKIN</text>
+  <text x="300" y="294" font-family="Georgia,serif" font-size="8" fill="#3d0820" text-anchor="middle" opacity="0.5" letter-spacing="2">by Alliyah</text>
+  <line x1="230" y1="307" x2="370" y2="307" stroke="#3d0820" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="342" font-family="Georgia,serif" font-size="15" fill="#3d0820" text-anchor="middle" letter-spacing="1">Celestial</text>
+  <text x="300" y="365" font-family="Georgia,serif" font-size="15" fill="#3d0820" text-anchor="middle" letter-spacing="1">Recovery</text>
+  <text x="300" y="388" font-family="Georgia,serif" font-size="15" fill="#3d0820" text-anchor="middle" letter-spacing="1">Mask</text>
+  <line x1="230" y1="404" x2="370" y2="404" stroke="#3d0820" stroke-width="0.5" opacity="0.35"/>
+  <text x="300" y="426" font-family="Arial,sans-serif" font-size="9" fill="#3d0820" text-anchor="middle" letter-spacing="3" opacity="0.55">75 ML</text>
+  <text x="300" y="443" font-family="Arial,sans-serif" font-size="8" fill="#3d0820" text-anchor="middle" opacity="0.4">MASKS</text>
+  <!-- shine -->
+  <ellipse cx="202" cy="360" rx="6" ry="65" fill="white" opacity="0.2"/>
+  <!-- footer -->
+  <text x="300" y="680" font-family="Arial,sans-serif" font-size="8" fill="#3d0820" text-anchor="middle" letter-spacing="4" opacity="0.35">BOTANICAL · CLINICAL · CRUELTY FREE</text>
+</svg>

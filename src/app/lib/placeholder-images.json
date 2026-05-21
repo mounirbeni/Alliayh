@@ -1,0 +1,52 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-skin",
+      "description": "Lueur Skin hero — deep burgundy editorial",
+      "imageUrl": "/products/hero.svg",
+      "imageHint": "luxury skincare hero"
+    },
+    {
+      "id": "product-cleanser",
+      "description": "Silk Radiance Cleanser",
+      "imageUrl": "/products/cleanser.svg",
+      "imageHint": "cleanser bottle"
+    },
+    {
+      "id": "product-serum",
+      "description": "Aura Glow Concentrate",
+      "imageUrl": "/products/serum.svg",
+      "imageHint": "serum dropper"
+    },
+    {
+      "id": "product-moisturizer",
+      "description": "Luminous Dew Layer",
+      "imageUrl": "/products/moisturizer.svg",
+      "imageHint": "moisturizer jar"
+    },
+    {
+      "id": "product-mask",
+      "description": "Celestial Recovery Mask",
+      "imageUrl": "/products/mask.svg",
+      "imageHint": "face mask tube"
+    },
+    {
+      "id": "brand-story",
+      "description": "Brand story — botanical botanical",
+      "imageUrl": "/products/brand.svg",
+      "imageHint": "nature botanical"
+    },
+    {
+      "id": "product-eye-cream",
+      "description": "Awakening Eye Cream",
+      "imageUrl": "/products/cleanser.svg",
+      "imageHint": "eye cream"
+    },
+    {
+      "id": "product-toner",
+      "description": "Balancing Mist",
+      "imageUrl": "/products/serum.svg",
+      "imageHint": "mist spray"
+    }
+  ]
+}

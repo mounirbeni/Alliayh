@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" fill="none">
+  <defs>
+    <linearGradient id="bgB" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fdf4f9"/>
+      <stop offset="100%" stop-color="#eed4e8"/>
+    </linearGradient>
+    <radialGradient id="centreGlow" cx="50%" cy="45%" r="45%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="800" height="1000" fill="url(#bgB)"/>
+  <rect width="800" height="1000" fill="url(#centreGlow)"/>
+  <!-- frame -->
+  <rect x="48" y="48" width="704" height="904" fill="none" stroke="#781430" stroke-width="0.6" opacity="0.12"/>
+  <!-- corner marks -->
+  <line x1="48" y1="48" x2="92" y2="48" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <line x1="48" y1="48" x2="48" y2="92" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <line x1="752" y1="48" x2="708" y2="48" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <line x1="752" y1="48" x2="752" y2="92" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <line x1="48" y1="952" x2="92" y2="952" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <line x1="48" y1="952" x2="48" y2="908" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <line x1="752" y1="952" x2="708" y2="952" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <line x1="752" y1="952" x2="752" y2="908" stroke="#781430" stroke-width="1.2" opacity="0.35"/>
+  <!-- botanical decorative circles -->
+  <circle cx="400" cy="440" r="260" fill="none" stroke="#781430" stroke-width="0.5" opacity="0.1"/>
+  <circle cx="400" cy="440" r="210" fill="none" stroke="#781430" stroke-width="0.4" opacity="0.12"/>
+  <circle cx="400" cy="440" r="155" fill="white" opacity="0.45"/>
+  <!-- petal shapes (simplified botanical) -->
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(0 400 440)"/>
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(45 400 440)"/>
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(90 400 440)"/>
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(135 400 440)"/>
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(180 400 440)"/>
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(225 400 440)"/>
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(270 400 440)"/>
+  <ellipse cx="400" cy="260" rx="28" ry="70" fill="#781430" opacity="0.07" transform="rotate(315 400 440)"/>
+  <!-- centre brand text -->
+  <text x="400" y="398" font-family="Georgia,serif" font-size="13" fill="#781430" text-anchor="middle" letter-spacing="6" opacity="0.7">LUEUR SKIN</text>
+  <text x="400" y="418" font-family="Georgia,serif" font-size="9" fill="#781430" text-anchor="middle" opacity="0.45" letter-spacing="3">by Alliyah</text>
+  <line x1="340" y1="434" x2="460" y2="434" stroke="#781430" stroke-width="0.6" opacity="0.3"/>
+  <text x="400" y="458" font-family="Georgia,serif" font-size="11" fill="#781430" text-anchor="middle" opacity="0.55" letter-spacing="2" font-style="italic">Since 2024</text>
+  <!-- large brand message -->
+  <text x="400" y="640" font-family="Georgia,serif" font-size="22" fill="#781430" text-anchor="middle" opacity="0.6" letter-spacing="2">Born of Light</text>
+  <text x="400" y="672" font-family="Arial,sans-serif" font-size="11" fill="#781430" text-anchor="middle" opacity="0.4" letter-spacing="1">Botanical Intelligence · Clinical Precision</text>
+  <!-- footer -->
+  <text x="400" y="920" font-family="Arial,sans-serif" font-size="8" fill="#781430" text-anchor="middle" letter-spacing="4" opacity="0.3">LUEUR.SKIN</text>
+</svg>

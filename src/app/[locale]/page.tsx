@@ -13,7 +13,6 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Sparkles, ShieldCheck, Leaf, Crown, Droplets, Zap, Star } from 'lucide-react';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 
-// Reusable animated section wrapper
 function FadeIn({ children, delay = 0, className = "" }: { children: React.ReactNode, delay?: number, className?: string }) {
   return (
     <motion.div
@@ -36,24 +35,23 @@ export default function Home() {
     target: containerRef,
     offset: ["start start", "end start"]
   });
-  
+
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-primary/10">
       <Navbar />
-      
+
       <main className="flex-1 overflow-x-hidden w-full">
         {/* === HERO SECTION === */}
         <section ref={containerRef} className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-background">
-          <div className="w-full px-4 py-6 relative z-10" style={{ maxWidth: '100vw' }}>
-            <motion.div 
+          <div className="w-full px-[32px] py-6 relative z-10" style={{ maxWidth: '100vw' }}>
+            <motion.div
               style={{ y: heroY, opacity: heroOpacity, minHeight: 'clamp(600px, 85vh, 1000px)' }}
               className="relative w-full rounded-[3rem] sm:rounded-[5rem] overflow-hidden group shadow-[0_50px_100px_-20px_rgba(120,20,48,0.2)] dark:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]"
             >
-              
-              <motion.div 
+              <motion.div
                 initial={{ scale: 1.1 }}
                 animate={{ scale: 1 }}
                 transition={{ duration: 3, ease: "easeOut" }}
@@ -67,12 +65,11 @@ export default function Home() {
                   priority
                 />
               </motion.div>
-              
-              {/* Dynamic Gradients */}
+
               <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-primary/60" />
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-black/30 mix-blend-overlay" />
               <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
-              
+
               {/* Hero Content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 sm:px-8">
                 <div className="w-full max-w-4xl flex flex-col items-center">
@@ -81,31 +78,31 @@ export default function Home() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                   >
-                    <Badge variant="outline" className="border-white/30 text-white bg-white/10 backdrop-blur-md px-6 py-2 uppercase tracking-[0.4em] font-body text-[10px] font-bold rounded-full mb-8 shadow-2xl">
+                    <Badge variant="outline" className="border-white/30 text-white bg-white/10 backdrop-blur-md px-6 py-2 uppercase tracking-[0.4em] font-body text-[12px] font-bold rounded-full mb-8 shadow-2xl">
                       {t.hero.badge}
                     </Badge>
                   </motion.div>
-                  
-                  <motion.h1 
+
+                  <motion.h1
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-                    className="font-headline text-[4rem] sm:text-[6rem] md:text-[8rem] lg:text-[10rem] leading-[0.85] tracking-tighter text-glow drop-shadow-2xl"
+                    className="font-headline text-[72px] leading-[0.85] tracking-tighter text-glow drop-shadow-2xl"
                   >
                     {t.hero.headline1} <br />
                     <span className="italic font-light text-secondary mix-blend-luminosity">{t.hero.headline2}</span>
                   </motion.h1>
 
-                  <motion.p 
+                  <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 1, delay: 0.8 }}
-                    className="text-xs sm:text-sm md:text-base font-body max-w-lg mx-auto opacity-90 leading-relaxed font-bold uppercase tracking-[0.3em] break-words mt-8 drop-shadow-md"
+                    className="text-[18px] font-body max-w-lg mx-auto opacity-90 leading-relaxed font-bold uppercase tracking-[0.3em] break-words mt-8 drop-shadow-md"
                   >
                     {t.hero.subtitle}
                   </motion.p>
 
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 1, delay: 1 }}
@@ -114,7 +111,7 @@ export default function Home() {
                     <Link href={`/${locale}/products`} className="w-full sm:w-auto">
                       <Button
                         size="lg"
-                        className="w-full sm:w-auto group relative overflow-hidden flex items-center justify-center gap-2 bg-white text-primary hover:text-white hover:scale-105 transition-all duration-500 text-[11px] uppercase tracking-[0.35em] px-10 rounded-full h-14 min-h-[44px] font-black shadow-2xl shadow-white/10 whitespace-normal border-0"
+                        className="w-full sm:w-auto group relative overflow-hidden flex items-center justify-center gap-2 bg-white text-primary hover:text-white hover:scale-105 transition-all duration-500 text-[11px] uppercase tracking-[0.35em] px-[32px] rounded-full h-[44px] font-black shadow-2xl shadow-white/10 whitespace-normal border-0"
                       >
                         <span className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></span>
                         <span className="relative z-10 flex items-center gap-2">{t.hero.ctaShop}</span>
@@ -124,9 +121,9 @@ export default function Home() {
                       <Button
                         size="lg"
                         variant="outline"
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 glass bg-white/5 border-white/20 text-white hover:bg-white/20 text-[11px] uppercase tracking-[0.35em] px-10 rounded-full h-14 min-h-[44px] font-bold whitespace-normal transition-all duration-500"
+                        className="w-full sm:w-auto flex items-center justify-center gap-2 glass bg-white/5 border-white/20 text-white hover:bg-white/20 text-[11px] uppercase tracking-[0.35em] px-[32px] rounded-full h-[44px] font-bold whitespace-normal transition-all duration-500"
                       >
-                        <Sparkles className="h-4 w-4 shrink-0 text-secondary" />
+                        <Sparkles className="h-[20px] w-[20px] shrink-0 text-secondary" />
                         {t.hero.ctaStory}
                       </Button>
                     </Link>
@@ -135,13 +132,13 @@ export default function Home() {
               </div>
 
               {/* Scroll hint */}
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.5, duration: 1 }}
                 className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 text-white/70 animate-bounce hidden sm:flex"
               >
-                <span className="text-[9px] uppercase tracking-[0.4em] font-bold">{t.hero.scroll}</span>
+                <span className="text-[12px] uppercase tracking-[0.4em] font-bold">{t.hero.scroll}</span>
                 <div className="h-12 w-[1px] bg-gradient-to-b from-white/70 to-transparent" />
               </motion.div>
             </motion.div>
@@ -151,7 +148,7 @@ export default function Home() {
         {/* === VALUE PROPOSITION BANNER === */}
         <section className="py-12 border-y border-primary/10 bg-primary/[0.02] overflow-hidden relative">
           <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay pointer-events-none"></div>
-          <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-[1400px] mx-auto px-[32px] relative z-10">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
               {[
                 { icon: Leaf, label: t.values.crueltyFree },
@@ -162,9 +159,9 @@ export default function Home() {
                 <FadeIn key={i} delay={i * 0.1}>
                   <div className="group flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-center sm:text-left py-4 min-w-0 rounded-3xl hover:bg-primary/5 transition-colors duration-500 cursor-default">
                     <div className="h-12 w-12 min-w-[48px] rounded-full bg-background border border-primary/10 shadow-lg shadow-primary/5 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary transition-all duration-500">
-                      <item.icon className="h-5 w-5 text-primary group-hover:text-white transition-colors duration-500" />
+                      <item.icon className="h-[20px] w-[20px] text-primary group-hover:text-white transition-colors duration-500" />
                     </div>
-                    <span className="text-[10px] sm:text-xs font-body font-bold uppercase tracking-[0.15em] text-foreground/80 break-words leading-snug">
+                    <span className="text-[12px] font-body font-bold uppercase tracking-[0.15em] text-foreground/80 break-words leading-snug">
                       {item.label}
                     </span>
                   </div>
@@ -175,25 +172,24 @@ export default function Home() {
         </section>
 
         {/* === BRAND PHILOSOPHY === */}
-        <section className="py-24 md:py-40 relative overflow-hidden">
-          {/* Background decoration */}
+        <section className="py-[80px] md:py-[112px] relative overflow-hidden">
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-secondary/10 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-          
-          <div className="container mx-auto px-4 relative z-10">
+
+          <div className="max-w-[1400px] mx-auto px-[32px] relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
               <div className="space-y-12 min-w-0">
                 <FadeIn className="space-y-6">
-                  <Badge className="bg-primary/5 text-primary border-primary/20 px-6 py-2.5 rounded-full uppercase tracking-[0.4em] text-[10px] font-bold shadow-sm">
+                  <Badge className="bg-primary/5 text-primary border-primary/20 px-6 py-2.5 rounded-full uppercase tracking-[0.4em] text-[12px] font-bold shadow-sm">
                     {t.philosophy.badge}
                   </Badge>
-                  <h2 className="font-headline text-[3.5rem] md:text-[5rem] tracking-tighter leading-[0.9] break-words">
+                  <h2 className="font-headline text-[40px] tracking-tighter leading-[0.9] break-words">
                     {t.philosophy.headline1} <br /><span className="italic font-light text-primary/50">{t.philosophy.headline2}</span>
                   </h2>
-                  <p className="text-muted-foreground text-lg md:text-xl leading-relaxed font-body font-medium italic max-w-xl break-words border-l-2 border-primary/20 pl-6">
+                  <p className="text-muted-foreground text-[18px] leading-relaxed font-body font-medium italic max-w-xl break-words border-l-2 border-primary/20 pl-6">
                     {t.philosophy.quote}
                   </p>
                 </FadeIn>
-                
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
                   {[
                     { icon: Leaf, title: t.philosophy.botanical, desc: t.philosophy.botanicalDesc },
@@ -202,12 +198,12 @@ export default function Home() {
                     { icon: Droplets, title: t.philosophy.barrier, desc: t.philosophy.barrierDesc }
                   ].map((item, i) => (
                     <FadeIn key={i} delay={0.2 + i * 0.1} className="flex gap-5 items-start min-w-0 group cursor-default">
-                      <div className="h-14 w-14 min-w-[56px] bg-white dark:bg-white/5 border border-primary/10 shadow-xl shadow-primary/5 rounded-full flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors duration-500">
-                        <item.icon className="h-6 w-6 text-primary group-hover:text-white transition-colors duration-500" />
+                      <div className="h-[32px] w-[32px] min-w-[32px] bg-white dark:bg-white/5 border border-primary/10 shadow-xl shadow-primary/5 rounded-full flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors duration-500">
+                        <item.icon className="h-[20px] w-[20px] text-primary group-hover:text-white transition-colors duration-500" />
                       </div>
                       <div className="min-w-0 space-y-1">
-                        <h4 className="font-headline text-lg group-hover:text-primary transition-colors duration-300">{item.title}</h4>
-                        <p className="text-xs text-muted-foreground leading-relaxed italic break-words">{item.desc}</p>
+                        <h4 className="font-headline text-[24px] group-hover:text-primary transition-colors duration-300">{item.title}</h4>
+                        <p className="text-[16px] text-muted-foreground leading-relaxed italic break-words">{item.desc}</p>
                       </div>
                     </FadeIn>
                   ))}
@@ -225,9 +221,8 @@ export default function Home() {
                     sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-80" />
-                  
-                  {/* Floating Elements on Image */}
-                  <motion.div 
+
+                  <motion.div
                     animate={{ y: [0, -10, 0] }}
                     transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
                     className="absolute bottom-10 left-10 glass p-5 rounded-3xl max-w-[200px]"
@@ -235,7 +230,7 @@ export default function Home() {
                     <div className="flex gap-1 mb-2">
                       {[1,2,3,4,5].map(i => <Star key={i} className="h-3 w-3 fill-secondary text-secondary" />)}
                     </div>
-                    <p className="text-[10px] uppercase tracking-widest text-white font-bold leading-relaxed">
+                    <p className="text-[12px] uppercase tracking-widest text-white font-bold leading-relaxed">
                       {t.philosophy.testimonialQuote}
                     </p>
                   </motion.div>
@@ -246,18 +241,18 @@ export default function Home() {
         </section>
 
         {/* === FEATURED PRODUCTS GRID === */}
-        <section className="py-24 md:py-40 bg-gradient-to-b from-primary/[0.02] to-background border-y border-primary/10 relative">
-          <div className="container mx-auto px-4">
+        <section className="py-[80px] md:py-[112px] bg-gradient-to-b from-primary/[0.02] to-background border-y border-primary/10 relative">
+          <div className="max-w-[1400px] mx-auto px-[32px]">
             <FadeIn className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-16 gap-6 min-w-0">
               <div className="space-y-4 min-w-0 max-w-2xl">
                 <div className="inline-flex items-center gap-3 border border-primary/20 px-4 py-1.5 rounded-full bg-white dark:bg-black/20">
                   <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                  <span className="text-[9px] uppercase tracking-[0.3em] font-bold text-primary">{t.bestSellers.badge}</span>
+                  <span className="text-[12px] uppercase tracking-[0.3em] font-bold text-primary">{t.bestSellers.badge}</span>
                 </div>
-                <h2 className="font-headline text-[3rem] md:text-[4.5rem] tracking-tighter leading-none break-words">
+                <h2 className="font-headline text-[40px] tracking-tighter leading-none break-words">
                   {t.bestSellers.headline1} <span className="italic font-light text-primary/60">{t.bestSellers.headline2}</span>
                 </h2>
-                <p className="text-muted-foreground font-body text-xs uppercase tracking-[0.3em] font-bold leading-relaxed opacity-60 break-words">
+                <p className="text-muted-foreground font-body text-[18px] uppercase tracking-[0.3em] font-bold leading-relaxed opacity-60 break-words">
                   {t.bestSellers.subtitle}
                 </p>
               </div>
@@ -266,14 +261,14 @@ export default function Home() {
                 className="group flex items-center gap-4 text-[11px] font-body font-bold uppercase tracking-[0.4em] hover:text-primary transition-all shrink-0 bg-white dark:bg-white/5 border border-primary/10 pl-6 pr-2 py-2 rounded-full shadow-lg"
               >
                 {t.bestSellers.viewAll}
-                <div className="h-10 w-10 min-h-[40px] min-w-[40px] rounded-full bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all duration-500">
-                  <ArrowRight className="h-4 w-4" />
+                <div className="h-[40px] w-[40px] min-h-[40px] min-w-[40px] rounded-full bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all duration-500">
+                  <ArrowRight className="h-[20px] w-[20px]" />
                 </div>
               </Link>
             </FadeIn>
 
             {/* Products grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[32px]">
               {featuredProducts.map((product, index) => (
                 <FadeIn key={product.id} delay={index * 0.15} className="min-w-0">
                   <ProductCard product={product} />
@@ -284,33 +279,33 @@ export default function Home() {
         </section>
 
         {/* === TESTIMONIALS === */}
-        <section className="py-24 md:py-40 relative">
+        <section className="py-[80px] md:py-[112px] relative">
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
-          <div className="container mx-auto px-4 relative z-10">
+          <div className="max-w-[1400px] mx-auto px-[32px] relative z-10">
             <FadeIn className="text-center mb-20 space-y-4">
               <span className="text-primary font-luxury text-sm md:text-lg">{t.testimonials.badge}</span>
-              <h2 className="font-headline text-[3rem] md:text-[4.5rem] tracking-tighter break-words leading-none">
+              <h2 className="font-headline text-[40px] tracking-tighter break-words leading-none">
                 {t.testimonials.headline1} <span className="italic font-light text-primary/60">{t.testimonials.headline2}</span>
               </h2>
             </FadeIn>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-[32px]">
               {t.testimonials.reviews.map((review, i) => (
                 <FadeIn key={i} delay={i * 0.2}>
-                  <div className="group h-full bg-white dark:bg-black/20 border border-primary/10 rounded-[2.5rem] p-8 md:p-10 flex flex-col gap-6 min-w-0 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500">
+                  <div className="group h-full bg-white dark:bg-black/20 border border-primary/10 rounded-[2.5rem] p-[24px] flex flex-col gap-6 min-w-0 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500">
                     <div className="flex items-center gap-1">
                       {[1,2,3,4,5].map(s => (
                         <Star key={s} className="h-4 w-4 fill-primary text-primary shrink-0 group-hover:scale-110 transition-transform duration-300" style={{ transitionDelay: `${s * 50}ms` }} />
                       ))}
                     </div>
-                    <p className="text-base text-foreground/80 italic leading-loose font-body break-words flex-1">"{review.text}"</p>
+                    <p className="text-[16px] text-foreground/80 italic leading-loose font-body break-words flex-1">"{review.text}"</p>
                     <div className="flex items-center gap-4 min-w-0 pt-4 border-t border-primary/10">
                       <div className="h-12 w-12 min-w-[48px] rounded-full bg-primary/10 flex items-center justify-center text-primary font-headline text-lg shrink-0 group-hover:bg-primary group-hover:text-white transition-colors duration-500">
                         {review.name[0]}
                       </div>
                       <div className="min-w-0">
                         <p className="font-headline text-base truncate group-hover:text-primary transition-colors">{review.name}</p>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-[0.2em] font-bold truncate mt-0.5">{review.location}</p>
+                        <p className="text-[12px] text-muted-foreground uppercase tracking-[0.2em] font-bold truncate mt-0.5">{review.location}</p>
                       </div>
                     </div>
                   </div>
@@ -321,25 +316,25 @@ export default function Home() {
         </section>
 
         {/* === AI ADVISOR CTA === */}
-        <section className="py-24 md:py-32 container mx-auto px-4 mb-20">
+        <section className="py-[80px] md:py-[112px] max-w-[1400px] mx-auto px-[32px] mb-20">
           <FadeIn className="relative overflow-hidden rounded-[3rem] sm:rounded-[5rem] bg-primary text-white shadow-[0_40px_100px_-20px_rgba(120,20,48,0.4)]">
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <div className="absolute top-[-50%] left-[-20%] w-[120%] h-[200%] bg-secondary/30 rounded-full blur-[150px] animate-[pulse_8s_ease-in-out_infinite] opacity-50" />
               <div className="absolute inset-0 bg-[url('/noise.png')] mix-blend-overlay opacity-30" />
             </div>
-            
+
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 md:p-20 items-center">
               <div className="space-y-10 text-center lg:text-left">
                 <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-full shadow-2xl">
-                  <Crown className="h-4 w-4 text-secondary shrink-0" />
-                  <span className="font-body text-white uppercase tracking-[0.4em] font-bold text-[10px]">{t.advisorCta.badge}</span>
+                  <Crown className="h-[20px] w-[20px] text-secondary shrink-0" />
+                  <span className="font-body text-white uppercase tracking-[0.4em] font-bold text-[12px]">{t.advisorCta.badge}</span>
                 </div>
-                
-                <h2 className="font-headline text-[3.5rem] md:text-[5rem] tracking-tighter leading-[0.9] text-glow break-words drop-shadow-2xl">
+
+                <h2 className="font-headline text-[40px] tracking-tighter leading-[0.9] text-glow break-words drop-shadow-2xl">
                   {t.advisorCta.headline1}<br />
                   <span className="italic font-light text-secondary mix-blend-luminosity">{t.advisorCta.headline2}</span>
                 </h2>
-                <p className="text-white/80 leading-relaxed font-body text-lg max-w-md mx-auto lg:mx-0 break-words drop-shadow-md">
+                <p className="text-white/80 leading-relaxed font-body text-[18px] max-w-md mx-auto lg:mx-0 break-words drop-shadow-md">
                   {t.advisorCta.description}
                 </p>
 
@@ -347,11 +342,11 @@ export default function Home() {
                   <Link href={`/${locale}/advisor`} className="inline-block w-full sm:w-auto">
                     <Button
                       size="lg"
-                      className="group relative overflow-hidden w-full sm:w-auto flex items-center justify-center bg-white text-primary hover:text-white transition-all duration-500 rounded-full h-16 min-h-[44px] px-12 uppercase tracking-[0.4em] text-[11px] font-black shadow-2xl border-0"
+                      className="group relative overflow-hidden w-full sm:w-auto flex items-center justify-center bg-white text-primary hover:text-white transition-all duration-500 rounded-full h-[44px] px-[32px] uppercase tracking-[0.4em] text-[11px] font-black shadow-2xl border-0"
                     >
                       <span className="absolute inset-0 bg-secondary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0"></span>
                       <span className="relative z-10 flex items-center gap-3">
-                        {t.advisorCta.cta} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                        {t.advisorCta.cta} <ArrowRight className="h-[20px] w-[20px] group-hover:translate-x-1 transition-transform" />
                       </span>
                     </Button>
                   </Link>
@@ -373,7 +368,7 @@ export default function Home() {
                       <div className="h-3 w-3 bg-secondary rounded-full absolute animate-ping opacity-75" />
                       <div className="h-2 w-2 bg-secondary rounded-full relative" />
                     </div>
-                    <span className="font-body uppercase tracking-[0.3em] font-bold text-[10px]">{t.advisorCta.analyzingLabel}</span>
+                    <span className="font-body uppercase tracking-[0.3em] font-bold text-[12px]">{t.advisorCta.analyzingLabel}</span>
                   </div>
                 </div>
               </div>

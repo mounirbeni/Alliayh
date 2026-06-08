@@ -1,0 +1,53 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "hero-skin",
+      "description": "Lueur Skin Hero",
+      "imageUrl": "/products/glow-tea.jpg",
+      "imageHint": "skincare glow"
+    },
+    {
+      "id": "product-cleanser",
+      "description": "Sea Moss Gummies",
+      "imageUrl": "/products/sea-moss-gummies.jpg",
+      "imageHint": "wellness gummies"
+    },
+    {
+      "id": "product-serum",
+      "description": "Glow Tea",
+      "imageUrl": "/products/glow-tea.jpg",
+      "imageHint": "glow tea bottle"
+    },
+    {
+      "id": "product-moisturizer",
+      "description": "Sea Moss Facts",
+      "imageUrl": "/products/sea-moss-facts.jpg",
+      "imageHint": "sea moss product"
+    },
+    {
+      "id": "product-mask",
+      "description": "Glow Tea Instructions",
+      "imageUrl": "/products/glow-tea-instructions.jpg",
+      "imageHint": "wellness product"
+    },
+    {
+      "id": "brand-story",
+      "description": "Sea Moss Gummies",
+      "imageUrl": "/products/sea-moss-gummies.jpg",
+      "imageHint": "wellness gummies"
+    },
+    {
+      "id": "product-eye-cream",
+      "description": "Glow Tea",
+      "imageUrl": "/products/glow-tea.jpg",
+      "imageHint": "botanical product"
+    },
+    {
+      "id": "product-toner",
+      "description": "Sea Moss Facts",
+      "imageUrl": "/products/sea-moss-facts.jpg",
+      "imageHint": "sea moss wellness"
+    }
+  ]
+}

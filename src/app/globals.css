@@ -69,4 +69,30 @@
   .glass {
     @apply backdrop-blur-md bg-white/30 border border-white/20;
   }
+  .saas-card {
+    @apply rounded-3xl border border-primary/10 bg-white/80 shadow-sm backdrop-blur;
+  }
+  .saas-input {
+    @apply rounded-xl border-primary/20 bg-background/60 focus-visible:ring-primary/30;
+  }
+  .gradient-lueur {
+    background: linear-gradient(135deg, hsl(343 71% 27%) 0%, hsl(320 63% 42%) 100%);
+  }
+  .gradient-lueur-soft {
+    background: linear-gradient(135deg, hsl(320 63% 87% / 0.5) 0%, hsl(343 71% 27% / 0.08) 100%);
+  }
+  .animate-fade-up {
+    animation: fade-up 0.5s ease forwards;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -18,6 +18,14 @@ export function Footer({
     { href: "/advisor", label: dictionary.nav.advisor },
     { href: "/about", label: pt ? "A Nossa História" : "Our Story" },
     { href: "/journal", label: dictionary.nav.journal },
+    { href: "/pricing", label: pt ? "Preços" : "Pricing" },
+  ];
+
+  const account = [
+    { href: "/account", label: pt ? "A minha conta" : "My account" },
+    { href: "/auth/login", label: pt ? "Entrar" : "Sign in" },
+    { href: "/auth/register", label: pt ? "Criar conta" : "Create account" },
+    { href: "/dashboard", label: "Dashboard" },
   ];
 
   const support = [
@@ -36,7 +44,7 @@ export function Footer({
   return (
     <footer className="border-t border-primary/10 bg-background">
       <div className="container mx-auto px-4 py-16">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <p className="font-headline text-3xl text-primary">{dictionary.brand.name}</p>
@@ -65,6 +73,25 @@ export function Footer({
             </p>
             <ul className="space-y-3">
               {explore.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={localizedPath(item.href, locale)}
+                    className="text-sm text-foreground/70 transition hover:text-primary"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Account */}
+          <div>
+            <p className="mb-4 text-[10px] font-semibold uppercase tracking-[0.3em] text-foreground/50">
+              {pt ? "Conta" : "Account"}
+            </p>
+            <ul className="space-y-3">
+              {account.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={localizedPath(item.href, locale)}

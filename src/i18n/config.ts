@@ -20,6 +20,11 @@ export const localizedRoutes = {
   "/shipping-returns": { "pt-PT": "/envios-devolucoes", en: "/shipping-returns" },
   "/accessibility": { "pt-PT": "/acessibilidade", en: "/accessibility" },
   "/checkout": { "pt-PT": "/checkout", en: "/checkout" },
+  "/pricing": { "pt-PT": "/precos", en: "/pricing" },
+  "/auth/login": { "pt-PT": "/auth/login", en: "/auth/login" },
+  "/auth/register": { "pt-PT": "/auth/register", en: "/auth/register" },
+  "/dashboard": { "pt-PT": "/painel", en: "/dashboard" },
+  "/account": { "pt-PT": "/conta", en: "/account" },
 } as const;
 
 export type InternalRoute = keyof typeof localizedRoutes;

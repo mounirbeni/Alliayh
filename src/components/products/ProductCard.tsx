@@ -5,11 +5,12 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Product } from '@/app/lib/products';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Star } from 'lucide-react';
+import { Heart, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { useCartStore } from '@/store/cart-store';
+import { useWishlistStore } from '@/store/wishlist-store';
 import type { Locale } from '@/i18n/config';
 import type { Dictionary } from '@/i18n/dictionaries';
 import { localizedPath } from '@/lib/locale-path';
@@ -29,6 +30,8 @@ export function ProductCard({ product, className, locale, dictionary }: ProductC
   const productImage = placeholder?.imageUrl || "/lueur-placeholder.svg";
   const addItem = useCartStore((state) => state.addItem);
   const openCart = useCartStore((state) => state.openCart);
+  const { toggle, isWished } = useWishlistStore();
+  const wished = isWished(product.id);
   const { toast } = useToast();
 
   return (
@@ -47,13 +50,25 @@ export function ProductCard({ product, className, locale, dictionary }: ProductC
           fill
           className="object-cover transition-all duration-500 group-hover:scale-[1.04]"
         />
-        <Image
-          src={productImage}
-          alt={localizedProduct.name}
-          fill
-          className="object-cover opacity-0 transition-opacity duration-400 group-hover:opacity-100"
-        />
         <div className="pointer-events-none absolute inset-0 rounded-2xl shadow-[0_0_70px_rgba(255,214,234,0.35)] opacity-0 transition group-hover:opacity-100" />
+
+        {/* Wishlist button */}
+        <button
+          className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 shadow-sm transition-transform hover:scale-110 active:scale-95"
+          onClick={(e) => {
+            e.preventDefault();
+            toggle(product.id);
+            toast({
+              title: wished
+                ? (locale === "pt-PT" ? "Removido da lista de desejos" : "Removed from wishlist")
+                : (locale === "pt-PT" ? "Adicionado à lista de desejos" : "Added to wishlist"),
+              description: localizedProduct.name,
+            });
+          }}
+        >
+          <Heart className={cn("h-3.5 w-3.5 transition-colors", wished ? "fill-primary text-primary" : "text-muted-foreground")} />
+        </button>
+
         <Button
           className="absolute bottom-4 left-1/2 -translate-x-1/2 rounded-full opacity-0 transition duration-300 group-hover:opacity-100"
           onClick={(event) => {
@@ -94,6 +109,7 @@ export function ProductCard({ product, className, locale, dictionary }: ProductC
             {[1, 2, 3, 4, 5].map(i => (
               <Star key={i} className={cn("h-2.5 w-2.5", i <= Math.floor(product.rating) ? "fill-primary text-primary" : "text-muted/30")} />
             ))}
+            <span className="ml-1.5 text-[10px] text-muted-foreground">({product.reviewsCount})</span>
           </div>
           <Link href={localizedPath(`/products/${product.id}`, locale)} className="text-xs font-medium text-primary">
             {dictionary.products.explore}

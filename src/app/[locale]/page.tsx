@@ -7,7 +7,7 @@ import { ProductCard } from "@/components/products/ProductCard";
 import { localizedPath } from "@/lib/locale-path";
 import { Button } from "@/components/ui/button";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { ArrowRight, Star } from "lucide-react";
+import { ArrowRight, Star, Zap, Shield, Sparkles as SparklesIcon } from "lucide-react";
 import { formatDate } from "@/i18n/format";
 import type { Locale } from "@/i18n/config";
 import { NewsletterForm } from "@/components/home/NewsletterForm";
@@ -288,6 +288,59 @@ export default async function LocalizedHome({
                 </div>
               </article>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SaaS Platform Banner ── */}
+      <section className="relative overflow-hidden px-4 py-20">
+        <div className="absolute inset-0 gradient-lueur-soft" />
+        <div className="relative container mx-auto max-w-5xl">
+          <div className="rounded-3xl border border-primary/15 bg-white/70 p-8 shadow-sm backdrop-blur md:p-12">
+            <div className="grid items-center gap-8 md:grid-cols-2">
+              <div>
+                <p className="text-luxury text-primary/60 mb-3">
+                  {locale === "pt-PT" ? "Plataforma SaaS" : "SaaS Platform"}
+                </p>
+                <h2 className="font-headline text-4xl leading-tight md:text-5xl">
+                  {locale === "pt-PT"
+                    ? "Lance a sua marca de cosméticos"
+                    : "Launch your cosmetics brand"}
+                </h2>
+                <p className="mt-4 text-muted-foreground leading-relaxed">
+                  {locale === "pt-PT"
+                    ? "Use a plataforma Lueur para criar e gerir a sua loja de cosméticos com AI integrada, analytics e muito mais."
+                    : "Use the Lueur platform to create and manage your cosmetics store with built-in AI, analytics, and more."}
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  <Button asChild size="lg" className="rounded-full px-8">
+                    <Link href={localizedPath("/pricing", locale)}>
+                      {locale === "pt-PT" ? "Ver planos" : "See plans"}
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+                  <Button asChild variant="outline" size="lg" className="rounded-full px-8">
+                    <Link href={localizedPath("/auth/register", locale)}>
+                      {locale === "pt-PT" ? "Começar grátis" : "Start for free"}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {[
+                  { icon: SparklesIcon, title: locale === "pt-PT" ? "AI Skin Advisor" : "AI Skin Advisor", desc: locale === "pt-PT" ? "Recomendações personalizadas" : "Personalized recommendations" },
+                  { icon: Zap, title: locale === "pt-PT" ? "Analytics" : "Analytics", desc: locale === "pt-PT" ? "Relatórios em tempo real" : "Real-time reports" },
+                  { icon: Shield, title: locale === "pt-PT" ? "Segurança" : "Security", desc: locale === "pt-PT" ? "SSL + GDPR compliance" : "SSL + GDPR compliance" },
+                  { icon: ArrowRight, title: locale === "pt-PT" ? "Multi-idioma" : "Multi-language", desc: locale === "pt-PT" ? "PT, EN e mais" : "PT, EN and more" },
+                ].map((feature) => (
+                  <div key={feature.title} className="rounded-2xl border border-primary/10 bg-background/60 p-4">
+                    <feature.icon className="mb-2 h-5 w-5 text-primary" />
+                    <p className="font-semibold text-sm">{feature.title}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{feature.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>

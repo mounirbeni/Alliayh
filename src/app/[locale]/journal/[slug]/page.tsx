@@ -1,127 +1,166 @@
-import { use } from 'react';
+import type { Metadata } from 'next';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
-import { JOURNAL_ARTICLES } from '@/app/lib/journal';
-import { PRODUCTS } from '@/app/lib/products';
-import { ProductCard } from '@/components/products/ProductCard';
-import { Button } from '@/components/ui/button';
+import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { SiteShell } from '@/components/layout/SiteShell';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { ProductCard } from '@/components/products/ProductCard';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getDictionary, isValidLocale, LOCALES } from '@/i18n';
+import { formatDate } from '@/i18n/format';
+import { getArticle, getArticleSlugs } from '@/lib/journal';
+import { getProduct } from '@/lib/catalog';
+import { articleJsonLd, breadcrumbJsonLd, buildMetadata } from '@/lib/seo';
 
-export default function JournalArticlePage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
-  const article = JOURNAL_ARTICLES.find(a => a.slug === slug);
+type PageProps = { params: Promise<{ locale: string; slug: string }> };
 
-  if (!article) {
-    return (
-      <div className="min-h-screen flex flex-col bg-background items-center justify-center p-4">
-        <Navbar />
-        <h1 className="text-4xl font-headline mb-4">Article Not Found</h1>
-        <Link href="/journal">
-          <Button>Back to Journal</Button>
-        </Link>
-      </div>
-    );
-  }
+export function generateStaticParams() {
+  return LOCALES.flatMap((locale) => getArticleSlugs().map((slug) => ({ locale, slug })));
+}
 
-  const relatedProductsList = article.relatedProducts 
-    ? PRODUCTS.filter(p => article.relatedProducts?.includes(p.id))
-    : [];
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (!isValidLocale(locale)) return {};
+
+  const article = getArticle(slug);
+  if (!article) return {};
+  const content = article.content[locale];
+
+  return buildMetadata({
+    locale,
+    path: `/journal/${slug}`,
+    title: content.title,
+    description: content.excerpt,
+    image: article.image,
+    type: 'article',
+  });
+}
+
+/**
+ * A journal article.
+ *
+ * The article body renders paragraph by paragraph from a blank-line-separated
+ * string. The previous version fed that string through a `prose` wrapper while
+ * typing it as `React.ReactNode`, so the compiler could not tell the two cases
+ * apart and the runtime branch existed for a shape that never occurred.
+ */
+export default async function JournalArticlePage({ params }: PageProps) {
+  const { locale, slug } = await params;
+  if (!isValidLocale(locale)) notFound();
+
+  const article = getArticle(slug);
+  if (!article) notFound();
+
+  const t = getDictionary(locale);
+  const content = article.content[locale];
+
+  // Related products are catalog slugs — the previous code compared slugs
+  // against numeric ids, so this block never rendered anything.
+  const related = article.relatedProducts
+    .map((productSlug) => getProduct(productSlug, locale))
+    .filter((product): product is NonNullable<typeof product> => Boolean(product));
+
+  const crumbs = [
+    { name: t.common.home, path: `/${locale}` },
+    { name: t.journal.title, path: `/${locale}/journal` },
+    { name: content.title, path: `/${locale}/journal/${slug}` },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-      
-      <main className="flex-1 pb-24">
-        {/* Article Hero */}
-        <article>
-          <header className="pt-24 pb-12 text-center container mx-auto px-4 max-w-4xl space-y-8">
-            <Link href="/journal" className="inline-flex items-center gap-2 text-[10px] font-headline uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors mb-4">
-              <ArrowLeft className="h-3 w-3" /> Back to Journal
-            </Link>
-            
-            <div className="flex items-center justify-center gap-4 text-xs font-headline uppercase tracking-widest text-primary font-bold">
-              <span>{article.category}</span>
-              <span className="w-1 h-1 rounded-full bg-primary/50" />
-              <span>{article.readTime}</span>
-            </div>
-            
-            <h1 className="font-headline text-5xl md:text-6xl tracking-tight leading-tight">{article.title}</h1>
-            
-            <div className="pt-8 flex items-center justify-center gap-6 text-sm">
-               <div className="flex items-center gap-3">
-                 <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center font-headline text-primary font-bold">
-                   {article.author[0]}
-                 </div>
-                 <div className="text-left">
-                   <div className="font-headline uppercase tracking-widest text-xs font-bold">{article.author}</div>
-                   <div className="text-[10px] text-muted-foreground uppercase">{new Date(article.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</div>
-                 </div>
-               </div>
-            </div>
-          </header>
+    <SiteShell mainClassName="pb-24">
+      <JsonLd
+        data={[
+          articleJsonLd({
+            title: content.title,
+            description: content.excerpt,
+            path: `/${locale}/journal/${slug}`,
+            image: article.image,
+            datePublished: article.date,
+            author: article.author,
+            locale,
+          }),
+          breadcrumbJsonLd(crumbs),
+        ]}
+      />
 
-          {/* Hero Image */}
-          <div className="container mx-auto px-4 mb-16">
-            <div className="relative aspect-video w-full max-w-5xl mx-auto rounded-[3rem] overflow-hidden shadow-xl border border-primary/10">
-              <Image
-                src={article.image}
-                alt={article.title}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
+      <div className="container mx-auto px-4 pt-6">
+        <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
+      </div>
+
+      <article>
+        <header className="pt-16 pb-12 text-center container mx-auto px-4 max-w-4xl space-y-8">
+          <Link
+            href={`/${locale}/journal`}
+            className="inline-flex items-center gap-2 text-[10px] font-headline uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors mb-4"
+          >
+            <ArrowLeft className="h-3 w-3" aria-hidden="true" />
+            {t.journal.title}
+          </Link>
+
+          <p className="flex items-center justify-center gap-4 text-xs font-headline uppercase tracking-widest text-primary font-bold">
+            <span>{content.category}</span>
+            <span className="w-1 h-1 rounded-full bg-primary/50" aria-hidden="true" />
+            <span>{content.readTime}</span>
+          </p>
+
+          <h1 className="font-headline text-4xl md:text-6xl tracking-tight leading-tight">
+            {content.title}
+          </h1>
+
+          <p className="text-lg text-muted-foreground italic leading-relaxed max-w-2xl mx-auto">
+            {content.excerpt}
+          </p>
+
+          <p className="flex items-center justify-center gap-4 text-xs text-muted-foreground uppercase tracking-widest">
+            <span className="font-bold text-foreground">{article.author}</span>
+            <span className="w-1 h-1 rounded-full bg-primary/30" aria-hidden="true" />
+            <time dateTime={article.date}>{formatDate(article.date, locale)}</time>
+          </p>
+        </header>
+
+        <div className="container mx-auto px-4 max-w-4xl">
+          <div className="relative aspect-[16/9] w-full rounded-[3rem] overflow-hidden mb-16">
+            <Image
+              src={article.image}
+              alt={article.imageAlt[locale]}
+              fill
+              sizes="(max-width: 1024px) 100vw, 900px"
+              className="object-cover"
+              priority
+            />
           </div>
 
-          {/* Article Prose */}
-          <div className="container mx-auto px-4 max-w-2xl">
-            <div className="prose prose-lg dark:prose-invert prose-headings:font-headline prose-headings:font-normal prose-h3:text-3xl prose-h3:mt-12 prose-a:text-primary prose-a:font-bold prose-p:font-body prose-p:leading-relaxed prose-p:text-muted-foreground prose-p:italic w-full max-w-none">
-              {/* To handle the multiline string from our mock data properly, we can split by double newlines to make paragraphs, and check for headings */}
-              {typeof article.content === 'string' ? (
-                article.content.split('\n\n').map((paragraph, i) => {
-                  if (paragraph.startsWith('### ')) {
-                    return <h3 key={i}>{paragraph.replace('### ', '')}</h3>;
-                  }
-                  return <p key={i}>{paragraph}</p>;
-                })
+          <div className="prose prose-lg dark:prose-invert prose-headings:font-headline prose-headings:font-normal prose-h2:text-3xl prose-h2:mt-12 prose-a:text-primary prose-a:font-bold prose-p:font-body prose-p:leading-relaxed prose-p:text-muted-foreground prose-p:italic w-full max-w-none">
+            {content.body.split('\n\n').map((block, index) =>
+              block.startsWith('### ') ? (
+                <h2 key={index}>{block.replace('### ', '')}</h2>
               ) : (
-                article.content
-              )}
+                <p key={index}>{block}</p>
+              ),
+            )}
+          </div>
+        </div>
+      </article>
+
+      {related.length > 0 && (
+        <section className="mt-32 pt-24 border-t border-primary/10 bg-primary/5">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-16 space-y-4">
+              <span className="text-primary font-luxury text-sm">{t.journal.curatedFor}</span>
+              <h2 className="font-headline text-fluid-h2 tracking-tighter uppercase">
+                {t.journal.shopTheRitual}
+              </h2>
             </div>
-            
-            {/* Share / Footer */}
-            <div className="mt-16 pt-8 border-t border-primary/10 flex items-center justify-between">
-               <span className="font-headline uppercase tracking-widest text-sm">Share this ritual</span>
-               <div className="flex gap-4">
-                 <button className="h-10 w-10 rounded-full border border-primary/20 flex items-center justify-center hover:bg-primary/5 transition-colors">X</button>
-                 <button className="h-10 w-10 rounded-full border border-primary/20 flex items-center justify-center hover:bg-primary/5 transition-colors">in</button>
-               </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {related.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
             </div>
           </div>
-        </article>
-
-        {/* Shop the Ritual (Related Products) */}
-        {relatedProductsList.length > 0 && (
-          <section className="mt-32 pt-24 border-t border-primary/10 bg-primary/5">
-            <div className="container mx-auto px-4">
-              <div className="text-center mb-16 space-y-4">
-                <span className="text-primary font-luxury text-sm">Curated for this article</span>
-                <h2 className="font-headline text-fluid-h2 tracking-tighter uppercase">Shop The Ritual</h2>
-              </div>
-              
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-5xl mx-auto">
-                {relatedProductsList.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-      </main>
-      
-      <Footer />
-    </div>
+        </section>
+      )}
+    </SiteShell>
   );
 }

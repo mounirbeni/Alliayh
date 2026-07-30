@@ -10,9 +10,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Montserrat', 'sans-serif'],
-        headline: ['Prata', 'serif'],
-        code: ['monospace'],
+        // next/font injects the CSS variables; the literal names remain as a
+        // fallback so the rendered typography is byte-for-byte the same.
+        body: ['var(--font-body)', 'Montserrat', 'sans-serif'],
+        headline: ['var(--font-headline)', 'Prata', 'serif'],
+        code: ['ui-monospace', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',

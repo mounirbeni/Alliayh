@@ -1,41 +1,71 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { LOCALES, DEFAULT_LOCALE } from '@/i18n';
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE,
+  isValidLocale,
+  negotiateLocale,
+  splitLocalePath,
+} from '@/i18n/config';
 
+const ONE_YEAR = 60 * 60 * 24 * 365;
+
+/**
+ * Locale routing.
+ *
+ * Previously every unprefixed request was redirected to `/pt`, so an English
+ * speaker landing on `/` always got Portuguese and had to switch by hand on
+ * every visit. The locale is now resolved in order of precedence from:
+ *
+ *   1. an explicit `NEXT_LOCALE` cookie (written by the language switcher),
+ *   2. the browser's `Accept-Language` header,
+ *   3. the default locale.
+ *
+ * The result is echoed back as a cookie and as an `x-locale` header so Server
+ * Components can read it without re-parsing the URL.
+ */
 export function middleware(request: NextRequest) {
-  const pathname = request.nextUrl.pathname;
+  const { pathname } = request.nextUrl;
+  const { locale: pathLocale } = splitLocalePath(pathname);
 
-  // Skip Next.js internal paths and static files
-  if (
-    pathname.startsWith('/_next') ||
-    pathname.startsWith('/api') ||
-    pathname.includes('.') || 
-    pathname === '/favicon.ico'
-  ) {
-    return;
+  // Already localised — refresh the cookie so the preference sticks.
+  if (pathLocale) {
+    const response = NextResponse.next();
+    response.headers.set('x-locale', pathLocale);
+    response.headers.set('x-pathname', pathname);
+    if (request.cookies.get(LOCALE_COOKIE)?.value !== pathLocale) {
+      response.cookies.set(LOCALE_COOKIE, pathLocale, {
+        path: '/',
+        maxAge: ONE_YEAR,
+        sameSite: 'lax',
+      });
+    }
+    return response;
   }
 
-  // Check if the path starts with a locale
-  const pathnameIsMissingLocale = LOCALES.every(
-    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
-  );
+  const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+  const locale = isValidLocale(cookieLocale)
+    ? cookieLocale
+    : negotiateLocale(request.headers.get('accept-language')) || DEFAULT_LOCALE;
 
-  if (pathnameIsMissingLocale) {
-    // We are redirecting instead of rewriting to ensure the URL always reflects the locale
-    const url = new URL(`/${DEFAULT_LOCALE}${pathname}`, request.url);
-    return NextResponse.redirect(url);
-  }
+  const url = request.nextUrl.clone();
+  url.pathname = `/${locale}${pathname === '/' ? '' : pathname}`;
 
-  // Add the locale to the response header for server components
-  const locale = pathname.split('/')[1];
-  const response = NextResponse.next();
-  response.headers.set('x-locale', locale);
+  const response = NextResponse.redirect(url);
+  response.cookies.set(LOCALE_COOKIE, locale, {
+    path: '/',
+    maxAge: ONE_YEAR,
+    sameSite: 'lax',
+  });
   return response;
 }
 
 export const config = {
   matcher: [
-    // Match all paths except those with a '.' (static files) or starting with _next/api
-    '/((?!_next|api|.*\\.).*)',
+    /*
+     * Everything except Next internals, API routes, PWA/SEO assets served from
+     * /public, and any path that carries a file extension.
+     */
+    '/((?!api|_next/static|_next/image|favicon.ico|icon.svg|manifest.webmanifest|robots.txt|sitemap.xml|sw.js|workbox-|icons/|products/|.*\\..*).*)',
   ],
 };

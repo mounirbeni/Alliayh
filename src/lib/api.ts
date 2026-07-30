@@ -1,4 +1,12 @@
-import { Product, PRODUCTS } from '@/app/lib/products';
+/**
+ * Client-facing operations that will eventually hit a real backend.
+ *
+ * Product reads used to live here behind `await delay(800)` — a hand-written
+ * 800 ms stall in front of a local array — which forced every product surface
+ * into a spinner and made the collection page unindexable. Reads now go through
+ * `@/lib/catalog` synchronously on the server. What remains here is the work
+ * that is genuinely asynchronous.
+ */
 
 export interface UserProfile {
   id: string;
@@ -7,49 +15,48 @@ export interface UserProfile {
   defaultShippingAddress: string;
 }
 
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+/** Stand-in latency for the calls that will become real network requests. */
+const SIMULATED_LATENCY_MS = 400;
 
-export const api = {
-  products: {
-    getAll: async (): Promise<Product[]> => {
-      await delay(800); // Simulate network latency
-      return PRODUCTS;
-    },
-    getById: async (id: string): Promise<Product | undefined> => {
-      await delay(500);
-      return PRODUCTS.find(p => p.id === id);
-    }
-  },
-  auth: {
-    login: async (email: string, password: string): Promise<UserProfile> => {
-      await delay(1000);
-      if (email && password) {
-        return {
-          id: 'user_123',
-          name: 'Jane Doe',
-          email: email,
-          defaultShippingAddress: '123 Ritual Lane, Paris, France',
-        };
-      }
-      throw new Error("Invalid credentials");
-    },
-    register: async (name: string, email: string, password: string): Promise<UserProfile> => {
-      await delay(1000);
-      if (name && email && password) {
-        return {
-          id: 'user_124',
-          name: name,
-          email: email,
-          defaultShippingAddress: '',
-        };
-      }
-      throw new Error("Invalid input");
-    }
-  },
-  reviews: {
-    submitReview: async (productId: string, rating: number, comment: string): Promise<{success: boolean}> => {
-      await delay(800);
-      return { success: true };
-    }
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function login(email: string, password: string): Promise<UserProfile> {
+  await delay(SIMULATED_LATENCY_MS);
+  if (!email || !password) throw new Error('Invalid credentials');
+
+  return {
+    id: 'user_123',
+    name: email.split('@')[0] ?? 'Guest',
+    email,
+    defaultShippingAddress: '',
+  };
+}
+
+export async function register(
+  name: string,
+  email: string,
+  password: string,
+): Promise<UserProfile> {
+  await delay(SIMULATED_LATENCY_MS);
+  if (!name || !email || !password) throw new Error('Invalid input');
+
+  return { id: 'user_124', name, email, defaultShippingAddress: '' };
+}
+
+export async function submitReview(
+  productId: string,
+  rating: number,
+  comment: string,
+): Promise<{ success: boolean }> {
+  await delay(SIMULATED_LATENCY_MS);
+  if (!productId || rating < 1 || rating > 5 || comment.trim().length < 10) {
+    throw new Error('Invalid review');
   }
+  return { success: true };
+}
+
+/** Namespaced form, kept for existing call sites. */
+export const api = {
+  auth: { login, register },
+  reviews: { submitReview },
 };

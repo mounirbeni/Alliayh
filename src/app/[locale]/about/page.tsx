@@ -1,34 +1,44 @@
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
 import Image from 'next/image';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { notFound } from 'next/navigation';
+import { SiteShell } from '@/components/layout/SiteShell';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { JsonLd } from '@/components/seo/JsonLd';
 import { Badge } from '@/components/ui/badge';
-import { getDictionary, type Locale } from '@/i18n';
+import { getDictionary, isValidLocale } from '@/i18n';
+import { breadcrumbJsonLd, buildMetadata } from '@/lib/seo';
 
-type Props = {
-  params: Promise<{ locale: string }>;
-};
+type PageProps = { params: Promise<{ locale: string }> };
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const resolvedParams = await params;
-  const t = await getDictionary(resolvedParams.locale as Locale);
-  
-  return {
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) return {};
+  const t = getDictionary(locale);
+
+  return buildMetadata({
+    locale,
+    path: '/about',
     title: t.about.metaTitle,
     description: t.about.metaDescription,
-  };
+    image: '/products/sea-moss-facts.jpg',
+  });
 }
 
-export default async function AboutPage({ params }: Props) {
-  const resolvedParams = await params;
-  const t = await getDictionary(resolvedParams.locale as Locale);
+export default async function AboutPage({ params }: PageProps) {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) notFound();
+
+  const t = getDictionary(locale);
+  const crumbs = [
+    { name: t.common.home, path: `/${locale}` },
+    { name: t.nav.story, path: `/${locale}/about` },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background selection:bg-primary/10">
-      <Navbar />
-      
-      <main className="flex-1 py-12 lg:py-24 overflow-x-hidden">
+    <SiteShell className="selection:bg-primary/10" mainClassName="py-12 lg:py-24 overflow-x-hidden">
+      <JsonLd data={breadcrumbJsonLd(crumbs)} />
         <div className="container mx-auto px-4 max-w-5xl">
+          <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
           <div className="space-y-12 mb-20 text-center">
             <h1 className="font-headline text-fluid-hero tracking-tighter leading-tight text-glow">
               {t.about.headline} <span className="italic font-light text-primary/80">{t.about.headlineAccent}</span>
@@ -44,7 +54,8 @@ export default async function AboutPage({ params }: Props) {
                 src="/products/sea-moss-facts.jpg"
                 alt={t.about.founderImageAlt}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-[10s]"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover group-hover:scale-105 transition-transform [transition-duration:10000ms]"
               />
               <div className="absolute inset-0 bg-primary/10 mix-blend-overlay" />
             </div>
@@ -74,15 +85,13 @@ export default async function AboutPage({ params }: Props) {
                 src="/products/glow-tea.jpg"
                 alt={t.about.ingredientsImageAlt}
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-[10s]"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover group-hover:scale-105 transition-transform [transition-duration:10000ms]"
               />
             </div>
           </div>
 
         </div>
-      </main>
-      
-      <Footer />
-    </div>
+    </SiteShell>
   );
 }

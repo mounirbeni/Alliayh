@@ -3,10 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { Instagram, Twitter, Facebook, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { useToast } from '@/hooks/use-toast';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
-import { FadeIn, StaggerContainer, StaggerItem } from '@/components/motion/FadeIn';
+import { FadeIn } from '@/components/motion/FadeIn';
 
 /**
  * Footer — Premium footer with EU compliance links, newsletter signup, and full i18n.
@@ -65,10 +64,14 @@ export function Footer() {
             <div className="space-y-6">
               <h4 className="font-body font-bold uppercase tracking-[0.3em] text-[10px] text-primary">{t.footer.collection}</h4>
               <ul className="space-y-3 text-[10px] text-muted-foreground font-body font-bold uppercase tracking-[0.2em]">
-                <li><Link href={`/${locale}/products?category=Cleansers`} className="hover:text-primary transition-colors duration-300">{t.footer.cleansing}</Link></li>
-                <li><Link href={`/${locale}/products?category=Serums`} className="hover:text-primary transition-colors duration-300">{t.footer.concentrates}</Link></li>
-                <li><Link href={`/${locale}/products?category=Moisturizers`} className="hover:text-primary transition-colors duration-300">{t.footer.hydration}</Link></li>
-                <li><Link href={`/${locale}/products?category=Masks`} className="hover:text-primary transition-colors duration-300">{t.footer.recovery}</Link></li>
+                {/* These pointed at `Cleansers`, `Serums`, `Moisturizers` and
+                    `Masks` — categories no product has ever belonged to, so all
+                    four links landed on an empty grid. They now use the real
+                    taxonomy and the concern facets the catalog exposes. */}
+                <li><Link href={`/${locale}/products`} className="hover:text-primary transition-colors duration-300">{t.footer.collectionAll}</Link></li>
+                <li><Link href={`/${locale}/products?category=gummies`} className="hover:text-primary transition-colors duration-300">{t.footer.gummies}</Link></li>
+                <li><Link href={`/${locale}/products?category=tea`} className="hover:text-primary transition-colors duration-300">{t.footer.teas}</Link></li>
+                <li><Link href={`/${locale}/products?concern=radiance`} className="hover:text-primary transition-colors duration-300">{t.footer.radiance}</Link></li>
               </ul>
             </div>
           </FadeIn>

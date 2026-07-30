@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ChevronDown, ChevronUp, Cookie } from 'lucide-react';
+import { Shield, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useCookieStore } from '@/lib/store/useCookieStore';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';

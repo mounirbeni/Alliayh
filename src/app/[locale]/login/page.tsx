@@ -1,115 +1,34 @@
-"use client";
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
+import { SiteShell } from '@/components/layout/SiteShell';
+import { LoginView } from '@/components/auth/LoginView';
+import { getDictionary, isValidLocale } from '@/i18n';
+import { buildMetadata } from '@/lib/seo';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
-import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/lib/store/useAuthStore';
-import { api } from '@/lib/api';
-import { useToast } from '@/hooks/use-toast';
-import { Lock, Mail, ArrowRight } from 'lucide-react';
-import { useLocaleStore } from '@/lib/store/useLocaleStore';
+type PageProps = { params: Promise<{ locale: string }> };
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { isAuthenticated, login } = useAuthStore();
-  const { toast } = useToast();
-  const { dictionary: t, locale } = useLocaleStore();
-  
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [mounted, setMounted] = useState(false);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) return {};
+  const t = getDictionary(locale);
 
-  useEffect(() => {
-    setMounted(true);
-    if (isAuthenticated) {
-      router.push(`/${locale}/account`);
-    }
-  }, [isAuthenticated, router, locale]);
+  return buildMetadata({
+    locale,
+    path: '/login',
+    title: t.login.title,
+    description: t.login.subtitle,
+    // Personal or transactional — nothing to index.
+    noIndex: true,
+  });
+}
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    
-    try {
-      const user = await api.auth.login(email, password);
-      login(user);
-      toast({
-        title: t.login.welcomeBack,
-        description: `${t.login.signedInAs} ${user.name}`,
-      });
-      router.push(`/${locale}/account`);
-    } catch (error) {
-      toast({
-        title: t.login.authFailed,
-        description: t.login.authFailedDesc,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  if (!mounted || isAuthenticated) return null;
+export default async function Page({ params }: PageProps) {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) notFound();
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-      
-      <main className="flex-1 flex items-center justify-center py-12 px-4">
-        <div className="w-full max-w-md bg-white dark:bg-black/20 rounded-[2rem] border border-primary/10 p-8 shadow-xl">
-          <div className="text-center mb-8">
-            <h1 className="font-headline text-3xl uppercase tracking-widest mb-2">{t.login.title}</h1>
-            <p className="text-muted-foreground italic text-sm">{t.login.subtitle}</p>
-          </div>
-          
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-4">
-              <div className="relative">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder={t.login.emailPlaceholder}
-                  className="w-full h-12 bg-transparent border border-primary/20 rounded-full pl-12 pr-4 focus:outline-none focus:border-primary transition-colors text-sm"
-                />
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <input
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={t.login.passwordPlaceholder}
-                  className="w-full h-12 bg-transparent border border-primary/20 rounded-full pl-12 pr-4 focus:outline-none focus:border-primary transition-colors text-sm"
-                />
-              </div>
-            </div>
-
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="w-full h-12 rounded-full bg-primary hover:bg-primary/90 uppercase tracking-widest text-xs font-bold flex gap-2"
-            >
-              {isSubmitting ? t.login.authenticating : t.login.signIn} <ArrowRight className="h-4 w-4" />
-            </Button>
-            
-            <div className="pt-4 text-center border-t border-primary/10">
-              <p className="text-xs text-muted-foreground uppercase tracking-widest pt-2">
-                {t.login.noAccount} <Link href={`/${locale}/register`} className="text-primary font-bold hover:underline">{t.login.register}</Link>
-              </p>
-            </div>
-          </form>
-        </div>
-      </main>
-
-      <Footer />
-    </div>
+    <SiteShell>
+      <LoginView />
+    </SiteShell>
   );
 }

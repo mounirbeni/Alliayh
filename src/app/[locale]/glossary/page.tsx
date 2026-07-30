@@ -1,7 +1,11 @@
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import { Leaf, Droplets, Sparkles, ShieldCheck } from 'lucide-react';
-import { getDictionary, type Locale } from '@/i18n';
+import { SiteShell } from '@/components/layout/SiteShell';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getDictionary, isValidLocale } from '@/i18n';
+import { breadcrumbJsonLd, buildMetadata } from '@/lib/seo';
 
 // We map icons here because we cannot store React components inside JSON/TS dictionaries safely or cleanly
 const ICONS = {
@@ -11,26 +15,41 @@ const ICONS = {
   3: ShieldCheck,
 };
 
-type Props = {
-  params: Promise<{ locale: string }>;
-};
+type PageProps = { params: Promise<{ locale: string }> };
 
-export default async function GlossaryPage({ params }: Props) {
-  const resolvedParams = await params;
-  const locale = resolvedParams.locale as Locale;
-  const t = await getDictionary(locale);
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) return {};
+  const t = getDictionary(locale);
+
+  return buildMetadata({
+    locale,
+    path: '/glossary',
+    title: `${t.glossary.title} ${t.glossary.titleAccent}`,
+    description: t.glossary.subtitle,
+    image: '/products/sea-moss-facts.jpg',
+  });
+}
+
+export default async function GlossaryPage({ params }: PageProps) {
+  const { locale } = await params;
+  if (!isValidLocale(locale)) notFound();
+
+  const t = getDictionary(locale);
+  const crumbs = [
+    { name: t.common.home, path: `/${locale}` },
+    { name: t.glossary.title, path: `/${locale}/glossary` },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-      
-      <main className="flex-1">
+    <SiteShell>
+      <JsonLd data={breadcrumbJsonLd(crumbs)} />
         {/* Header */}
         <section className="py-24 bg-primary text-white text-center px-4 relative overflow-hidden">
            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
            <div className="container mx-auto max-w-4xl space-y-6 relative z-10">
              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-5 py-2 rounded-full mb-4">
-               <Leaf className="h-4 w-4" />
+               <Leaf className="h-4 w-4" aria-hidden="true" />
                <span className="font-luxury text-[10px] uppercase tracking-widest">{t.glossary.badge}</span>
              </div>
              
@@ -40,6 +59,10 @@ export default async function GlossaryPage({ params }: Props) {
              </p>
            </div>
         </section>
+
+        <div className="container mx-auto px-4 pt-6">
+          <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
+        </div>
 
         {/* Glossary Grid */}
         <section className="py-24 container mx-auto px-4 max-w-6xl">
@@ -56,7 +79,7 @@ export default async function GlossaryPage({ params }: Props) {
                        <h2 className="font-headline text-3xl md:text-4xl">{item.name}</h2>
                      </div>
                      <div className="h-14 w-14 rounded-full bg-primary/5 flex items-center justify-center shrink-0 border border-primary/10 group-hover:scale-110 transition-transform">
-                       <Icon className="h-6 w-6 text-primary" />
+                       <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
                      </div>
                    </div>
 
@@ -69,7 +92,7 @@ export default async function GlossaryPage({ params }: Props) {
                      <ul className="space-y-3">
                        {item.benefits.map((benefit, i) => (
                          <li key={i} className="flex items-center gap-3 text-sm text-foreground/80">
-                           <div className="h-1.5 w-1.5 rounded-full bg-primary" />
+                           <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" aria-hidden="true" />
                            {benefit}
                          </li>
                        ))}
@@ -80,9 +103,6 @@ export default async function GlossaryPage({ params }: Props) {
              })}
            </div>
         </section>
-      </main>
-
-      <Footer />
-    </div>
+    </SiteShell>
   );
 }

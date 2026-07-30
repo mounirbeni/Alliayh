@@ -1,59 +1,107 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { Navbar } from '@/components/layout/Navbar';
-import { Footer } from '@/components/layout/Footer';
+import { notFound } from 'next/navigation';
+import { SiteShell } from '@/components/layout/SiteShell';
+import { Breadcrumbs } from '@/components/layout/Breadcrumbs';
+import { JsonLd } from '@/components/seo/JsonLd';
+import { getDictionary, isValidLocale, LOCALES } from '@/i18n';
+import { formatDate } from '@/i18n/format';
+import { LEGAL_SLUGS, LEGAL_UPDATED, getLegalDocument, getLegalDocuments } from '@/lib/legal';
+import { breadcrumbJsonLd, buildMetadata } from '@/lib/seo';
 
-export default async function LegalPage({ params }: { params: Promise<{ slug: string }> }) {
-  // Await the destructured slug to resolve the promise legally per NextJS 15 patterns
-  const resolvedParams = await params;
-  const slug = resolvedParams.slug;
-  const formattedTitle = slug.charAt(0).toUpperCase() + slug.slice(1);
+type PageProps = { params: Promise<{ locale: string; slug: string }> };
+
+/**
+ * Legal documents are now an explicit set. The route previously accepted any
+ * slug and title-cased it into a heading over generic English boilerplate, so
+ * `/legal/anything-at-all` returned HTTP 200 with fabricated terms.
+ */
+export function generateStaticParams() {
+  return LOCALES.flatMap((locale) => LEGAL_SLUGS.map((slug) => ({ locale, slug })));
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { locale, slug } = await params;
+  if (!isValidLocale(locale)) return {};
+
+  const document = getLegalDocument(slug, locale);
+  if (!document) return {};
+
+  return buildMetadata({
+    locale,
+    path: `/legal/${slug}`,
+    title: document.title,
+    description: document.summary,
+  });
+}
+
+export default async function LegalPage({ params }: PageProps) {
+  const { locale, slug } = await params;
+  if (!isValidLocale(locale)) notFound();
+
+  const document = getLegalDocument(slug, locale);
+  if (!document) notFound();
+
+  const t = getDictionary(locale);
+  const siblings = getLegalDocuments(locale).filter((entry) => entry.slug !== document.slug);
+
+  const crumbs = [
+    { name: t.common.home, path: `/${locale}` },
+    { name: document.title, path: `/${locale}/legal/${slug}` },
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Navbar />
-      
-      <main className="flex-1 py-12 lg:py-32">
+    <SiteShell>
+      <JsonLd data={breadcrumbJsonLd(crumbs)} />
+
+      <div className="py-12 lg:py-24">
         <div className="container mx-auto px-4 max-w-3xl">
-          <div className="bg-white dark:bg-black/20 p-8 md:p-16 rounded-[4rem] border border-primary/10 shadow-lg">
-            <h1 className="font-headline text-5xl tracking-tight mb-12 uppercase">{formattedTitle}</h1>
-            
-            <div className="space-y-8 text-muted-foreground font-body leading-relaxed text-sm">
-              <p className="italic">
-                Effective Date: October 2026. 
+          <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
+
+          <article className="mt-6 bg-white dark:bg-black/20 p-8 md:p-16 rounded-[4rem] border border-primary/10 shadow-lg">
+            <header className="mb-12 space-y-4">
+              <h1 className="font-headline text-4xl md:text-5xl tracking-tight uppercase">
+                {document.title}
+              </h1>
+              <p className="text-muted-foreground italic">{document.summary}</p>
+              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">
+                {formatDate(LEGAL_UPDATED, locale)}
               </p>
-              
-              <section className="space-y-4">
-                 <h2 className="font-headline text-xl text-foreground mt-8">1. Introduction to our {formattedTitle}</h2>
-                 <p>
-                   Welcome to Lueur Skin by Alliyah. These documents govern your use of our platform and access to our bespoke skincare collections. By accessing or shopping within our archives, you agree to be bound by these provisions designed to protect your aura and privacy.
-                 </p>
-              </section>
+            </header>
 
-               <section className="space-y-4">
-                 <h2 className="font-headline text-xl text-foreground mt-8">2. Digital Standards</h2>
-                 <p>
-                   All content represented here remains the intellectual property of Lueur Skin. We enforce strict digital encryption methods to guarantee your data and personal typologies remain strictly confidential.
-                 </p>
-              </section>
-
-              <section className="space-y-4">
-                 <h2 className="font-headline text-xl text-foreground mt-8">3. Modifications</h2>
-                 <p>
-                   We reserve the right, at our sole discretion, to modify or replace these guidelines at any time. We recommend periodic review to align your usage with our latest protective measures.
-                 </p>
-              </section>
-
-              <div className="pt-12 mt-12 border-t border-primary/10">
-                <Link href="/" className="text-primary hover:underline font-bold text-xs uppercase tracking-widest">
-                  Return to Sanctuary
-                </Link>
-              </div>
+            <div className="space-y-10 text-muted-foreground font-body leading-relaxed text-sm">
+              {document.sections.map((section, index) => (
+                <section key={section.heading} className="space-y-4">
+                  <h2 className="font-headline text-xl text-foreground">
+                    {index + 1}. {section.heading}
+                  </h2>
+                  {section.body.map((paragraph) => (
+                    <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+                  ))}
+                </section>
+              ))}
             </div>
-          </div>
-        </div>
-      </main>
 
-      <Footer />
-    </div>
+            <nav className="pt-12 mt-12 border-t border-primary/10 flex flex-wrap gap-x-6 gap-y-3">
+              {siblings.map((entry) => (
+                <Link
+                  key={entry.slug}
+                  href={`/${locale}/legal/${entry.slug}`}
+                  className="text-primary hover:underline font-bold text-[11px] uppercase tracking-widest"
+                >
+                  {entry.title}
+                </Link>
+              ))}
+              <Link
+                href={`/${locale}`}
+                className="text-muted-foreground hover:text-primary font-bold text-[11px] uppercase tracking-widest"
+              >
+                {t.common.backToHome}
+              </Link>
+            </nav>
+          </article>
+        </div>
+      </div>
+    </SiteShell>
   );
 }

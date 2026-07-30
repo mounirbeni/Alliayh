@@ -1,19 +1,60 @@
-# **App Name**: Lueur Aura
+# Lueur Skin — Platform Blueprint
 
-## Core Features:
+## What the platform is
 
-- Product Catalog Display: Showcase Lueur Skin's complete product range with high-resolution imagery, categories, and concise descriptions.
-- Product Detail Pages: Dedicated pages for each product featuring detailed descriptions, ingredient lists, usage instructions, benefits, and customer reviews.
-- AI-Powered Skincare Advisor: An AI tool that suggests personalized Lueur Skin product recommendations based on user-inputted skin concerns, skin type, and goals.
-- Shopping Cart & Checkout: Allow users to add products to a shopping cart, view selected items, and proceed through a streamlined, secure checkout process.
-- User Account & Order History: Enable users to create accounts, manage profile information, save wishlists, and view their past order history and status.
-- Product Search & Filtering: Implement robust search functionality and advanced filtering options to help users quickly find products by concerns, type, or collection.
-- Brand Story & Contact: An 'About Us' section detailing Lueur Skin's brand philosophy, values, and mission, alongside comprehensive contact information.
+A bilingual (pt-PT / en-GB) direct-to-consumer storefront for Lueur Skin by
+Alliyah: a four-product botanical wellness range (sea moss gummies and herbal
+glow tea, each also sold as a two-month bundle), plus editorial, an ingredient
+glossary and an AI skin advisor.
 
-## Style Guidelines:
+## Core features
 
-- The visual design draws inspiration from natural radiance and sophistication. The primary color is a soft, warm champagne gold (#E5D4A9), reflecting glow and luxury. The background color is a very light, warm off-white (#F9F7F3), providing a clean and fresh canvas. An accent color of delicate blush rose (#ECCDCC) is used to highlight key elements and call-to-actions, adding a touch of elegance.
-- Headline font: 'Belleza' (humanist sans-serif) for its elegant, fashion-forward appeal. Body font: 'Alegreya' (humanist serif) for its contemporary elegance and readability in longer product descriptions and brand storytelling.
-- Clean, sophisticated, and minimalist line icons to maintain a premium and modern aesthetic across the application.
-- A responsive, mobile-first layout with ample white space, ensuring content is clean, uncluttered, and products are prominently featured. Utilizes a clear grid system for easy navigation and visual harmony.
-- Subtle and fluid animations for transitions, hover states, and interactions, enhancing the premium user experience without being distracting.
+- **Product catalog** — locale-resolved product records with taxonomy, stock,
+  galleries and derived filter facets.
+- **Collection page** — URL-driven search, category, active-ingredient, concern,
+  price and stock filters; every refinement is linkable and crawlable.
+- **Product detail** — working gallery, subscription vs one-time pricing, stock
+  ceilings on quantity, reviews, cross-sell, `Product` structured data.
+- **Bag & checkout** — one pricing module shared by the drawer, the bag page,
+  checkout and the receipt. VAT-inclusive euros, free delivery over €50.
+- **AI skin advisor** — catalog-grounded recommendations that map to real
+  products, with a deterministic fallback when the model is unavailable.
+- **Journal & glossary** — localised editorial with `Article` structured data
+  and merchandised product links.
+- **Account & wishlist** — persisted client state, hydration-safe.
+- **Legal** — an explicit, localised set of documents (shipping, terms, privacy,
+  cookies, accessibility).
+
+## Rendering model
+
+Every route is a Server Component that owns metadata, `generateStaticParams` and
+JSON-LD, and renders a client view only for the interactive part. Both language
+trees are prerendered at build time.
+
+## Style guidelines
+
+The visual identity is fixed and must not drift:
+
+- **Primary** burgundy `#781430` (`hsl(343 71% 27%)`) — CTAs, headings, accents.
+- **Secondary** soft pink `#f4cbe7` (`hsl(320 63% 87%)`) — highlights on dark
+  surfaces.
+- **Background** warm off-white `hsl(320 63% 98%)`, with a dark theme that
+  inverts to deep burgundy.
+- **Headline** Prata (serif). **Body** Montserrat. Both self-hosted via
+  `next/font`, exposed as `--font-headline` / `--font-body`.
+- **Shape** generous radii (`--radius: 2rem`, up to `5rem` on hero surfaces),
+  glassmorphic panels, luminous shadows in the primary hue.
+- **Icons** Lucide line icons, always `aria-hidden` when decorative.
+- **Motion** subtle and fluid, and always conditional on
+  `prefers-reduced-motion`.
+- **Layout** mobile-first, ample white space, 44×44 minimum touch targets.
+
+## Non-negotiables
+
+1. Facets, filters and navigation must be derived from real data — never
+   hand-listed alongside it.
+2. Prices are calculated in exactly one place (`lib/pricing.ts`).
+3. Every user-visible string comes from a dictionary; both dictionaries are
+   kept in lockstep by the type system.
+4. The build fails on type or lint errors. Do not re-enable
+   `ignoreBuildErrors`.

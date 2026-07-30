@@ -86,9 +86,85 @@
     overflow-wrap: anywhere;
     word-break: break-word;
   }
+
+  /*
+   * Visible keyboard focus. Radix and Tailwind reset the UA outline; without a
+   * replacement, tabbing through the site left no indication of position.
+   * Pointer users never see this because it is :focus-visible only.
+   */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/*
+ * Respect the OS "reduce motion" setting.
+ *
+ * The site is animation-heavy (parallax hero, float loops, 15s image zooms).
+ * For visitors with vestibular sensitivity those are actively harmful, so all
+ * transitions collapse to a near-instant state change while the layout, colours
+ * and typography stay exactly as designed.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @layer utilities {
+  /*
+   * Skip link — visually hidden until focused, then pinned to the top-left in
+   * the brand's own palette.
+   */
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 200;
+    transform: translateY(-200%);
+    transition: transform 0.2s ease-out;
+    @apply bg-primary text-primary-foreground rounded-full px-6 py-3 font-body text-[11px] font-bold uppercase tracking-[0.2em] shadow-2xl;
+  }
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  /*
+   * Film grain. The markup referenced `/noise.png`, which has never existed in
+   * /public — every section using it fired a 404 and rendered nothing. This is
+   * the same effect as an inline SVG, with no network request.
+   */
+  .bg-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    background-repeat: repeat;
+  }
+
+  /* Hide scrollbars on horizontally scrollable rails without losing scroll. */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Screen-reader-only text that stays in the accessibility tree. */
+  .sr-only-focusable:not(:focus):not(:focus-within) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
   /* Fluid typography — breakpoint-free scaling with clamp() */
   .text-fluid-hero {
     font-size: clamp(3.5rem, 15vw, 14rem);

@@ -4,55 +4,79 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/lib/store/useAuthStore';
-import { api } from '@/lib/api';
+import { useAuthStore, type AuthErrorCode } from '@/lib/store/useAuthStore';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 
+/**
+ * Sign in.
+ *
+ * Credentials are now checked by Firebase. The previous handler called an
+ * `api.auth.login()` that returned a hard-coded user for any non-empty email
+ * and password — every visitor who typed anything was "signed in".
+ */
 export function LoginView() {
   const router = useRouter();
-  const { isAuthenticated, login } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isReady = useAuthStore((state) => state.isReady);
+  const signIn = useAuthStore((state) => state.signIn);
+  const resetPassword = useAuthStore((state) => state.resetPassword);
   const { toast } = useToast();
   const { dictionary: t, locale } = useLocaleStore();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [mounted, setMounted] = useState(false);
+
+  const errorMessage = (code: AuthErrorCode): string => {
+    const messages: Record<AuthErrorCode, string> = {
+      'invalid-credentials': t.authErrors.invalidCredentials,
+      'email-in-use': t.authErrors.emailInUse,
+      'weak-password': t.authErrors.weakPassword,
+      'too-many-requests': t.authErrors.tooManyRequests,
+      'not-configured': t.authErrors.notConfigured,
+      unknown: t.authErrors.unknown,
+    };
+    return messages[code];
+  };
 
   useEffect(() => {
-    setMounted(true);
-    if (isAuthenticated) {
-      router.push(`/${locale}/account`);
-    }
-  }, [isAuthenticated, router, locale]);
+    if (isReady && isAuthenticated) router.replace(`/${locale}/account`);
+  }, [isReady, isAuthenticated, router, locale]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    try {
-      const user = await api.auth.login(email, password);
-      login(user);
-      toast({
-        title: t.login.welcomeBack,
-        description: `${t.login.signedInAs} ${user.name}`,
-      });
-      router.push(`/${locale}/account`);
-    } catch (error) {
-      console.error('[auth]', error);
-      toast({
-        title: t.login.authFailed,
-        description: t.login.authFailedDesc,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
+
+    const result = await signIn(email, password);
+    setIsSubmitting(false);
+
+    if (result.ok) {
+      toast({ title: t.login.welcomeBack, description: `${t.login.signedInAs} ${email}` });
+      router.replace(`/${locale}/account`);
+      return;
     }
+
+    toast({
+      title: t.login.authFailed,
+      description: errorMessage(result.code),
+      variant: 'destructive',
+    });
   };
 
-  if (!mounted || isAuthenticated) return null;
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast({ title: t.authErrors.invalidCredentials, variant: 'destructive' });
+      return;
+    }
+    await resetPassword(email);
+    // Always the same message, whether or not the account exists — otherwise
+    // this form becomes an account-enumeration oracle.
+    toast({ title: t.authErrors.passwordResetSent });
+  };
+
+  if (!isReady || isAuthenticated) return null;
 
   return (
     <>
@@ -103,6 +127,14 @@ export function LoginView() {
                 {t.login.noAccount} <Link href={`/${locale}/register`} className="text-primary font-bold hover:underline">{t.login.register}</Link>
               </p>
             </div>
+
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-[11px] uppercase tracking-widest font-bold text-muted-foreground hover:text-primary transition-colors"
+            >
+              {t.authErrors.forgotPassword}
+            </button>
           </form>
         </div>
       </div>

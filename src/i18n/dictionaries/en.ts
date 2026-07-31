@@ -606,6 +606,17 @@ export const en: Dictionary = {
     passwordsDoNotMatch: 'Passwords do not match.',
   },
 
+  authErrors: {
+    invalidCredentials: 'That email and password combination is not recognised.',
+    emailInUse: 'An account already exists for this email address.',
+    weakPassword: 'Choose a password of at least six characters.',
+    tooManyRequests: 'Too many attempts. Please wait a moment and try again.',
+    notConfigured: 'Accounts are not available on this deployment yet.',
+    unknown: 'Something went wrong. Please try again.',
+    passwordResetSent: 'If that address has an account, a reset link is on its way.',
+    forgotPassword: 'Forgot your password?',
+  },
+
   // — Accessibility (A11y) —
   a11y: {
     mainNavigation: 'Main navigation',

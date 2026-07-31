@@ -1,21 +1,16 @@
 import 'server-only';
+import { isFirebaseAdminConfigured } from '@/lib/firebase/admin';
+import { FirestoreInventoryStore, FirestoreOrderStore, withEmailIndex } from './firestore';
 import type { InventoryStore, Order, OrderLine, OrderStore } from './types';
 
 /**
- * In-memory adapter.
+ * Persistence selection.
  *
- * This is the development and single-instance default. It is honest about its
- * limits: state is lost on restart and is not shared between instances, so
- * inventory counts drift once the app is scaled horizontally.
- *
- * Stripe remains the durable record — `getOrder` falls back to retrieving the
- * Checkout Session directly, so a customer refreshing the confirmation page
- * still sees their order even after a deploy wiped this map.
- *
- * To go multi-instance, implement `OrderStore` and `InventoryStore` against
- * Firestore (the project already depends on `firebase` and targets Firebase App
- * Hosting) and swap the two exports at the bottom of this file. Nothing else
- * in the codebase needs to change.
+ * Firestore is used whenever credentials are present; otherwise the in-memory
+ * adapters below keep the storefront working for a contributor without a
+ * Firebase project. The in-memory pair is honest about its limits — state is
+ * lost on restart and is not shared between instances — so it is a development
+ * convenience, never the production path.
  */
 
 const orders = new Map<string, Order>();
@@ -27,7 +22,7 @@ class MemoryOrderStore implements OrderStore {
   }
 
   async recordPaid(order: Order): Promise<{ created: boolean }> {
-    // Idempotency guard: Stripe retries webhooks on any non-2xx, and delivers
+    // Idempotency guard: Stripe retries webhooks on any non-2xx and delivers
     // at-least-once even on success. Re-recording must be a no-op.
     if (orders.has(order.sessionId)) return { created: false };
 
@@ -56,8 +51,45 @@ class MemoryInventoryStore implements InventoryStore {
   }
 }
 
-export const orderStore: OrderStore = new MemoryOrderStore();
-export const inventoryStore: InventoryStore = new MemoryInventoryStore();
+/**
+ * Adds the lowercased email index Firestore queries need, then delegates.
+ * Wrapping keeps that storage detail out of the domain type.
+ */
+class IndexedOrderStore implements OrderStore {
+  constructor(private readonly inner: OrderStore) {}
+
+  get(sessionId: string) {
+    return this.inner.get(sessionId);
+  }
+
+  recordPaid(order: Order) {
+    return this.inner.recordPaid(withEmailIndex(order));
+  }
+
+  listByEmail(email: string, limit?: number) {
+    return this.inner.listByEmail(email, limit);
+  }
+}
+
+const usingFirestore = isFirebaseAdminConfigured();
+
+if (!usingFirestore && process.env.NODE_ENV === 'production') {
+  console.warn(
+    '[orders] No Firebase credentials found — orders and inventory are being kept in memory. ' +
+      'They will be lost on restart and are not shared between instances. See .env.example.',
+  );
+}
+
+export const orderStore: OrderStore = usingFirestore
+  ? new IndexedOrderStore(new FirestoreOrderStore())
+  : new MemoryOrderStore();
+
+export const inventoryStore: InventoryStore = usingFirestore
+  ? new FirestoreInventoryStore()
+  : new MemoryInventoryStore();
+
+/** True when orders survive a restart. Surfaced in diagnostics and the README. */
+export const isPersistent = usingFirestore;
 
 /** Order references are what the customer quotes in an email; keep them short. */
 export function generateOrderReference(): string {

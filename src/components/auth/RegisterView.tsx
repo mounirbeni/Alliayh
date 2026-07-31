@@ -4,56 +4,68 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAuthStore } from '@/lib/store/useAuthStore';
-import { api } from '@/lib/api';
+import { useAuthStore, type AuthErrorCode } from '@/lib/store/useAuthStore';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, User, ArrowRight } from 'lucide-react';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 
+/**
+ * Create an account.
+ *
+ * Firebase creates and owns the credential. The password is never seen by this
+ * application, and the account is only considered created once the server has
+ * issued a verified session cookie.
+ */
 export function RegisterView() {
   const router = useRouter();
-  const { isAuthenticated, login } = useAuthStore();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isReady = useAuthStore((state) => state.isReady);
+  const registerAccount = useAuthStore((state) => state.register);
   const { toast } = useToast();
   const { dictionary: t, locale } = useLocaleStore();
-  
+
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [mounted, setMounted] = useState(false);
+
+  const errorMessage = (code: AuthErrorCode): string => {
+    const messages: Record<AuthErrorCode, string> = {
+      'invalid-credentials': t.authErrors.invalidCredentials,
+      'email-in-use': t.authErrors.emailInUse,
+      'weak-password': t.authErrors.weakPassword,
+      'too-many-requests': t.authErrors.tooManyRequests,
+      'not-configured': t.authErrors.notConfigured,
+      unknown: t.authErrors.unknown,
+    };
+    return messages[code];
+  };
 
   useEffect(() => {
-    setMounted(true);
-    if (isAuthenticated) {
-      router.push(`/${locale}/account`);
-    }
-  }, [isAuthenticated, router, locale]);
+    if (isReady && isAuthenticated) router.replace(`/${locale}/account`);
+  }, [isReady, isAuthenticated, router, locale]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    try {
-      const user = await api.auth.register(name, email, password);
-      login(user);
-      toast({
-        title: t.register.accountCreated,
-        description: t.register.accountCreatedDesc,
-      });
-      router.push(`/${locale}/account`);
-    } catch (error) {
-      console.error('[auth]', error);
-      toast({
-        title: t.register.registrationFailed,
-        description: t.register.registrationFailedDesc,
-        variant: "destructive"
-      });
-    } finally {
-      setIsSubmitting(false);
+
+    const result = await registerAccount(name, email, password);
+    setIsSubmitting(false);
+
+    if (result.ok) {
+      toast({ title: t.register.accountCreated, description: t.register.accountCreatedDesc });
+      router.replace(`/${locale}/account`);
+      return;
     }
+
+    toast({
+      title: t.register.registrationFailed,
+      description: errorMessage(result.code),
+      variant: 'destructive',
+    });
   };
 
-  if (!mounted || isAuthenticated) return null;
+  if (!isReady || isAuthenticated) return null;
 
   return (
     <>

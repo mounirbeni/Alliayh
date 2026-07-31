@@ -10,47 +10,43 @@ import { useAuthStore } from '@/lib/store/useAuthStore';
 import { useWishlistStore } from '@/lib/store/useWishlistStore';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 import { useToast } from '@/hooks/use-toast';
-import { formatCurrency } from '@/i18n/format';
+import { formatCurrency, formatDate } from '@/i18n/format';
 import type { Product } from '@/lib/catalog';
+import type { Order } from '@/lib/orders/types';
 
-interface Order {
-  id: string;
-  date: string;
-  total: number;
-  status: string;
-}
-
-/** No order backend is wired up yet; the empty state is the honest state. */
-const ORDERS: Order[] = [];
-
-export function AccountView({ products }: { products: Product[] }) {
+/**
+ * Account.
+ *
+ * Order history is now real: it is read on the server from the order store,
+ * keyed by the verified session's email address, and passed in. The previous
+ * version declared `const ORDERS: Order[] = []` and rendered a permanent empty
+ * state no matter how much the customer had bought.
+ */
+export function AccountView({ products, orders }: { products: Product[]; orders: Order[] }) {
   const router = useRouter();
   const user = useAuthStore((state) => state.user);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const isReady = useAuthStore((state) => state.isReady);
   const logout = useAuthStore((state) => state.logout);
   const updateAddress = useAuthStore((state) => state.updateAddress);
+  const savedAddress = useAuthStore((state) => state.defaultShippingAddress);
   const savedIds = useWishlistStore((state) => state.items);
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
   const { toast } = useToast();
   const { dictionary: t, locale } = useLocaleStore();
 
-  const [mounted, setMounted] = useState(false);
   const [address, setAddress] = useState('');
 
+  // Redirect only once Firebase has reported the real auth state, otherwise a
+  // signed-in visitor is bounced to /login on every hard refresh.
   useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  // Redirect only once the persisted auth state is known, otherwise a signed-in
-  // visitor is bounced to /login on every hard refresh.
-  useEffect(() => {
-    if (!mounted) return;
+    if (!isReady) return;
     if (!isAuthenticated) {
       router.replace(`/${locale}/login`);
       return;
     }
-    setAddress(user?.defaultShippingAddress ?? '');
-  }, [mounted, isAuthenticated, user, router, locale]);
+    setAddress(savedAddress);
+  }, [isReady, isAuthenticated, savedAddress, router, locale]);
 
   const saved = products.filter((product) => savedIds.includes(product.id));
 
@@ -60,7 +56,7 @@ export function AccountView({ products }: { products: Product[] }) {
     toast({ title: t.account.addressUpdated, description: t.account.addressUpdatedDesc });
   };
 
-  if (!mounted || !isAuthenticated || !user) {
+  if (!isReady || !isAuthenticated || !user) {
     return (
       <div className="py-24 text-center" aria-busy="true">
         <span className="sr-only">{t.common.loading}</span>
@@ -75,7 +71,7 @@ export function AccountView({ products }: { products: Product[] }) {
           <div>
             <h1 className="font-headline text-4xl mb-2 uppercase tracking-widest">{t.account.title}</h1>
             <p className="text-muted-foreground italic text-lg">
-              {t.account.welcomeBack}, {user.name}
+              {t.account.welcomeBack}, {user.name ?? user.email}
             </p>
           </div>
           <Button
@@ -123,7 +119,7 @@ export function AccountView({ products }: { products: Product[] }) {
               <h2 className="font-headline text-xl uppercase tracking-widest mb-6 border-b border-primary/10 pb-4 flex items-center gap-2">
                 <Package className="h-5 w-5" aria-hidden="true" /> {t.account.orderHistory}
               </h2>
-              {ORDERS.length === 0 ? (
+              {orders.length === 0 ? (
                 <div className="text-center py-8">
                   <Package className="h-8 w-8 mx-auto text-primary/30 mb-3" aria-hidden="true" />
                   <p className="text-muted-foreground text-sm italic mb-4">
@@ -139,19 +135,23 @@ export function AccountView({ products }: { products: Product[] }) {
                 </div>
               ) : (
                 <ul className="space-y-4 list-none">
-                  {ORDERS.map((order) => (
+                  {orders.map((order) => (
                     <li
-                      key={order.id}
+                      key={order.sessionId}
                       className="flex justify-between items-center bg-background p-4 rounded-xl border border-primary/5"
                     >
-                      <div>
-                        <p className="font-headline text-sm text-foreground">{order.id}</p>
-                        <p className="text-xs text-muted-foreground uppercase">{order.date}</p>
+                      <div className="min-w-0">
+                        <p className="font-headline text-sm text-foreground">{order.reference}</p>
+                        <p className="text-xs text-muted-foreground uppercase">
+                          {formatDate(order.createdAt, locale)}
+                        </p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-right shrink-0">
                         <p className="font-bold text-foreground">{formatCurrency(order.total, locale)}</p>
                         <p className="text-[10px] uppercase text-primary tracking-widest font-bold">
-                          {order.status}
+                          {order.status === 'paid'
+                            ? t.checkout.orderStatusPaid
+                            : t.checkout.orderStatusPending}
                         </p>
                       </div>
                     </li>

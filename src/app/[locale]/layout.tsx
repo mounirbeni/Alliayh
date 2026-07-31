@@ -8,6 +8,7 @@ import { CookieConsent } from '@/components/layout/CookieConsent';
 import { Toaster } from '@/components/ui/toaster';
 import { PromoPopup } from '@/components/layout/PromoPopup';
 import { LocaleProvider } from '@/components/layout/LocaleProvider';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { fontVariables } from '@/lib/fonts';
 import { SITE, absoluteUrl } from '@/lib/site';
@@ -100,12 +101,14 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <LocaleProvider locale={typedLocale}>
-            {children}
-            <MobileNav />
-            <CartDrawer />
-            <CookieConsent />
-            <PromoPopup />
-            <Toaster />
+            <AuthProvider>
+              {children}
+              <MobileNav />
+              <CartDrawer />
+              <CookieConsent />
+              <PromoPopup />
+              <Toaster />
+            </AuthProvider>
           </LocaleProvider>
         </ThemeProvider>
         <JsonLd data={[organizationJsonLd(typedLocale), webSiteJsonLd(typedLocale)]} />

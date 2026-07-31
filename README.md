@@ -107,16 +107,46 @@ The flow:
 Webhook delivery is at-least-once, so `recordPaid` is idempotent and stock only
 moves on the first delivery of an event.
 
-**Persistence.** `lib/orders/store.ts` ships an in-memory adapter: fine for
-development and a single instance, but state is lost on restart and is not
-shared between instances, so inventory drifts once you scale out. Implement
-`OrderStore` and `InventoryStore` against Firestore (the project already depends
-on `firebase` and targets Firebase App Hosting) and swap the two exports at the
-bottom of that file — nothing else needs to change.
-
 **Demo mode.** With no `STRIPE_SECRET_KEY`, checkout records a clearly-labelled
 demo order instead of dead-ending, the same way the advisor degrades without a
 model key.
+
+## Persistence and accounts
+
+Both run on Firebase, selected automatically when credentials are present and
+falling back to in-memory (orders) or disabled (accounts) when they are not — so
+a contributor without a Firebase project can still work on the storefront.
+
+**Orders and inventory** live in Firestore:
+
+| Collection | Document | Written by |
+| --- | --- | --- |
+| `orders` | one per Stripe Checkout Session id | the webhook |
+| `inventory` | `{ sold: number }` per product id | the webhook, via atomic `increment` |
+
+Keying orders by session id is what makes the webhook idempotent *across
+instances*: a replay lands on the same document and the `create` fails instead
+of double-counting a sale. `increment` is applied server-side, so concurrent
+sales of the same product cannot overwrite each other.
+
+Both collections are written only through the Admin SDK, so `firestore.rules`
+denies all client access. `orders` holds names and delivery addresses; order
+history reaches the account page only through a server route that verifies the
+session cookie first.
+
+**Authentication** is Firebase Auth (email/password):
+
+1. The browser signs in and receives an ID token.
+2. `POST /api/auth/session` verifies that token with the Admin SDK — including a
+   recency check, so a stolen long-lived token cannot be upgraded into a
+   five-day session — and issues an HttpOnly session cookie.
+3. Server Components call `getSessionUser()`, which re-verifies the cookie and
+   checks for revocation on every read.
+
+Signing out clears the cookie *and* revokes the refresh tokens, so a session
+cannot outlive it on another device.
+
+Deploy the rules with `firebase deploy --only firestore:rules`.
 
 ## The AI advisor
 

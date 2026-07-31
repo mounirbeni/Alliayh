@@ -605,6 +605,17 @@ export const pt = {
   },
 
   // — Accessibility (A11y) —
+  authErrors: {
+    invalidCredentials: 'Esta combinação de email e palavra-passe não foi reconhecida.',
+    emailInUse: 'Já existe uma conta associada a este endereço de email.',
+    weakPassword: 'Escolha uma palavra-passe com pelo menos seis caracteres.',
+    tooManyRequests: 'Demasiadas tentativas. Aguarde um momento e tente novamente.',
+    notConfigured: 'As contas ainda não estão disponíveis nesta instalação.',
+    unknown: 'Algo correu mal. Tente novamente.',
+    passwordResetSent: 'Se existir uma conta com esse endereço, o link de recuperação segue a caminho.',
+    forgotPassword: 'Esqueceu-se da palavra-passe?',
+  },
+
   a11y: {
     mainNavigation: 'Navegação principal',
     skipToContent: 'Saltar para o conteúdo',

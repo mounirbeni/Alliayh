@@ -3,6 +3,11 @@
 @tailwind utilities;
 
 @layer base {
+  /*
+   * COLOUR — unchanged. This is the brand and it stays exactly as it was:
+   * burgundy #781430, soft pink #f4cbe7, warm off-white ground.
+   * Everything else in this file has been rebuilt around it.
+   */
   :root {
     --background: 320 63% 98%; /* Ultra light pink/white */
     --foreground: 343 71% 12%; /* Deepest burgundy */
@@ -23,10 +28,21 @@
     --border: 343 20% 90%;
     --input: 343 20% 90%;
     --ring: 343 71% 27%;
-    --radius: 2rem;
-    --mobile-nav-height: 5rem;
+
+    /* Hairline rule — the new design draws lines instead of boxing things. */
+    --rule: 343 30% 84%;
+
+    /* One signature curve; everything else is sharp. */
+    --radius: 1rem;
+    --mobile-nav-height: 4.5rem;
+    --header-height: 5rem;
+
+    /* Editorial gutter, fluid rather than stepped. */
+    --gutter: clamp(1.25rem, 4vw, 5rem);
   }
 
+  /* Dark theme — also unchanged, token for token. Only `--rule` is new, and it
+     is a line colour this design introduced, not a repaint of an existing one. */
   .dark {
     --background: 343 71% 12%;
     --foreground: 320 63% 98%;
@@ -45,6 +61,7 @@
     --border: 343 71% 20%;
     --input: 343 71% 20%;
     --ring: 320 63% 87%;
+    --rule: 320 30% 28%;
   }
 }
 
@@ -57,55 +74,87 @@
   html {
     overflow-x: hidden;
     scroll-behavior: smooth;
+    /* Anchors clear the fixed header instead of hiding under it. */
+    scroll-padding-top: calc(var(--header-height) + 1rem);
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    @apply bg-background text-foreground font-body antialiased transition-colors duration-700;
-    background-image:
-      radial-gradient(at 0% 0%, hsla(320, 63%, 94%, 0.8) 0, transparent 40%),
-      radial-gradient(at 100% 100%, hsla(343, 71%, 92%, 0.8) 0, transparent 40%),
-      radial-gradient(at 50% 50%, hsla(320, 63%, 97%, 0.5) 0, transparent 100%);
-    background-attachment: fixed;
-    line-height: 1.6;
-    letter-spacing: -0.01em;
+    @apply bg-background text-foreground font-body antialiased;
+    /*
+     * The old background stacked three fixed radial gradients, which repainted
+     * on every scroll frame. A flat ground plus a static grain is both calmer
+     * and cheaper.
+     */
+    font-size: clamp(0.9375rem, 0.3vw + 0.875rem, 1.0625rem);
+    line-height: 1.7;
+    letter-spacing: -0.006em;
+    text-rendering: optimizeLegibility;
+    font-feature-settings: 'kern' 1, 'liga' 1, 'calt' 1;
     touch-action: manipulation;
-    font-size: clamp(1rem, 1vw + 0.875rem, 1.125rem);
     overflow-x: hidden;
   }
 
-  .dark body {
-    background-image:
-      radial-gradient(at 0% 0%, hsla(343, 71%, 18%, 1) 0, transparent 50%),
-      radial-gradient(at 100% 100%, hsla(343, 71%, 14%, 1) 0, transparent 50%);
+  /*
+   * Display type. Fraunces' optical-size axis is driven per-step so large
+   * settings get the high-contrast cut and small ones stay legible — the whole
+   * reason for choosing a variable serif.
+   */
+  /*
+   * Set the family directly rather than with `@apply font-display`: the
+   * selector list includes `.font-display`, and applying a utility to a rule
+   * that also matches that utility's own class is a circular dependency.
+   */
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display), Georgia, 'Times New Roman', serif;
+    font-variation-settings: 'SOFT' 20, 'WONK' 1, 'opsz' 40;
+    text-wrap: balance;
+    font-weight: 400;
+    overflow-wrap: break-word;
   }
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-headline;
-    text-wrap: balance;
-    letter-spacing: -0.02em;
-    overflow-wrap: anywhere;
-    word-break: break-word;
+  h1 { font-variation-settings: 'SOFT' 30, 'WONK' 1, 'opsz' 144; }
+  h2 { font-variation-settings: 'SOFT' 26, 'WONK' 1, 'opsz' 96; }
+
+  p { text-wrap: pretty; }
+
+  /* Tabular figures keep prices and quantities from jittering as they change. */
+  .tabular, [data-tabular] {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' 1;
+  }
+
+  ::selection {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
   }
 
   /*
    * Visible keyboard focus. Radix and Tailwind reset the UA outline; without a
-   * replacement, tabbing through the site left no indication of position.
-   * Pointer users never see this because it is :focus-visible only.
+   * replacement, tabbing through the site leaves no indication of position.
    */
   :focus-visible {
-    outline: 2px solid hsl(var(--ring));
-    outline-offset: 2px;
-    border-radius: 4px;
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* A thin brand-tinted scrollbar rather than the OS default. */
+  @supports (scrollbar-color: auto) {
+    html {
+      scrollbar-color: hsl(var(--primary) / 0.35) transparent;
+      scrollbar-width: thin;
+    }
   }
 }
 
 /*
  * Respect the OS "reduce motion" setting.
  *
- * The site is animation-heavy (parallax hero, float loops, 15s image zooms).
- * For visitors with vestibular sensitivity those are actively harmful, so all
- * transitions collapse to a near-instant state change while the layout, colours
- * and typography stay exactly as designed.
+ * This design is motion-led — masked type reveals, marquees, parallax, image
+ * wipes. For visitors with vestibular sensitivity those are actively harmful,
+ * so everything collapses to a near-instant state change while the layout,
+ * colour and typography stay exactly as designed.
  */
 @media (prefers-reduced-motion: reduce) {
   *,
@@ -119,133 +168,174 @@
 }
 
 @layer utilities {
-  /*
-   * Skip link — visually hidden until focused, then pinned to the top-left in
-   * the brand's own palette.
+  /* ── Layout ─────────────────────────────────────────────────────────── */
+
+  /** Editorial container: fluid gutters, capped measure. */
+  .shell {
+    width: 100%;
+    max-width: theme('maxWidth.editorial');
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  /** Full-bleed escape hatch from inside a shell. */
+  .bleed {
+    width: 100vw;
+    margin-inline: calc(50% - 50vw);
+  }
+
+  /** Vertical rhythm between major sections. */
+  .section {
+    padding-block: clamp(4rem, 9vw, 9rem);
+  }
+  .section-sm {
+    padding-block: clamp(2.5rem, 5vw, 5rem);
+  }
+
+  /* ── Rules ──────────────────────────────────────────────────────────── */
+
+  .rule-t { border-top: 1px solid hsl(var(--rule)); }
+  .rule-b { border-bottom: 1px solid hsl(var(--rule)); }
+  .rule-l { border-left: 1px solid hsl(var(--rule)); }
+  .rule-r { border-right: 1px solid hsl(var(--rule)); }
+
+  /* ── Typographic details ────────────────────────────────────────────── */
+
+  /** Small caps label — the connective tissue of the whole layout. */
+  .label {
+    @apply font-body uppercase;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    line-height: 1;
+  }
+  .label-sm {
+    @apply font-body uppercase;
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    line-height: 1;
+  }
+
+  /** Index numeral, as used down the product list. */
+  .numeral {
+    @apply font-display tabular;
+    font-variation-settings: 'SOFT' 0, 'WONK' 0, 'opsz' 20;
+    font-weight: 300;
+  }
+
+  /** Fraunces' swashed italic — used sparingly, for one word in a headline. */
+  .wonk {
+    font-style: italic;
+    font-variation-settings: 'SOFT' 60, 'WONK' 1, 'opsz' 144;
+    font-weight: 300;
+  }
+
+  /* ── Texture ────────────────────────────────────────────────────────── */
+
+  /**
+   * Film grain. The markup used to reference `/noise.png`, which has never
+   * existed in /public — every section using it fired a 404 and rendered
+   * nothing. Inline SVG: same effect, no network request.
    */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.14;
+    mix-blend-mode: multiply;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+  .dark .grain::after {
+    mix-blend-mode: overlay;
+    opacity: 0.2;
+  }
+
+  /** Editorial image treatment: tints photography toward the brand burgundy. */
+  .duotone {
+    filter: saturate(0.82) contrast(1.06);
+  }
+  .duotone-strong {
+    filter: saturate(0.5) contrast(1.12) sepia(0.15);
+  }
+
+  /* ── Motion ─────────────────────────────────────────────────────────── */
+
+  /** Wraps a line of display type so it can rise out of its own mask. */
+  .mask-line {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.12em;
+    margin-bottom: -0.12em;
+  }
+
+  /** Marquee track: duplicate the content once, translate by -50%. */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    will-change: transform;
+  }
+  .marquee-mask {
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+
+  /** Underline that draws in from the left on hover. */
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -0.25em;
+    height: 1px;
+    width: 100%;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after,
+  .link-underline[data-active='true']::after {
+    transform: scaleX(1);
+  }
+
+  /* ── Chrome ─────────────────────────────────────────────────────────── */
+
+  /** Skip link — hidden until focused, then pinned top-left. */
   .skip-link {
     position: fixed;
     top: 0.75rem;
     left: 0.75rem;
     z-index: 200;
     transform: translateY(-200%);
-    transition: transform 0.2s ease-out;
-    @apply bg-primary text-primary-foreground rounded-full px-6 py-3 font-body text-[11px] font-bold uppercase tracking-[0.2em] shadow-2xl;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    @apply bg-primary text-primary-foreground px-6 py-3 label shadow-2xl;
   }
   .skip-link:focus-visible {
     transform: translateY(0);
   }
 
-  /*
-   * Film grain. The markup referenced `/noise.png`, which has never existed in
-   * /public — every section using it fired a 404 and rendered nothing. This is
-   * the same effect as an inline SVG, with no network request.
-   */
-  .bg-grain {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
-    background-repeat: repeat;
-  }
-
-  /* Hide scrollbars on horizontally scrollable rails without losing scroll. */
-  .scrollbar-hide {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;
-  }
-
-  /* Screen-reader-only text that stays in the accessibility tree. */
-  .sr-only-focusable:not(:focus):not(:focus-within) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-  }
-
-  /* Fluid typography — breakpoint-free scaling with clamp() */
-  .text-fluid-hero {
-    font-size: clamp(3.5rem, 15vw, 14rem);
-  }
-  .text-fluid-h1 {
-    font-size: clamp(2.5rem, 9vw, 9rem);
-  }
-  .text-fluid-h2 {
-    font-size: clamp(2rem, 6vw, 6rem);
-  }
-
-  /* Mobile nav clearance */
+  /** Mobile nav clearance. */
   .pb-mobile-nav {
     padding-bottom: calc(var(--mobile-nav-height) + 1.5rem);
   }
   @media (min-width: 768px) {
-    .pb-mobile-nav {
-      padding-bottom: 0;
-    }
+    .pb-mobile-nav { padding-bottom: 0; }
   }
 
-  /* Glassmorphism */
+  /** Hide scrollbars on horizontal rails without losing scroll. */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+
+  /* Retained so any component still referencing the old surface keeps working. */
   .glass {
-    @apply bg-white/40 dark:bg-black/20 backdrop-blur-xl border border-white/40 dark:border-white/5;
-  }
-  .glass-card {
-    @apply glass shadow-[0_8px_32px_0_rgba(120,20,48,0.05)] hover:shadow-[0_8px_32px_0_rgba(120,20,48,0.1)] transition-all duration-500;
-  }
-
-  /* Brand effects */
-  .text-glow {
-    text-shadow: 0 0 30px hsla(var(--primary) / 0.3);
-  }
-  .aura-glow {
-    box-shadow: 0 0 80px -20px hsla(var(--primary) / 0.2);
-  }
-  .luminous-glow {
-    box-shadow:
-      0 0 60px -10px hsla(var(--primary) / 0.15),
-      0 0 120px -30px hsla(320, 63%, 87%, 0.2);
-  }
-  .font-luxury {
-    letter-spacing: 0.4em;
-    @apply uppercase font-body font-bold text-[10px];
-  }
-
-  /* Float animation */
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-20px); }
-  }
-
-  /* Slow spin for decorative elements */
-  .animate-spin-slow {
-    animation: spin 20s linear infinite;
-  }
-
-  /* Shimmer effect for premium feel */
-  .shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      hsla(320, 63%, 87%, 0.15) 50%,
-      transparent 100%
-    );
-    background-size: 200% 100%;
-    animation: shimmer 3s ease-in-out infinite;
-  }
-  @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-  }
-
-  /* Gradient text for premium headings */
-  .text-gradient {
-    background: linear-gradient(135deg, hsl(343, 71%, 27%), hsl(320, 63%, 60%));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    @apply bg-background/80 backdrop-blur-xl;
   }
 }

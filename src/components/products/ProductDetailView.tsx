@@ -2,12 +2,10 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Star, ShoppingBag, Heart, Shield, Sparkles, Droplets, Loader2, Send, Check, Minus, Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Star, Loader2, Send, Minus, Plus, Check } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ProductCard } from '@/components/products/ProductCard';
+import { DrawRule, MaskReveal, ParallaxFrame, Reveal } from '@/components/motion/Editorial';
 import { useCartStore } from '@/lib/store/useCartStore';
 import { useCartDrawerStore } from '@/lib/store/useCartDrawerStore';
 import { useWishlistStore } from '@/lib/store/useWishlistStore';
@@ -30,24 +28,13 @@ interface Review {
 /**
  * Product detail.
  *
- * Fixes carried by this rewrite:
- *   - the price was rendered in `text-primary-foreground`, which is near-white
- *     on the light theme — the single most important number on the page was
- *     invisible;
- *   - the thumbnail strip showed the same four hard-coded files for every
- *     product and clicking one did nothing; it is now the product's own gallery
- *     and it drives the main image;
- *   - quantity had no ceiling and out-of-stock products could still be bought;
- *   - the headline rating was recomputed from three sample reviews, so it
- *     contradicted both the card grid and the Product structured data.
+ * Restructured from a two-card layout into an editorial spread: the gallery
+ * runs as a vertical column of full-width plates while a slim buy panel stays
+ * pinned alongside it. The tab strip that hid the reviews behind a click is
+ * gone — everything is on one scroll, sectioned by hairlines, the way a print
+ * catalogue would set it.
  */
-export function ProductDetailView({
-  product,
-  related,
-}: {
-  product: Product;
-  related: Product[];
-}) {
+export function ProductDetailView({ product, related }: { product: Product; related: Product[] }) {
   const { dictionary: t, locale } = useLocaleStore();
   const addItem = useCartStore((state) => state.addItem);
   const openCart = useCartDrawerStore((state) => state.open);
@@ -56,31 +43,24 @@ export function ProductDetailView({
   const user = useAuthStore((state) => state.user);
   const { toast } = useToast();
 
-  const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const [isSubscription, setIsSubscription] = useState(false);
 
   const seedReviews = useMemo<Review[]>(
-    () =>
-      t.productDetail.sampleReviews.map((review, index) => ({
-        id: `seed-${index}`,
-        ...review,
-      })),
+    () => t.productDetail.sampleReviews.map((review, index) => ({ id: `seed-${index}`, ...review })),
     [t],
   );
   const [reviews, setReviews] = useState<Review[]>(seedReviews);
-  const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
-  const [newReviewRating, setNewReviewRating] = useState(5);
-  const [newReviewText, setNewReviewText] = useState('');
-  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [formOpen, setFormOpen] = useState(false);
+  const [newRating, setNewRating] = useState(5);
+  const [newText, setNewText] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   const isSaved = wishlistItems.includes(product.id);
   const unitPrice = isSubscription ? product.subscriptionPrice : product.price;
   const maxQuantity = Math.max(product.stock, 1);
-  const gallery = product.images;
-  const currentImage = gallery[activeImage] ?? gallery[0];
 
-  const handleAddToCart = () => {
+  const handleAdd = () => {
     const result = addItem(product, quantity, isSubscription, '30 Days');
     if (result.added === 0) return;
 
@@ -88,47 +68,30 @@ export function ProductDetailView({
     toast({
       title: t.product.addedToBag,
       description: `${result.added}× ${product.name} ${t.product.addedDesc}`,
-      duration: 3000,
     });
-    if (result.clamped) {
-      toast({ title: t.productDetail.maxQuantity, duration: 4000 });
-    }
+    if (result.clamped) toast({ title: t.productDetail.maxQuantity });
     setQuantity(1);
   };
 
-  const handleWishlistToggle = () => {
-    toggleWishlist(product.id);
-    const saved = !isSaved;
-    toast({
-      title: saved ? t.productDetail.addedToWishlist : t.productDetail.removedFromWishlist,
-      description: saved
-        ? `${product.name} ${t.productDetail.savedForLater}`
-        : `${product.name} ${t.productDetail.removed}`,
-    });
-  };
-
-  const handleSubmitReview = async (e: React.FormEvent) => {
+  const handleReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmittingReview(true);
+    setSubmitting(true);
     try {
-      await submitReview(product.id, newReviewRating, newReviewText);
+      await submitReview(product.id, newRating, newText);
       setReviews([
         {
           id: `local-${Date.now()}`,
-          author: user?.name ?? t.productDetail.anonymous,
-          rating: newReviewRating,
-          text: newReviewText,
+          author: user?.name ?? user?.email ?? t.productDetail.anonymous,
+          rating: newRating,
+          text: newText,
           verified: Boolean(user),
         },
         ...reviews,
       ]);
-      setIsReviewFormOpen(false);
-      setNewReviewText('');
-      setNewReviewRating(5);
-      toast({
-        title: t.productDetail.reviewPublished,
-        description: t.productDetail.reviewPublishedDesc,
-      });
+      setFormOpen(false);
+      setNewText('');
+      setNewRating(5);
+      toast({ title: t.productDetail.reviewPublished, description: t.productDetail.reviewPublishedDesc });
     } catch {
       toast({
         title: t.productDetail.reviewError,
@@ -136,525 +99,420 @@ export function ProductDetailView({
         variant: 'destructive',
       });
     } finally {
-      setIsSubmittingReview(false);
+      setSubmitting(false);
     }
   };
 
   return (
-    <div className="py-12 lg:py-24">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-          {/* Product Images */}
-          <div className="space-y-6">
-            <div className="relative aspect-[4/5] rounded-[2rem] overflow-hidden bg-white shadow-lg">
-              <Image
-                src={currentImage?.src ?? product.image}
-                alt={currentImage?.alt ?? product.imageAlt}
-                fill
-                sizes="(max-width: 1024px) 100vw, 50vw"
-                className="object-cover object-center"
-                priority
-              />
-              <Badge className="absolute top-6 left-6 bg-white/90 text-foreground border-none font-headline px-4 py-1 uppercase tracking-widest text-xs z-10">
-                {product.categoryLabel}
-              </Badge>
-              {!product.inStock && (
-                <Badge className="absolute top-6 right-6 bg-foreground/85 text-background border-none font-headline px-4 py-1 uppercase tracking-widest text-xs z-10">
-                  {t.product.outOfStock}
-                </Badge>
-              )}
+    <>
+      {/* ── Spread ───────────────────────────────────────────────────── */}
+      <div className="shell grid grid-cols-1 gap-x-16 gap-y-12 pt-6 lg:grid-cols-12">
+        {/* Gallery — a stacked column of plates */}
+        <div className="lg:col-span-7">
+          <div className="space-y-4">
+            {product.images.map((image, i) => (
+              <ParallaxFrame
+                key={image.src}
+                className={cn('w-full rule-t rule-b rule-l rule-r', i === 0 ? 'aspect-[4/5]' : 'aspect-square')}
+                amount={i === 0 ? 6 : 8}
+              >
+                <Image
+                  src={image.src}
+                  alt={image.alt}
+                  fill
+                  priority={i === 0}
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  className={cn('object-cover duotone', !product.inStock && 'grayscale opacity-70')}
+                />
+              </ParallaxFrame>
+            ))}
+          </div>
+        </div>
+
+        {/* Buy panel — pinned */}
+        <div className="lg:col-span-5">
+          <div className="lg:sticky lg:top-[calc(var(--header-height)+2rem)]">
+            <p className="label text-foreground/45">{product.categoryLabel}</p>
+
+            <h1 className="mt-5 font-display text-display-md leading-[0.95] tracking-tightest">
+              <MaskReveal>{product.name}</MaskReveal>
+            </h1>
+
+            <p className="mt-4 font-display text-lede italic text-foreground/60">{product.tagline}</p>
+
+            {/* Rating + unit */}
+            <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2">
+              <span className="flex items-center gap-2" aria-label={`${product.rating} / 5`}>
+                <span aria-hidden="true" className="flex gap-0.5">
+                  {[1, 2, 3, 4, 5].map((i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        'h-3 w-3',
+                        i <= Math.round(product.rating) ? 'fill-primary text-primary' : 'text-foreground/20',
+                      )}
+                    />
+                  ))}
+                </span>
+                <span className="label tabular text-foreground/60">
+                  {product.rating} · {product.reviewsCount}
+                </span>
+              </span>
+              <span className="label text-foreground/45">{product.unit}</span>
             </div>
 
-            {/* Thumbnail strip — the product's own gallery, and it works. */}
-            {gallery.length > 1 && (
-              <div
-                className="grid grid-cols-4 gap-4"
-                role="tablist"
-                aria-label={t.a11y.productGallery}
-              >
-                {gallery.map((image, index) => (
+            <DrawRule className="my-8" />
+
+            <p className="max-w-prose text-body-md text-foreground/70">{product.description}</p>
+
+            {/* Purchase mode — two ruled columns, no cards */}
+            <fieldset className="mt-10">
+              <legend className="sr-only">
+                {t.productDetail.oneTime} / {t.productDetail.subscribe}
+              </legend>
+              <div className="grid grid-cols-2">
+                {[
+                  { on: !isSubscription, label: t.productDetail.oneTime, price: product.price, set: false },
+                  { on: isSubscription, label: t.productDetail.subscribe, price: product.subscriptionPrice, set: true },
+                ].map((option) => (
                   <button
-                    key={image.src}
+                    key={option.label}
                     type="button"
-                    role="tab"
-                    aria-selected={index === activeImage}
-                    aria-label={t.productDetail.imageOf
-                      .replace('{current}', String(index + 1))
-                      .replace('{total}', String(gallery.length))}
-                    onClick={() => setActiveImage(index)}
+                    aria-pressed={option.on}
+                    onClick={() => setIsSubscription(option.set)}
                     className={cn(
-                      'relative aspect-square rounded-2xl overflow-hidden border transition-colors',
-                      index === activeImage
-                        ? 'border-primary ring-2 ring-primary/20'
-                        : 'border-border hover:border-primary',
+                      'flex flex-col items-start gap-2 border-t-2 py-4 pr-4 text-left transition-colors',
+                      option.on ? 'border-primary' : 'border-rule hover:border-foreground/30',
                     )}
                   >
-                    <Image src={image.src} alt="" fill sizes="120px" className="object-cover" />
+                    <span className={cn('label', option.on ? 'text-primary' : 'text-foreground/50')}>
+                      {option.label}
+                    </span>
+                    <span className="tabular font-display text-display-xs">
+                      {formatCurrency(option.price, locale)}
+                    </span>
+                    {option.set && (
+                      <span className="label-sm text-foreground/45">{t.productDetail.discountLabel}</span>
+                    )}
                   </button>
                 ))}
               </div>
+            </fieldset>
+
+            {isSubscription && (
+              <p className="mt-3 text-body-sm italic text-foreground/50">{t.productDetail.subscriptionNote}</p>
             )}
-          </div>
 
-          {/* Product Details */}
-          <div className="flex flex-col space-y-8">
-            <div className="space-y-4">
-              <p className="flex items-center gap-2 text-primary font-headline text-sm uppercase tracking-[0.2em]">
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
-                {t.productDetail.premiumSkincare}
-              </p>
-              <h1 className="font-headline text-5xl md:text-6xl tracking-tight leading-tight">
-                {product.name}
-              </h1>
-              <p className="text-muted-foreground italic">{product.tagline}</p>
-
-              <div className="flex flex-wrap items-center gap-4">
-                <span className="flex items-center gap-1 text-sm bg-primary/5 px-3 py-1 rounded-full">
-                  <span aria-hidden="true" className="flex items-center gap-1">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star
-                        key={i}
-                        className={cn(
-                          'h-3 w-3',
-                          i <= Math.round(product.rating) ? 'fill-primary text-primary' : 'text-primary/30',
-                        )}
-                      />
-                    ))}
-                  </span>
-                  <span className="ml-2 font-headline uppercase tracking-widest text-xs font-bold">
-                    {product.rating} / 5.0
-                  </span>
-                </span>
-                <span className="text-muted-foreground text-xs uppercase tracking-widest">
-                  {product.reviewsCount} {t.productDetail.reviewsCount}
-                </span>
-                <span className="text-muted-foreground text-xs uppercase tracking-widest">
-                  {product.unit}
-                </span>
-              </div>
-
-              {/* Price — legible on both themes. */}
-              <div className="text-3xl font-headline text-primary">
-                {isSubscription ? (
-                  <span className="flex flex-wrap items-center gap-3">
-                    <span className="line-through text-muted-foreground text-xl">
-                      {formatCurrency(product.price, locale)}
-                    </span>
-                    <span>{formatCurrency(product.subscriptionPrice, locale)}</span>
-                    <span className="text-[10px] bg-primary/10 text-primary px-3 py-1 rounded-full uppercase tracking-widest font-bold">
-                      {t.productDetail.discountLabel}
-                    </span>
-                  </span>
-                ) : (
-                  <span className="flex flex-wrap items-baseline gap-3">
-                    <span>{formatCurrency(product.price, locale)}</span>
-                    {product.compareAtPrice && (
-                      <span className="line-through text-muted-foreground text-lg font-body">
-                        {formatCurrency(product.compareAtPrice, locale)}
-                      </span>
-                    )}
-                  </span>
-                )}
-              </div>
-
-              {/* Stock signal */}
-              <p
-                className={cn(
-                  'text-[11px] font-body font-bold uppercase tracking-[0.2em]',
-                  product.inStock ? 'text-primary' : 'text-muted-foreground',
-                )}
-              >
-                {product.inStock
-                  ? product.stock <= 20
-                    ? `${t.product.lowStock} — ${product.stock} ${t.productDetail.unitsLeft}`
-                    : t.productDetail.inStock
-                  : t.productDetail.outOfStockDesc}
-              </p>
-            </div>
-
-            <p className="text-lg text-muted-foreground leading-relaxed italic">{product.description}</p>
-
-            <div className="space-y-6">
-              <fieldset className="grid grid-cols-2 gap-4">
-                <legend className="sr-only">{t.productDetail.oneTime} / {t.productDetail.subscribe}</legend>
-                <button
-                  type="button"
-                  aria-pressed={!isSubscription}
-                  onClick={() => setIsSubscription(false)}
-                  className={cn(
-                    'border rounded-3xl p-5 transition-all flex flex-col justify-center items-center gap-2 text-center',
-                    !isSubscription
-                      ? 'border-primary bg-primary/5 shadow-inner'
-                      : 'border-primary/10 hover:border-primary/30 bg-background',
-                  )}
-                >
-                  <span className="font-headline uppercase tracking-widest text-xs opacity-80">
-                    {t.productDetail.oneTime}
-                  </span>
-                  <span className="text-lg font-bold">{formatCurrency(product.price, locale)}</span>
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={isSubscription}
-                  onClick={() => setIsSubscription(true)}
-                  className={cn(
-                    'border rounded-3xl p-5 transition-all flex flex-col justify-center items-center gap-2 text-center relative overflow-hidden',
-                    isSubscription
-                      ? 'border-primary bg-secondary/20 shadow-inner'
-                      : 'border-primary/10 hover:border-primary/30 bg-background',
-                  )}
-                >
-                  <span className="font-headline uppercase tracking-widest text-xs opacity-80">
-                    {t.productDetail.subscribe}
-                  </span>
-                  <span className="text-lg font-bold text-primary">
-                    {formatCurrency(product.subscriptionPrice, locale)}{' '}
-                    <span className="text-[10px] uppercase font-normal tracking-widest text-muted-foreground">
-                      {t.productDetail.perMonth}
-                    </span>
-                  </span>
-                </button>
-              </fieldset>
-
-              {isSubscription && (
-                <p className="text-xs text-muted-foreground italic">{t.productDetail.subscriptionNote}</p>
+            {/* Stock */}
+            <p
+              className={cn(
+                'mt-8 label',
+                product.inStock ? 'text-primary' : 'text-foreground/45',
               )}
+            >
+              {product.inStock
+                ? product.stock <= 20
+                  ? `${t.product.lowStock} — ${product.stock} ${t.productDetail.unitsLeft}`
+                  : t.productDetail.inStock
+                : t.productDetail.outOfStockDesc}
+            </p>
 
-              <div className="flex items-center gap-4">
-                <div className="flex items-center border border-primary/20 rounded-full p-1 bg-white/50 dark:bg-black/20">
-                  <button
-                    type="button"
-                    className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted disabled:opacity-40"
-                    onClick={() => setQuantity((value) => Math.max(1, value - 1))}
-                    disabled={quantity <= 1}
-                    aria-label={t.productDetail.decreaseQuantity}
-                  >
-                    <Minus className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                  <span
-                    className="w-12 text-center font-headline text-lg"
-                    aria-live="polite"
-                    aria-label={`${t.productDetail.quantity}: ${quantity}`}
-                  >
-                    {quantity}
-                  </span>
-                  <button
-                    type="button"
-                    className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-muted disabled:opacity-40"
-                    onClick={() => setQuantity((value) => Math.min(maxQuantity, value + 1))}
-                    disabled={quantity >= maxQuantity || !product.inStock}
-                    aria-label={t.productDetail.increaseQuantity}
-                  >
-                    <Plus className="h-4 w-4" aria-hidden="true" />
-                  </button>
-                </div>
-                <Button
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock}
-                  size="lg"
-                  className="flex-1 h-14 rounded-full bg-primary hover:bg-primary/90 text-[10px] uppercase tracking-[0.2em] font-bold shadow-xl flex gap-3 disabled:opacity-60"
+            {/* Quantity + buy */}
+            <div className="mt-5 flex items-stretch gap-4">
+              <div className="flex items-center rule-t rule-b rule-l rule-r">
+                <button
+                  type="button"
+                  onClick={() => setQuantity((v) => Math.max(1, v - 1))}
+                  disabled={quantity <= 1}
+                  aria-label={t.productDetail.decreaseQuantity}
+                  className="flex h-14 w-11 items-center justify-center transition-opacity disabled:opacity-25"
                 >
-                  <ShoppingBag className="h-4 w-4" aria-hidden="true" />
-                  {product.inStock ? t.product.addToBag : t.product.outOfStock}
-                  {product.inStock && ` · ${formatCurrency(unitPrice * quantity, locale)}`}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleWishlistToggle}
-                  aria-pressed={isSaved}
-                  aria-label={isSaved ? t.product.removeFromWishlist : t.product.addToWishlist}
-                  className={cn(
-                    'h-14 w-14 rounded-full border border-primary/20 hover:bg-primary/5 transition-all shadow-sm',
-                    isSaved && 'border-primary',
-                  )}
+                  <Minus className="h-4 w-4" aria-hidden="true" />
+                </button>
+                <span
+                  className="tabular w-8 text-center text-body-md"
+                  aria-live="polite"
+                  aria-label={`${t.productDetail.quantity}: ${quantity}`}
                 >
-                  <Heart
-                    aria-hidden="true"
-                    className={cn('h-5 w-5', isSaved ? 'fill-primary text-primary' : 'text-primary')}
-                  />
-                </Button>
+                  {quantity}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setQuantity((v) => Math.min(maxQuantity, v + 1))}
+                  disabled={quantity >= maxQuantity || !product.inStock}
+                  aria-label={t.productDetail.increaseQuantity}
+                  className="flex h-14 w-11 items-center justify-center transition-opacity disabled:opacity-25"
+                >
+                  <Plus className="h-4 w-4" aria-hidden="true" />
+                </button>
               </div>
+
+              <button
+                type="button"
+                onClick={handleAdd}
+                disabled={!product.inStock}
+                className="group flex h-14 flex-1 items-center justify-between gap-4 bg-primary px-6 label text-primary-foreground transition-colors hover:bg-foreground disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                <span>{product.inStock ? t.product.addToBag : t.product.outOfStock}</span>
+                {product.inStock && (
+                  <span className="tabular">{formatCurrency(unitPrice * quantity, locale)}</span>
+                )}
+              </button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-4 rounded-2xl bg-white dark:bg-black/20 border border-primary/10 flex items-center gap-3">
-                <Shield className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
-                <span className="text-xs font-headline uppercase tracking-widest text-foreground/80">
-                  {t.productDetail.crueltyFree}
-                </span>
-              </div>
-              <div className="p-4 rounded-2xl bg-white dark:bg-black/20 border border-primary/10 flex items-center gap-3">
-                <Droplets className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />
-                <span className="text-xs font-headline uppercase tracking-widest text-foreground/80">
-                  {t.productDetail.ecoConscious}
-                </span>
-              </div>
-            </div>
+            <button
+              type="button"
+              onClick={() => {
+                toggleWishlist(product.id);
+                toast({
+                  title: isSaved ? t.productDetail.removedFromWishlist : t.productDetail.addedToWishlist,
+                });
+              }}
+              aria-pressed={isSaved}
+              className="label link-underline mt-6 text-foreground/55 transition-colors hover:text-primary"
+            >
+              {isSaved ? t.product.removeFromWishlist : t.product.addToWishlist}
+            </button>
 
-            <Accordion type="single" collapsible className="w-full">
-              <AccordionItem value="ingredients" className="border-primary/10">
-                <AccordionTrigger className="font-headline uppercase tracking-widest text-sm py-4 hover:no-underline hover:text-primary">
-                  {t.productDetail.keyIngredients}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground italic leading-relaxed pt-2 pb-6">
-                  <ul className="grid grid-cols-2 gap-x-8 gap-y-3">
-                    {product.ingredients.map((ingredient) => (
-                      <li key={ingredient} className="flex items-center gap-3 text-sm">
-                        <span className="h-1.5 w-1.5 bg-primary/70 rounded-full shrink-0" aria-hidden="true" />
-                        {ingredient}
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="usage" className="border-primary/10">
-                <AccordionTrigger className="font-headline uppercase tracking-widest text-sm py-4 hover:no-underline hover:text-primary">
-                  {t.productDetail.howToUse}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground italic leading-relaxed pt-2 pb-6">
-                  {product.usage}
-                </AccordionContent>
-              </AccordionItem>
-              <AccordionItem value="benefits" className="border-primary/10">
-                <AccordionTrigger className="font-headline uppercase tracking-widest text-sm py-4 hover:no-underline hover:text-primary">
-                  {t.productDetail.ritualBenefits}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground italic leading-relaxed pt-2 pb-6">
-                  <ul className="space-y-4">
-                    {product.benefits.map((benefit) => (
-                      <li key={benefit} className="flex items-start gap-4">
-                        <Check className="h-5 w-5 text-primary mt-0.5 shrink-0" aria-hidden="true" />
-                        <span>{benefit}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </AccordionContent>
-              </AccordionItem>
+            {/* Detail disclosures */}
+            <Accordion type="single" collapsible className="mt-10 w-full">
+              {[
+                {
+                  value: 'ingredients',
+                  title: t.productDetail.keyIngredients,
+                  body: (
+                    <ul className="grid grid-cols-1 gap-y-2 sm:grid-cols-2 sm:gap-x-8">
+                      {product.ingredients.map((ingredient) => (
+                        <li key={ingredient} className="text-body-sm text-foreground/70">
+                          {ingredient}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                },
+                {
+                  value: 'usage',
+                  title: t.productDetail.howToUse,
+                  body: <p className="max-w-prose text-body-sm text-foreground/70">{product.usage}</p>,
+                },
+                {
+                  value: 'benefits',
+                  title: t.productDetail.ritualBenefits,
+                  body: (
+                    <ul className="space-y-3">
+                      {product.benefits.map((benefit) => (
+                        <li key={benefit} className="flex items-start gap-3 text-body-sm text-foreground/70">
+                          <Check className="mt-1 h-3.5 w-3.5 shrink-0 text-primary" aria-hidden="true" />
+                          {benefit}
+                        </li>
+                      ))}
+                    </ul>
+                  ),
+                },
+              ].map((item) => (
+                <AccordionItem key={item.value} value={item.value} className="border-b border-rule">
+                  <AccordionTrigger className="label py-5 hover:no-underline hover:text-primary">
+                    {item.title}
+                  </AccordionTrigger>
+                  <AccordionContent className="pb-6 pt-1">{item.body}</AccordionContent>
+                </AccordionItem>
+              ))}
             </Accordion>
+
+            <div className="mt-8 flex flex-wrap gap-x-8 gap-y-2">
+              <span className="label-sm text-foreground/45">{t.productDetail.crueltyFree}</span>
+              <span className="label-sm text-foreground/45">{t.productDetail.ecoConscious}</span>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Detailed Content Tabs */}
-        <div className="mt-32">
-          <Tabs defaultValue="details" className="w-full">
-            <TabsList className="bg-transparent border-b border-primary/10 w-full justify-start rounded-none h-14 p-0 gap-12">
-              <TabsTrigger
-                value="details"
-                className="bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary rounded-none px-0 font-headline uppercase tracking-widest text-sm h-full"
-              >
-                {t.productDetail.productPhilosophy}
-              </TabsTrigger>
-              <TabsTrigger
-                value="reviews"
-                className="bg-transparent border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:text-primary rounded-none px-0 font-headline uppercase tracking-widest text-sm h-full"
-              >
-                {t.productDetail.customerGlow} ({reviews.length})
-              </TabsTrigger>
-            </TabsList>
+      {/* ── Philosophy ───────────────────────────────────────────────── */}
+      <section className="section mt-[clamp(4rem,8vw,8rem)] bg-muted/40 grain relative">
+        <div className="shell relative z-10 grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            {/* A section title, so it belongs in the outline as a heading. */}
+            <h2 className="font-display text-display-sm tracking-tightest">
+              <MaskReveal>{t.productDetail.scienceTitle}</MaskReveal>
+            </h2>
+          </div>
+          <div className="lg:col-span-7">
+            <Reveal>
+              <p className="max-w-prose text-body-lg text-foreground/70">{t.productDetail.scienceDesc}</p>
+            </Reveal>
 
-            <TabsContent value="details" className="py-12">
-              <div className="max-w-4xl space-y-8">
-                <h2 className="font-headline text-3xl italic">{t.productDetail.scienceTitle}</h2>
-                <p className="text-muted-foreground text-lg leading-relaxed">{t.productDetail.scienceDesc}</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-8">
-                  <div className="space-y-4">
-                    <span className="block h-1 w-20 bg-primary" aria-hidden="true" />
-                    <h3 className="font-headline text-xl uppercase tracking-widest">
-                      {t.productDetail.skinHarmony}
-                    </h3>
-                    <p className="text-muted-foreground italic">{t.productDetail.skinHarmonyDesc}</p>
+            <div className="mt-12 grid grid-cols-1 gap-10 sm:grid-cols-2">
+              {[
+                { title: t.productDetail.skinHarmony, desc: t.productDetail.skinHarmonyDesc },
+                { title: t.productDetail.dermatologistTested, desc: t.productDetail.dermatologistTestedDesc },
+              ].map((item, i) => (
+                <Reveal key={item.title} delay={i * 0.08}>
+                  <div className="pt-5 rule-t">
+                    <h3 className="label text-primary">{item.title}</h3>
+                    <p className="mt-3 text-body-sm text-foreground/65">{item.desc}</p>
                   </div>
-                  <div className="space-y-4">
-                    <span className="block h-1 w-20 bg-primary" aria-hidden="true" />
-                    <h3 className="font-headline text-xl uppercase tracking-widest">
-                      {t.productDetail.dermatologistTested}
-                    </h3>
-                    <p className="text-muted-foreground italic">{t.productDetail.dermatologistTestedDesc}</p>
-                  </div>
-                </div>
-              </div>
-            </TabsContent>
-
-            <TabsContent value="reviews" className="py-12">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-16">
-                <div className="space-y-8 bg-white dark:bg-black/20 p-8 rounded-[2rem] border border-primary/10 h-fit">
-                  <div className="space-y-4 text-center">
-                    <h3 className="font-headline text-xl uppercase tracking-widest">
-                      {t.productDetail.overallRating}
-                    </h3>
-                    <p className="text-7xl font-headline text-primary leading-none">{product.rating}</p>
-                    <span className="flex items-center justify-center gap-1" aria-hidden="true">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <Star
-                          key={i}
-                          className={cn(
-                            'h-6 w-6',
-                            i <= Math.round(product.rating) ? 'fill-primary text-primary' : 'text-primary/20',
-                          )}
-                        />
-                      ))}
-                    </span>
-                    <p className="text-[10px] text-muted-foreground font-headline uppercase tracking-widest pt-2">
-                      {t.productDetail.basedOn} {product.reviewsCount} {t.productDetail.experiences}
-                    </p>
-                  </div>
-
-                  <div className="border-t border-primary/10 pt-8">
-                    {!isReviewFormOpen ? (
-                      <Button
-                        onClick={() => setIsReviewFormOpen(true)}
-                        className="w-full rounded-full bg-primary hover:bg-primary/90 font-headline tracking-widest uppercase text-xs h-12 shadow-lg"
-                      >
-                        {t.productDetail.writeReview}
-                      </Button>
-                    ) : (
-                      <form onSubmit={handleSubmitReview} className="space-y-4">
-                        <fieldset>
-                          <legend className="text-[10px] uppercase font-bold text-muted-foreground">
-                            {t.productDetail.yourRating}
-                          </legend>
-                          <div className="flex gap-2 py-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                              <button
-                                key={i}
-                                type="button"
-                                onClick={() => setNewReviewRating(i)}
-                                aria-label={`${i} / 5`}
-                                aria-pressed={i === newReviewRating}
-                              >
-                                <Star
-                                  aria-hidden="true"
-                                  className={cn(
-                                    'h-6 w-6 hover:scale-110 transition-transform',
-                                    i <= newReviewRating
-                                      ? 'fill-primary text-primary'
-                                      : 'text-muted-foreground/30',
-                                  )}
-                                />
-                              </button>
-                            ))}
-                          </div>
-                        </fieldset>
-                        <label htmlFor="review-text" className="sr-only">
-                          {t.productDetail.reviewPlaceholder}
-                        </label>
-                        <textarea
-                          id="review-text"
-                          value={newReviewText}
-                          onChange={(e) => setNewReviewText(e.target.value)}
-                          required
-                          minLength={10}
-                          maxLength={2000}
-                          placeholder={t.productDetail.reviewPlaceholder}
-                          className="w-full bg-background border border-primary/20 rounded-xl p-4 text-sm focus:outline-none focus:border-primary resize-none min-h-[120px]"
-                        />
-                        <div className="flex gap-2">
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => setIsReviewFormOpen(false)}
-                            className="flex-1 rounded-full text-xs uppercase"
-                            disabled={isSubmittingReview}
-                          >
-                            {t.productDetail.cancel}
-                          </Button>
-                          <Button
-                            type="submit"
-                            className="flex-1 rounded-full bg-primary text-xs uppercase gap-2"
-                            disabled={isSubmittingReview}
-                          >
-                            {isSubmittingReview ? (
-                              <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                            ) : (
-                              <Send className="h-4 w-4" aria-hidden="true" />
-                            )}
-                            {t.productDetail.post}
-                          </Button>
-                        </div>
-                      </form>
-                    )}
-                  </div>
-                </div>
-
-                <div className="md:col-span-2 space-y-6">
-                  {reviews.length === 0 ? (
-                    <p className="text-center py-12 text-muted-foreground italic">
-                      {t.productDetail.beFirstReview}
-                    </p>
-                  ) : (
-                    reviews.map((review) => (
-                      <article
-                        key={review.id}
-                        className="bg-white dark:bg-black/20 p-8 rounded-3xl border border-primary/5 space-y-4"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex items-center gap-4">
-                            <span
-                              aria-hidden="true"
-                              className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center font-headline font-bold text-primary shadow-inner"
-                            >
-                              {review.author.charAt(0).toUpperCase()}
-                            </span>
-                            <div>
-                              <p className="font-headline uppercase tracking-widest text-sm font-bold flex items-center gap-2">
-                                {review.author}
-                                {review.verified && <Shield className="h-3 w-3 text-primary" aria-hidden="true" />}
-                              </p>
-                              <span
-                                className="flex items-center gap-1 mt-1"
-                                aria-label={`${review.rating} / 5`}
-                              >
-                                {[1, 2, 3, 4, 5].map((j) => (
-                                  <Star
-                                    key={j}
-                                    aria-hidden="true"
-                                    className={cn(
-                                      'h-3 w-3',
-                                      j <= review.rating ? 'fill-primary text-primary' : 'text-primary/20',
-                                    )}
-                                  />
-                                ))}
-                              </span>
-                            </div>
-                          </div>
-                          {review.verified && (
-                            <span className="text-[10px] text-primary/70 bg-primary/5 px-2 py-1 rounded-full uppercase tracking-widest font-bold hidden sm:block">
-                              {t.productDetail.verifiedBuyer}
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-foreground/80 italic leading-relaxed pt-2">
-                          &ldquo;{review.text}&rdquo;
-                        </p>
-                      </article>
-                    ))
-                  )}
-                </div>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-
-        {/* Cross-sell */}
-        {related.length > 0 && (
-          <section className="mt-32 space-y-10" aria-labelledby="related-heading">
-            <div className="space-y-2">
-              <h2 id="related-heading" className="font-headline text-3xl tracking-tight">
-                {t.productDetail.completeRitual}
-              </h2>
-              <p className="text-muted-foreground italic text-sm">
-                {t.productDetail.completeRitualDesc}
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-              {related.map((item) => (
-                <ProductCard key={item.id} product={item} />
+                </Reveal>
               ))}
             </div>
-          </section>
-        )}
-      </div>
-    </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Reviews ──────────────────────────────────────────────────── */}
+      <section className="section shell" aria-labelledby="reviews-heading">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-4">
+            <div className="lg:sticky lg:top-[calc(var(--header-height)+2rem)]">
+              <h2 id="reviews-heading" className="font-display text-display-sm tracking-tightest">
+                {t.productDetail.customerGlow}
+              </h2>
+
+              <p className="tabular mt-8 font-display text-display-lg leading-none text-primary">
+                {product.rating}
+              </p>
+              <p className="label mt-3 text-foreground/45">
+                {t.productDetail.basedOn} {product.reviewsCount} {t.productDetail.experiences}
+              </p>
+
+              {!formOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setFormOpen(true)}
+                  className="label link-underline mt-8 text-primary"
+                >
+                  {t.productDetail.writeReview}
+                </button>
+              ) : (
+                <form onSubmit={handleReview} className="mt-8 space-y-5">
+                  <fieldset>
+                    <legend className="label text-foreground/45">{t.productDetail.yourRating}</legend>
+                    <div className="mt-3 flex gap-1.5">
+                      {[1, 2, 3, 4, 5].map((i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          onClick={() => setNewRating(i)}
+                          aria-label={`${i} / 5`}
+                          aria-pressed={i === newRating}
+                        >
+                          <Star
+                            aria-hidden="true"
+                            className={cn(
+                              'h-5 w-5 transition-transform hover:scale-110',
+                              i <= newRating ? 'fill-primary text-primary' : 'text-foreground/25',
+                            )}
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
+
+                  <label htmlFor="review-text" className="sr-only">
+                    {t.productDetail.reviewPlaceholder}
+                  </label>
+                  <textarea
+                    id="review-text"
+                    value={newText}
+                    onChange={(e) => setNewText(e.target.value)}
+                    required
+                    minLength={10}
+                    maxLength={2000}
+                    rows={4}
+                    placeholder={t.productDetail.reviewPlaceholder}
+                    className="w-full resize-none border-0 border-b border-rule bg-transparent pb-3 text-body-sm placeholder:text-foreground/35 focus:border-primary focus:outline-none"
+                  />
+
+                  <div className="flex items-center gap-6">
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="label inline-flex items-center gap-2 text-primary disabled:opacity-50"
+                    >
+                      {submitting ? (
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                      ) : (
+                        <Send className="h-3.5 w-3.5" aria-hidden="true" />
+                      )}
+                      {t.productDetail.post}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormOpen(false)}
+                      disabled={submitting}
+                      className="label text-foreground/45"
+                    >
+                      {t.productDetail.cancel}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
+
+          <div className="lg:col-span-8">
+            {reviews.length === 0 ? (
+              <p className="py-16 text-center font-display text-lede italic text-foreground/45">
+                {t.productDetail.beFirstReview}
+              </p>
+            ) : (
+              <ul>
+                {reviews.map((review, i) => (
+                  <li key={review.id}>
+                    <Reveal delay={Math.min(i, 4) * 0.05}>
+                      <article className="py-8 rule-t">
+                        <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+                          <span className="label">{review.author}</span>
+                          <span aria-label={`${review.rating} / 5`} className="flex gap-0.5">
+                            {[1, 2, 3, 4, 5].map((j) => (
+                              <Star
+                                key={j}
+                                aria-hidden="true"
+                                className={cn(
+                                  'h-3 w-3',
+                                  j <= review.rating ? 'fill-primary text-primary' : 'text-foreground/20',
+                                )}
+                              />
+                            ))}
+                          </span>
+                          {review.verified && (
+                            <span className="label-sm text-foreground/40">{t.productDetail.verifiedBuyer}</span>
+                          )}
+                        </div>
+                        <blockquote className="mt-4 max-w-prose font-display text-lede italic leading-relaxed text-foreground/75">
+                          {review.text}
+                        </blockquote>
+                      </article>
+                    </Reveal>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <DrawRule />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Cross-sell ───────────────────────────────────────────────── */}
+      {related.length > 0 && (
+        <section className="section shell rule-t" aria-labelledby="related-heading">
+          <div className="flex flex-wrap items-end justify-between gap-6 pb-12">
+            <div>
+              <p className="label text-foreground/45">{t.productDetail.completeRitualDesc}</p>
+              <h2 id="related-heading" className="mt-4 font-display text-display-sm tracking-tightest">
+                {t.productDetail.completeRitual}
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+            {related.map((item, i) => (
+              <Reveal key={item.id} delay={i * 0.07}>
+                <ProductCard product={item} index={i} />
+              </Reveal>
+            ))}
+          </div>
+        </section>
+      )}
+    </>
   );
 }

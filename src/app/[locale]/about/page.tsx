@@ -37,10 +37,10 @@ export default async function AboutPage({ params }: PageProps) {
   return (
     <SiteShell className="selection:bg-primary/10" mainClassName="py-12 lg:py-24 overflow-x-hidden">
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
-        <div className="container mx-auto px-4 max-w-5xl">
+        <div className="shell max-w-editorial">
           <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
           <div className="space-y-12 mb-20 text-center">
-            <h1 className="font-headline text-fluid-hero tracking-tighter leading-tight text-glow">
+            <h1 className="font-headline text-display-lg tracking-tightest tracking-tighter leading-tight">
               {t.about.headline} <span className="italic font-light text-primary/80">{t.about.headlineAccent}</span>
             </h1>
             <p className="text-xl md:text-2xl text-muted-foreground font-body max-w-2xl mx-auto leading-relaxed italic opacity-90">
@@ -49,7 +49,7 @@ export default async function AboutPage({ params }: PageProps) {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
-            <div className="relative aspect-[4/5] rounded-[4rem] overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)]">
+            <div className="relative aspect-[4/5] overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)]">
               <Image 
                 src="/products/sea-moss-facts.jpg"
                 alt={t.about.founderImageAlt}
@@ -80,7 +80,7 @@ export default async function AboutPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="relative aspect-square rounded-[4rem] overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] lg:order-2 order-1">
+            <div className="relative aspect-square overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] lg:order-2 order-1">
               <Image 
                 src="/products/glow-tea.jpg"
                 alt={t.about.ingredientsImageAlt}

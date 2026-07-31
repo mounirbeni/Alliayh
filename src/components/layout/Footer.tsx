@@ -2,14 +2,18 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Instagram, Twitter, Facebook, ArrowRight } from 'lucide-react';
+import { Instagram, ArrowUpRight, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
-import { FadeIn } from '@/components/motion/FadeIn';
+import { Reveal, DrawRule } from '@/components/motion/Editorial';
 
 /**
- * Footer — Premium footer with EU compliance links, newsletter signup, and full i18n.
- * Includes all required legal pages for GDPR / EU e-commerce compliance.
+ * Footer.
+ *
+ * Rebuilt as a closing statement rather than a link dump: an oversized wordmark
+ * that fills the measure, columns separated by hairlines instead of whitespace
+ * guesswork, and the newsletter as a single underlined field — no boxed input,
+ * no pill button.
  */
 export function Footer() {
   const { toast } = useToast();
@@ -19,122 +23,171 @@ export function Footer() {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    
-    toast({
-      title: t.footer.subscribed,
-      description: t.footer.subscribedDesc,
-    });
+    toast({ title: t.footer.subscribed, description: t.footer.subscribedDesc });
     setEmail('');
   };
 
+  const columns = [
+    {
+      title: t.footer.collection,
+      links: [
+        { href: `/${locale}/products`, label: t.footer.collectionAll },
+        { href: `/${locale}/products?category=gummies`, label: t.footer.gummies },
+        { href: `/${locale}/products?category=tea`, label: t.footer.teas },
+        { href: `/${locale}/products?concern=radiance`, label: t.footer.radiance },
+      ],
+    },
+    {
+      title: t.footer.experience,
+      links: [
+        { href: `/${locale}/advisor`, label: t.footer.consultation },
+        { href: `/${locale}/about`, label: t.footer.narrative },
+        { href: `/${locale}/journal`, label: t.footer.journal },
+        { href: `/${locale}/glossary`, label: t.footer.glossary },
+        { href: `/${locale}/faq`, label: t.footer.ritualGuide },
+        { href: `/${locale}/contact`, label: t.footer.concierge },
+      ],
+    },
+  ];
+
+  const legal = [
+    { href: `/${locale}/legal/shipping`, label: t.footer.legal.shipping },
+    { href: `/${locale}/legal/terms`, label: t.footer.legal.terms },
+    { href: `/${locale}/legal/privacy`, label: t.footer.legal.privacy },
+    { href: `/${locale}/legal/cookies`, label: t.footer.legal.cookies },
+    { href: `/${locale}/legal/accessibility`, label: t.footer.legal.accessibility },
+  ];
+
   return (
-    <footer className="bg-primary/5 border-t border-primary/10 relative overflow-hidden">
-      {/* Decorative gradient orbs */}
-      <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 right-1/4 w-64 h-64 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
+    <footer className="relative mt-auto overflow-hidden bg-background pt-24 grain">
+      <div className="shell relative z-10">
+        <DrawRule />
 
-      <div className="container mx-auto px-4 md:px-8 pt-36 pb-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-12">
-          {/* Brand Column */}
-          <FadeIn direction="up" delay={0}>
-            <div className="space-y-6">
-              <div className="flex flex-col">
-                <span className="font-headline text-3xl text-primary">Lueur Skin</span>
-                <span className="font-body text-[10px] uppercase tracking-[0.4em] text-foreground/60 font-bold">By Alliyah</span>
-              </div>
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-xs font-body font-medium uppercase tracking-wider">
-                {t.footer.tagline}
-              </p>
-              <div className="flex gap-5 text-primary">
-                <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram" className="hover:opacity-60 transition-opacity hover:scale-110 transform duration-300">
-                  <Instagram className="h-5 w-5" />
-                </a>
-                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" aria-label="Twitter" className="hover:opacity-60 transition-opacity hover:scale-110 transform duration-300">
-                  <Twitter className="h-5 w-5" />
-                </a>
-                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" aria-label="Facebook" className="hover:opacity-60 transition-opacity hover:scale-110 transform duration-300">
-                  <Facebook className="h-5 w-5" />
-                </a>
-              </div>
-            </div>
-          </FadeIn>
+        {/* Newsletter — the one thing this footer actually asks for. */}
+        <div className="grid grid-cols-1 gap-10 py-16 lg:grid-cols-12 lg:gap-16">
+          <Reveal className="lg:col-span-5">
+            <p className="label text-foreground/45">{t.footer.circleTitle}</p>
+            <h2 className="mt-5 font-display text-display-sm tracking-editorial">
+              {t.footer.circleDesc}
+            </h2>
+          </Reveal>
 
-          {/* Collection Column */}
-          <FadeIn direction="up" delay={0.1}>
-            <div className="space-y-6">
-              <h4 className="font-body font-bold uppercase tracking-[0.3em] text-[10px] text-primary">{t.footer.collection}</h4>
-              <ul className="space-y-3 text-[10px] text-muted-foreground font-body font-bold uppercase tracking-[0.2em]">
-                {/* These pointed at `Cleansers`, `Serums`, `Moisturizers` and
-                    `Masks` — categories no product has ever belonged to, so all
-                    four links landed on an empty grid. They now use the real
-                    taxonomy and the concern facets the catalog exposes. */}
-                <li><Link href={`/${locale}/products`} className="hover:text-primary transition-colors duration-300">{t.footer.collectionAll}</Link></li>
-                <li><Link href={`/${locale}/products?category=gummies`} className="hover:text-primary transition-colors duration-300">{t.footer.gummies}</Link></li>
-                <li><Link href={`/${locale}/products?category=tea`} className="hover:text-primary transition-colors duration-300">{t.footer.teas}</Link></li>
-                <li><Link href={`/${locale}/products?concern=radiance`} className="hover:text-primary transition-colors duration-300">{t.footer.radiance}</Link></li>
-              </ul>
-            </div>
-          </FadeIn>
-
-          {/* Experience Column */}
-          <FadeIn direction="up" delay={0.2}>
-            <div className="space-y-6">
-              <h4 className="font-body font-bold uppercase tracking-[0.3em] text-[10px] text-primary">{t.footer.experience}</h4>
-              <ul className="space-y-3 text-[10px] text-muted-foreground font-body font-bold uppercase tracking-[0.2em]">
-                <li><Link href={`/${locale}/advisor`} className="hover:text-primary transition-colors duration-300">{t.footer.consultation}</Link></li>
-                <li><Link href={`/${locale}/about`} className="hover:text-primary transition-colors duration-300">{t.footer.narrative}</Link></li>
-                <li><Link href={`/${locale}/journal`} className="hover:text-primary transition-colors duration-300">{t.footer.journal}</Link></li>
-                <li><Link href={`/${locale}/glossary`} className="hover:text-primary transition-colors duration-300">{t.footer.glossary}</Link></li>
-                <li><Link href={`/${locale}/contact`} className="hover:text-primary transition-colors duration-300">{t.footer.concierge}</Link></li>
-                <li><Link href={`/${locale}/faq`} className="hover:text-primary transition-colors duration-300">{t.footer.ritualGuide}</Link></li>
-              </ul>
-            </div>
-          </FadeIn>
-
-          {/* Newsletter Column */}
-          <FadeIn direction="up" delay={0.3}>
-            <div className="space-y-6">
-              <h4 className="font-body font-bold uppercase tracking-[0.3em] text-[10px] text-primary">{t.footer.circleTitle}</h4>
-              <p className="text-xs text-muted-foreground font-body leading-relaxed">{t.footer.circleDesc}</p>
-              <form onSubmit={handleSubscribe} className="relative mt-2">
-                <input 
-                  type="email" 
-                  placeholder={t.footer.emailPlaceholder}
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)} 
-                  className="w-full bg-white dark:bg-black border border-primary/10 px-5 py-3.5 text-[10px] rounded-full focus:ring-1 focus:ring-primary outline-none font-body uppercase tracking-widest font-bold touch-manipulation pr-14"
-                />
-                <button 
-                  type="submit" 
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 h-9 w-9 min-h-[36px] min-w-[36px] bg-primary text-white rounded-full flex items-center justify-center hover:bg-primary/90 transition-all duration-300 hover:scale-105 touch-manipulation"
-                  aria-label={t.footer.subscribe}
-                >
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </form>
-            </div>
-          </FadeIn>
+          <Reveal delay={0.08} className="lg:col-span-7 lg:pt-10">
+            <form onSubmit={handleSubscribe} className="group relative">
+              <label htmlFor="newsletter-email" className="sr-only">
+                {t.footer.emailPlaceholder}
+              </label>
+              <input
+                id="newsletter-email"
+                type="email"
+                required
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder={t.footer.emailPlaceholder}
+                className="w-full border-0 border-b border-rule bg-transparent pb-4 pr-12 font-display text-display-xs tracking-editorial transition-colors placeholder:text-foreground/25 focus:border-primary focus:outline-none focus:ring-0"
+              />
+              <button
+                type="submit"
+                aria-label={t.footer.subscribe}
+                className="absolute bottom-4 right-0 flex h-10 w-10 items-center justify-center text-primary transition-transform duration-400 ease-editorial hover:translate-x-1"
+              >
+                <ArrowRight className="h-5 w-5" aria-hidden="true" />
+              </button>
+            </form>
+            <p className="mt-4 max-w-prose text-body-sm text-foreground/50">{t.footer.tagline}</p>
+          </Reveal>
         </div>
 
-        {/* EU Legal Links Row */}
-        <div className="mt-16 pt-8 border-t border-primary/10">
-          <div className="flex flex-wrap justify-center gap-x-8 gap-y-3 text-[8px] text-muted-foreground uppercase tracking-[0.3em] font-body font-bold mb-8">
-            <Link href={`/${locale}/legal/shipping`} className="hover:text-primary transition-colors duration-300">{t.footer.legal.shipping}</Link>
-            <Link href={`/${locale}/legal/terms`} className="hover:text-primary transition-colors duration-300">{t.footer.legal.terms}</Link>
-            <Link href={`/${locale}/legal/privacy`} className="hover:text-primary transition-colors duration-300">{t.footer.legal.privacy}</Link>
-            <Link href={`/${locale}/legal/cookies`} className="hover:text-primary transition-colors duration-300">{t.footer.legal.cookies}</Link>
-            <Link href={`/${locale}/legal/accessibility`} className="hover:text-primary transition-colors duration-300">{t.footer.legal.accessibility}</Link>
-            <Link href={`/${locale}/contact`} className="hover:text-primary transition-colors duration-300">{t.footer.legal.contact}</Link>
+        <DrawRule />
+
+        {/* Columns */}
+        <div className="grid grid-cols-2 gap-x-8 gap-y-12 py-16 md:grid-cols-4">
+          {columns.map((column) => (
+            <nav key={column.title} aria-label={column.title}>
+              <h3 className="label font-body text-foreground/45">{column.title}</h3>
+              <ul className="mt-6 space-y-3">
+                {column.links.map((link) => (
+                  <li key={link.href + link.label}>
+                    <Link
+                      href={link.href}
+                      className="link-underline text-body-sm text-foreground/75 transition-colors hover:text-primary"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          ))}
+
+          <div>
+            <h3 className="label font-body text-foreground/45">{t.nav.account}</h3>
+            <ul className="mt-6 space-y-3">
+              <li>
+                <Link href={`/${locale}/account`} className="link-underline text-body-sm text-foreground/75 hover:text-primary">
+                  {t.nav.profile}
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/wishlist`} className="link-underline text-body-sm text-foreground/75 hover:text-primary">
+                  {t.nav.wishlist}
+                </Link>
+              </li>
+              <li>
+                <Link href={`/${locale}/cart`} className="link-underline text-body-sm text-foreground/75 hover:text-primary">
+                  {t.nav.cart}
+                </Link>
+              </li>
+            </ul>
           </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[8px] text-muted-foreground uppercase tracking-[0.4em] font-body font-bold">
-            <p>{t.footer.copyright}</p>
-            <div className="flex items-center gap-2">
-              <div className="h-1.5 w-1.5 rounded-full bg-primary/30" />
-              <span className="text-[7px] opacity-50">PT · EU</span>
-            </div>
+          <div>
+            <h3 className="label font-body text-foreground/45">Social</h3>
+            <ul className="mt-6 space-y-3">
+              <li>
+                <a
+                  href="https://instagram.com/lueurskin"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group inline-flex items-center gap-2 text-body-sm text-foreground/75 transition-colors hover:text-primary"
+                >
+                  <Instagram className="h-4 w-4" aria-hidden="true" />
+                  Instagram
+                  <ArrowUpRight
+                    className="h-3 w-3 opacity-40 transition-transform duration-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                    aria-hidden="true"
+                  />
+                </a>
+              </li>
+            </ul>
           </div>
+        </div>
+      </div>
+
+      {/* Oversized wordmark — the closing note. */}
+      <div className="shell overflow-hidden pb-8" aria-hidden="true">
+        <span className="block whitespace-nowrap font-display text-display-xl leading-[0.78] tracking-tightest text-primary/[0.12] dark:text-primary/20">
+          Lueur Skin
+        </span>
+      </div>
+
+      <div className="shell">
+        <DrawRule />
+        <div className="flex flex-col items-start justify-between gap-4 py-8 md:flex-row md:items-center">
+          <ul className="flex flex-wrap gap-x-6 gap-y-2">
+            {legal.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="label-sm text-foreground/45 transition-colors hover:text-primary"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+          <p className="label-sm text-foreground/40">{t.footer.copyright}</p>
         </div>
       </div>
     </footer>

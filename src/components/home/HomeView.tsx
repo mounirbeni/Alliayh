@@ -4,459 +4,338 @@ import { useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { ArrowUpRight, ArrowRight } from 'lucide-react';
 import { ProductCard } from '@/components/products/ProductCard';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { ArrowRight, Sparkles, ShieldCheck, Leaf, Crown, Droplets, Zap, Star } from 'lucide-react';
+import {
+  DrawRule,
+  Magnetic,
+  Marquee,
+  MaskReveal,
+  ParallaxFrame,
+  Reveal,
+} from '@/components/motion/Editorial';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 import type { Product } from '@/lib/catalog';
 
-function FadeIn({
-  children,
-  delay = 0,
-  className = '',
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  className?: string;
-}) {
-  const reduceMotion = useReducedMotion();
-
-  if (reduceMotion) {
-    return <div className={className}>{children}</div>;
-  }
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-100px' }}
-      transition={{ duration: 0.8, delay, ease: [0.25, 0.4, 0.25, 1] }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  );
-}
-
 /**
- * The home page composition.
+ * Home.
  *
- * Products arrive as props from the Server Component instead of being imported
- * from a module-level array, so the copy is already resolved for the active
- * locale and the client bundle no longer carries the entire catalog.
+ * Rebuilt as an editorial sequence rather than a stack of rounded cards:
+ *
+ *   1. a full-bleed hero whose headline rises out of its own mask,
+ *   2. a marquee that turns the value props into a moving rule,
+ *   3. a sticky philosophy split — text holds while imagery scrolls past it,
+ *   4. the collection as a numbered catalogue,
+ *   5. testimonials as pull-quotes, not cards,
+ *   6. an inverted closing panel for the advisor.
+ *
+ * The palette is untouched. What changed is the typography, the grid, and the
+ * decision to use hairlines and negative space where the old design used
+ * shadows and radius.
  */
 export function HomeView({ products }: { products: Product[] }) {
   const { dictionary: t, locale } = useLocaleStore();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const reduceMotion = useReducedMotion();
+  const reduce = useReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
 
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: heroRef,
     offset: ['start start', 'end start'],
   });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
+  const heroFade = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
 
-  const parallaxY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
-  const parallaxOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-  // Honour the OS reduced-motion preference: the hero stops moving, but its
-  // proportions, imagery and typography are unchanged.
-  const heroY = reduceMotion ? undefined : parallaxY;
-  const heroOpacity = reduceMotion ? undefined : parallaxOpacity;
+  const values = [
+    t.values.crueltyFree,
+    t.values.labTested,
+    t.values.freeShipping,
+    t.values.authentic,
+  ];
+
+  const pillars = [
+    { title: t.philosophy.botanical, desc: t.philosophy.botanicalDesc },
+    { title: t.philosophy.clinical, desc: t.philosophy.clinicalDesc },
+    { title: t.philosophy.luminous, desc: t.philosophy.luminousDesc },
+    { title: t.philosophy.barrier, desc: t.philosophy.barrierDesc },
+  ];
 
   return (
     <>
-      {/* === HERO SECTION === */}
+      {/* ── 01 · HERO ──────────────────────────────────────────────────── */}
       <section
-        ref={containerRef}
-        className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-background"
+        ref={heroRef}
+        className="relative -mt-[var(--header-height)] flex min-h-[100svh] items-end overflow-hidden"
       >
-        <div className="w-full px-[32px] py-6 relative z-10" style={{ maxWidth: '100vw' }}>
-          <motion.div
-            style={{ y: heroY, opacity: heroOpacity, minHeight: 'clamp(600px, 85vh, 1000px)' }}
-            className="relative w-full rounded-[3rem] sm:rounded-[5rem] overflow-hidden group shadow-[0_50px_100px_-20px_rgba(120,20,48,0.2)] dark:shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)]"
-          >
-            <motion.div
-              initial={reduceMotion ? false : { scale: 1.1 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 3, ease: 'easeOut' }}
-              className="absolute inset-0"
-            >
-              <Image
-                src="/products/glow-tea.jpg"
-                alt={t.hero.heroImageAlt}
-                fill
-                sizes="100vw"
-                className="object-cover brightness-[0.75] group-hover:scale-105 transition-transform [transition-duration:15000ms] ease-out"
-                priority
-                fetchPriority="high"
-              />
-            </motion.div>
+        <motion.div
+          className="absolute inset-0"
+          style={reduce ? undefined : { scale: heroScale, opacity: heroFade }}
+        >
+          <Image
+            src="/products/glow-tea.jpg"
+            alt={t.hero.heroImageAlt}
+            fill
+            priority
+            fetchPriority="high"
+            sizes="100vw"
+            className="object-cover duotone-strong"
+          />
+          {/*
+            Scrim. The hero image is light, so the copy needs a floor it can be
+            read against rather than a decorative wash — the midpoint is pulled
+            up to 45% and weighted so the whole lower half, where the headline
+            and subtitle sit, stays dark enough for AA contrast. The top stays
+            near-transparent so the photograph still reads.
+          */}
+          <div className="absolute inset-0 bg-gradient-to-t from-[hsl(343_71%_8%/0.94)] via-[hsl(343_71%_8%/0.68)] via-45% to-[hsl(343_71%_8%/0.12)]" />
+        </motion.div>
 
-            <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-primary/60" />
-            <div className="absolute inset-0 bg-gradient-to-tr from-primary/30 via-transparent to-black/30 mix-blend-overlay" />
-            <div className="absolute inset-0 bg-black/10 backdrop-blur-[1px]" />
+        {/*
+          On mobile the tab bar is pinned to the bottom edge, so the hero has to
+          clear it — otherwise the secondary call to action sits underneath it.
+        */}
+        <div className="shell relative z-10 w-full pb-[calc(var(--mobile-nav-height)+2.5rem)] pt-[calc(var(--header-height)+3rem)] md:pb-[clamp(3rem,7vw,6rem)]">
+          <Reveal>
+            <p className="label text-[hsl(var(--secondary))]">{t.hero.badge}</p>
+          </Reveal>
 
-            {/* Hero Content */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4 sm:px-8">
-              <div className="w-full max-w-4xl flex flex-col items-center">
-                <motion.div
-                  initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  <Badge
-                    variant="outline"
-                    className="border-white/30 text-white bg-white/10 backdrop-blur-md px-6 py-2 uppercase tracking-[0.4em] font-body text-[12px] font-bold rounded-full mb-8 shadow-2xl"
+          <h1 className="mt-6 font-display text-display-lg tracking-tightest text-[hsl(var(--primary-foreground))]">
+            <MaskReveal delay={0.1}>{t.hero.headline1}</MaskReveal>
+            <MaskReveal delay={0.2}>
+              <span className="wonk text-[hsl(var(--secondary))]">{t.hero.headline2}</span>
+            </MaskReveal>
+          </h1>
+
+          <div className="mt-10 grid grid-cols-1 items-end gap-8 md:grid-cols-12">
+            <Reveal delay={0.35} className="md:col-span-5">
+              <p className="max-w-prose text-lede text-[hsl(var(--primary-foreground))]/90">
+                {t.hero.subtitle}
+              </p>
+            </Reveal>
+
+            <Reveal delay={0.45} className="md:col-span-7 md:justify-self-end">
+              <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
+                <Magnetic>
+                  <Link
+                    href={`/${locale}/products`}
+                    className="group inline-flex items-center gap-3 border-b border-[hsl(var(--primary-foreground))]/40 pb-2 label text-[hsl(var(--primary-foreground))] transition-colors hover:border-[hsl(var(--secondary))] hover:text-[hsl(var(--secondary))]"
                   >
-                    {t.hero.badge}
-                  </Badge>
-                </motion.div>
+                    {t.hero.ctaShop}
+                    <ArrowUpRight
+                      className="h-4 w-4 transition-transform duration-400 ease-editorial group-hover:translate-x-1 group-hover:-translate-y-1"
+                      aria-hidden="true"
+                    />
+                  </Link>
+                </Magnetic>
 
-                <motion.h1
-                  initial={reduceMotion ? false : { opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.4, 0.25, 1] }}
-                  className="font-headline text-[72px] leading-[0.85] tracking-tighter text-glow drop-shadow-2xl"
-                >
-                  {t.hero.headline1} <br />
-                  <span className="italic font-light text-secondary mix-blend-luminosity">
-                    {t.hero.headline2}
-                  </span>
-                </motion.h1>
-
-                <motion.p
-                  initial={reduceMotion ? false : { opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 1, delay: 0.8 }}
-                  className="text-[18px] font-body max-w-lg mx-auto opacity-90 leading-relaxed font-bold uppercase tracking-[0.3em] break-words mt-8 drop-shadow-md"
-                >
-                  {t.hero.subtitle}
-                </motion.p>
-
-                <motion.div
-                  initial={reduceMotion ? false : { opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 1, delay: 1 }}
-                  className="flex flex-col sm:flex-row gap-4 justify-center pt-10 w-full"
-                >
-                  <Button
-                    asChild
-                    size="lg"
-                    className="w-full sm:w-auto group relative overflow-hidden flex items-center justify-center gap-2 bg-white text-primary hover:text-white hover:scale-105 transition-all duration-500 text-[11px] uppercase tracking-[0.35em] px-[32px] rounded-full h-[44px] font-black shadow-2xl shadow-white/10 whitespace-normal border-0"
+                <Magnetic>
+                  <Link
+                    href={`/${locale}/advisor`}
+                    className="group inline-flex items-center gap-3 border-b border-transparent pb-2 label text-[hsl(var(--primary-foreground))]/70 transition-colors hover:border-[hsl(var(--secondary))] hover:text-[hsl(var(--secondary))]"
                   >
-                    <Link href={`/${locale}/products`}>
-                      <span className="absolute inset-0 bg-primary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0" />
-                      <span className="relative z-10 flex items-center gap-2">{t.hero.ctaShop}</span>
-                    </Link>
-                  </Button>
-                  <Button
-                    asChild
-                    size="lg"
-                    variant="outline"
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 glass bg-white/5 border-white/20 text-white hover:bg-white/20 text-[11px] uppercase tracking-[0.35em] px-[32px] rounded-full h-[44px] font-bold whitespace-normal transition-all duration-500"
-                  >
-                    <Link href={`/${locale}/advisor`}>
-                      <Sparkles className="h-[20px] w-[20px] shrink-0 text-secondary" />
-                      {t.hero.ctaStory}
-                    </Link>
-                  </Button>
-                </motion.div>
+                    {t.hero.ctaStory}
+                    <ArrowUpRight
+                      className="h-4 w-4 transition-transform duration-400 ease-editorial group-hover:translate-x-1 group-hover:-translate-y-1"
+                      aria-hidden="true"
+                    />
+                  </Link>
+                </Magnetic>
               </div>
-            </div>
-
-            {/* Scroll hint */}
-            <motion.div
-              initial={reduceMotion ? false : { opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5, duration: 1 }}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2 flex-col items-center gap-4 text-white/70 animate-bounce hidden sm:flex"
-              aria-hidden="true"
-            >
-              <span className="text-[12px] uppercase tracking-[0.4em] font-bold">{t.hero.scroll}</span>
-              <div className="h-12 w-[1px] bg-gradient-to-b from-white/70 to-transparent" />
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* === VALUE PROPOSITION BANNER === */}
-      <section className="py-12 border-y border-primary/10 bg-primary/[0.02] overflow-hidden relative">
-        <div className="absolute inset-0 bg-grain opacity-20 mix-blend-overlay pointer-events-none" />
-        <div className="max-w-[1400px] mx-auto px-[32px] relative z-10">
-          <ul className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 list-none">
-            {[
-              { icon: Leaf, label: t.values.crueltyFree },
-              { icon: ShieldCheck, label: t.values.labTested },
-              { icon: Droplets, label: t.values.freeShipping },
-              { icon: Zap, label: t.values.authentic },
-            ].map((item, i) => (
-              <li key={item.label}>
-                <FadeIn delay={i * 0.1}>
-                  <div className="group flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 text-center sm:text-left py-4 min-w-0 rounded-3xl hover:bg-primary/5 transition-colors duration-500 cursor-default">
-                    <div className="h-12 w-12 min-w-[48px] rounded-full bg-background border border-primary/10 shadow-lg shadow-primary/5 flex items-center justify-center shrink-0 group-hover:scale-110 group-hover:bg-primary transition-all duration-500">
-                      <item.icon
-                        className="h-[20px] w-[20px] text-primary group-hover:text-white transition-colors duration-500"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <span className="text-[12px] font-body font-bold uppercase tracking-[0.15em] text-foreground/80 break-words leading-snug">
-                      {item.label}
-                    </span>
-                  </div>
-                </FadeIn>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
-
-      {/* === BRAND PHILOSOPHY === */}
-      <section className="py-[80px] md:py-[112px] relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-secondary/10 rounded-full blur-[150px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
-
-        <div className="max-w-[1400px] mx-auto px-[32px] relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-            <div className="space-y-12 min-w-0">
-              <FadeIn className="space-y-6">
-                <Badge className="bg-primary/5 text-primary border-primary/20 px-6 py-2.5 rounded-full uppercase tracking-[0.4em] text-[12px] font-bold shadow-sm">
-                  {t.philosophy.badge}
-                </Badge>
-                <h2 className="font-headline text-[40px] tracking-tighter leading-[0.9] break-words">
-                  {t.philosophy.headline1} <br />
-                  <span className="italic font-light text-primary/50">{t.philosophy.headline2}</span>
-                </h2>
-                <p className="text-muted-foreground text-[18px] leading-relaxed font-body font-medium italic max-w-xl break-words border-l-2 border-primary/20 pl-6">
-                  {t.philosophy.quote}
-                </p>
-              </FadeIn>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                {[
-                  { icon: Leaf, title: t.philosophy.botanical, desc: t.philosophy.botanicalDesc },
-                  { icon: ShieldCheck, title: t.philosophy.clinical, desc: t.philosophy.clinicalDesc },
-                  { icon: Zap, title: t.philosophy.luminous, desc: t.philosophy.luminousDesc },
-                  { icon: Droplets, title: t.philosophy.barrier, desc: t.philosophy.barrierDesc },
-                ].map((item, i) => (
-                  <FadeIn
-                    key={item.title}
-                    delay={0.2 + i * 0.1}
-                    className="flex gap-5 items-start min-w-0 group cursor-default"
-                  >
-                    <div className="h-[32px] w-[32px] min-w-[32px] bg-white dark:bg-white/5 border border-primary/10 shadow-xl shadow-primary/5 rounded-full flex items-center justify-center shrink-0 group-hover:bg-primary transition-colors duration-500">
-                      <item.icon
-                        className="h-[20px] w-[20px] text-primary group-hover:text-white transition-colors duration-500"
-                        aria-hidden="true"
-                      />
-                    </div>
-                    <div className="min-w-0 space-y-1">
-                      <h3 className="font-headline text-[24px] group-hover:text-primary transition-colors duration-300">
-                        {item.title}
-                      </h3>
-                      <p className="text-[16px] text-muted-foreground leading-relaxed italic break-words">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </FadeIn>
-                ))}
-              </div>
-            </div>
-
-            {/* Image — Premium reveal effect */}
-            <FadeIn delay={0.3} className="relative w-full h-full min-h-[500px]">
-              <div className="relative aspect-[4/5] w-full rounded-[4rem] overflow-hidden shadow-[0_40px_80px_-20px_rgba(120,20,48,0.3)] group">
-                <Image
-                  src="/products/sea-moss-gummies.jpg"
-                  alt={t.philosophy.philosophyImageAlt}
-                  fill
-                  className="object-cover object-center group-hover:scale-110 transition-transform [transition-duration:10000ms] ease-out"
-                  sizes="(max-width: 1024px) 100vw, 50vw"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-80" />
-
-                <motion.div
-                  animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
-                  transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
-                  className="absolute bottom-10 left-10 glass p-5 rounded-3xl max-w-[200px]"
-                >
-                  <div className="flex gap-1 mb-2" aria-hidden="true">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Star key={i} className="h-3 w-3 fill-secondary text-secondary" />
-                    ))}
-                  </div>
-                  <p className="text-[12px] uppercase tracking-widest text-white font-bold leading-relaxed">
-                    {t.philosophy.testimonialQuote}
-                  </p>
-                </motion.div>
-              </div>
-            </FadeIn>
+            </Reveal>
           </div>
         </div>
       </section>
 
-      {/* === FEATURED PRODUCTS GRID === */}
-      <section className="py-[80px] md:py-[112px] bg-gradient-to-b from-primary/[0.02] to-background border-y border-primary/10 relative">
-        <div className="max-w-[1400px] mx-auto px-[32px]">
-          <FadeIn className="flex flex-col sm:flex-row justify-between items-start sm:items-end mb-16 gap-6 min-w-0">
-            <div className="space-y-4 min-w-0 max-w-2xl">
-              <div className="inline-flex items-center gap-3 border border-primary/20 px-4 py-1.5 rounded-full bg-white dark:bg-black/20">
-                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-                <span className="text-[12px] uppercase tracking-[0.3em] font-bold text-primary">
-                  {t.bestSellers.badge}
-                </span>
-              </div>
-              <h2 className="font-headline text-[40px] tracking-tighter leading-none break-words">
-                {t.bestSellers.headline1}{' '}
-                <span className="italic font-light text-primary/60">{t.bestSellers.headline2}</span>
+      {/* ── 02 · MARQUEE ───────────────────────────────────────────────── */}
+      <section aria-label={t.values.crueltyFree} className="rule-b bg-primary py-5 text-[hsl(var(--primary-foreground))]">
+        <Marquee>
+          {values.map((value) => (
+            <span key={value} className="flex items-center">
+              <span className="label whitespace-nowrap px-8">{value}</span>
+              <span aria-hidden="true" className="h-1 w-1 rounded-full bg-current opacity-50" />
+            </span>
+          ))}
+        </Marquee>
+      </section>
+
+      {/* ── 03 · PHILOSOPHY (sticky split) ─────────────────────────────── */}
+      <section className="section shell">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-5">
+            <div className="lg:sticky lg:top-[calc(var(--header-height)+3rem)]">
+              <Reveal>
+                <p className="label text-foreground/45">{t.philosophy.badge}</p>
+              </Reveal>
+
+              <h2 className="mt-6 font-display text-display-md tracking-tightest">
+                <MaskReveal>{t.philosophy.headline1}</MaskReveal>
+                <MaskReveal delay={0.08}>
+                  <span className="wonk text-primary">{t.philosophy.headline2}</span>
+                </MaskReveal>
               </h2>
-              <p className="text-muted-foreground font-body text-[18px] uppercase tracking-[0.3em] font-bold leading-relaxed opacity-60 break-words">
-                {t.bestSellers.subtitle}
-              </p>
+
+              <Reveal delay={0.15}>
+                <blockquote className="mt-8 max-w-prose border-l border-primary/30 pl-6 font-display text-lede italic text-foreground/70">
+                  {t.philosophy.quote}
+                </blockquote>
+              </Reveal>
             </div>
+          </div>
+
+          <div className="lg:col-span-7">
+            <ParallaxFrame className="aspect-[4/5] w-full" amount={9}>
+              <Image
+                src="/products/sea-moss-gummies.jpg"
+                alt={t.philosophy.philosophyImageAlt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                className="object-cover duotone"
+              />
+            </ParallaxFrame>
+
+            {/* Pillars as a ruled index, not four icon boxes. */}
+            <dl className="mt-12">
+              {pillars.map((pillar, i) => (
+                <Reveal key={pillar.title} delay={i * 0.06}>
+                  <div className="grid grid-cols-[3rem_1fr] items-baseline gap-x-4 gap-y-2 py-6 rule-t sm:grid-cols-[4rem_1fr_1.2fr] sm:gap-x-8">
+                    <span aria-hidden="true" className="numeral text-label text-foreground/30">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                    <dt className="font-display text-display-xs tracking-editorial">{pillar.title}</dt>
+                    <dd className="col-span-2 text-body-sm text-foreground/60 sm:col-span-1">
+                      {pillar.desc}
+                    </dd>
+                  </div>
+                </Reveal>
+              ))}
+              <DrawRule />
+            </dl>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 04 · THE COLLECTION ────────────────────────────────────────── */}
+      <section className="section shell">
+        <div className="flex flex-wrap items-end justify-between gap-6 pb-10">
+          <div>
+            <Reveal>
+              <p className="label text-foreground/45">{t.bestSellers.badge}</p>
+            </Reveal>
+            <h2 className="mt-5 font-display text-display-md tracking-tightest">
+              <MaskReveal>
+                {t.bestSellers.headline1} <span className="wonk text-primary">{t.bestSellers.headline2}</span>
+              </MaskReveal>
+            </h2>
+          </div>
+
+          <Reveal delay={0.1}>
             <Link
               href={`/${locale}/products`}
-              className="group flex items-center gap-4 text-[11px] font-body font-bold uppercase tracking-[0.4em] hover:text-primary transition-all shrink-0 bg-white dark:bg-white/5 border border-primary/10 pl-6 pr-2 py-2 rounded-full shadow-lg"
+              className="group inline-flex items-center gap-3 border-b border-rule pb-2 label transition-colors hover:border-primary hover:text-primary"
             >
               {t.bestSellers.viewAll}
-              <span className="h-[40px] w-[40px] min-h-[40px] min-w-[40px] rounded-full bg-primary/10 group-hover:bg-primary flex items-center justify-center text-primary group-hover:text-white transition-all duration-500">
-                <ArrowRight className="h-[20px] w-[20px]" aria-hidden="true" />
-              </span>
+              <ArrowRight
+                className="h-4 w-4 transition-transform duration-400 ease-editorial group-hover:translate-x-1.5"
+                aria-hidden="true"
+              />
             </Link>
-          </FadeIn>
+          </Reveal>
+        </div>
 
-          {/* Products grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[32px]">
-            {products.map((product, index) => (
-              <FadeIn key={product.id} delay={index * 0.15} className="min-w-0">
-                <ProductCard product={product} />
-              </FadeIn>
-            ))}
-          </div>
+        <DrawRule className="mb-12" />
+
+        <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-4">
+          {products.map((product, i) => (
+            <Reveal key={product.id} delay={i * 0.07}>
+              <ProductCard product={product} index={i} priority={i < 2} />
+            </Reveal>
+          ))}
         </div>
       </section>
 
-      {/* === TESTIMONIALS === */}
-      <section className="py-[80px] md:py-[112px] relative">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-[400px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
-        <div className="max-w-[1400px] mx-auto px-[32px] relative z-10">
-          <FadeIn className="text-center mb-20 space-y-4">
-            <span className="text-primary font-luxury text-sm md:text-lg">{t.testimonials.badge}</span>
-            <h2 className="font-headline text-[40px] tracking-tighter break-words leading-none">
-              {t.testimonials.headline1}{' '}
-              <span className="italic font-light text-primary/60">{t.testimonials.headline2}</span>
-            </h2>
-          </FadeIn>
+      {/* ── 05 · PULL QUOTES ───────────────────────────────────────────── */}
+      <section className="section bg-muted/40 grain relative">
+        <div className="shell relative z-10">
+          <Reveal>
+            <p className="label text-center text-foreground/45">{t.testimonials.badge}</p>
+          </Reveal>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-[32px]">
+          <h2 className="mt-6 text-center font-display text-display-md tracking-tightest">
+            <MaskReveal>
+              {t.testimonials.headline1}{' '}
+              <span className="wonk text-primary">{t.testimonials.headline2}</span>
+            </MaskReveal>
+          </h2>
+
+          <div className="mt-16 grid grid-cols-1 gap-x-10 gap-y-14 md:grid-cols-3">
             {t.testimonials.reviews.map((review, i) => (
-              <FadeIn key={review.name} delay={i * 0.2}>
-                <figure className="group h-full bg-white dark:bg-black/20 border border-primary/10 rounded-[2.5rem] p-[24px] flex flex-col gap-6 min-w-0 hover:shadow-2xl hover:shadow-primary/5 hover:-translate-y-2 transition-all duration-500">
-                  <div className="flex items-center gap-1" aria-label="5 / 5">
-                    {[1, 2, 3, 4, 5].map((s) => (
-                      <Star
-                        key={s}
-                        aria-hidden="true"
-                        className="h-4 w-4 fill-primary text-primary shrink-0 group-hover:scale-110 transition-transform duration-300"
-                        style={{ transitionDelay: `${s * 50}ms` }}
-                      />
-                    ))}
-                  </div>
-                  <blockquote className="text-[16px] text-foreground/80 italic leading-loose font-body break-words flex-1">
-                    &ldquo;{review.text}&rdquo;
+              <Reveal key={review.name} delay={i * 0.1}>
+                <figure className="flex h-full flex-col">
+                  <span aria-hidden="true" className="font-display text-display-sm leading-none text-primary/25">
+                    &ldquo;
+                  </span>
+                  <blockquote className="-mt-4 flex-1 font-display text-lede italic leading-relaxed text-foreground/80">
+                    {review.text}
                   </blockquote>
-                  <figcaption className="flex items-center gap-4 min-w-0 pt-4 border-t border-primary/10">
-                    <span
-                      aria-hidden="true"
-                      className="h-12 w-12 min-w-[48px] rounded-full bg-primary/10 flex items-center justify-center text-primary font-headline text-lg shrink-0 group-hover:bg-primary group-hover:text-white transition-colors duration-500"
-                    >
-                      {review.name[0]}
-                    </span>
-                    <span className="min-w-0">
-                      <span className="block font-headline text-base truncate group-hover:text-primary transition-colors">
-                        {review.name}
-                      </span>
-                      <span className="block text-[12px] text-muted-foreground uppercase tracking-[0.2em] font-bold truncate mt-0.5">
-                        {review.location}
-                      </span>
-                    </span>
+                  <figcaption className="mt-6 pt-4 rule-t">
+                    <span className="label block">{review.name}</span>
+                    <span className="label-sm mt-2 block text-foreground/45">{review.location}</span>
                   </figcaption>
                 </figure>
-              </FadeIn>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
-      {/* === AI ADVISOR CTA === */}
-      <section className="py-[80px] md:py-[112px] max-w-[1400px] mx-auto px-[32px] mb-20">
-        <FadeIn className="relative overflow-hidden rounded-[3rem] sm:rounded-[5rem] bg-primary text-white shadow-[0_40px_100px_-20px_rgba(120,20,48,0.4)]">
-          <div className="absolute inset-0 overflow-hidden pointer-events-none">
-            <div className="absolute top-[-50%] left-[-20%] w-[120%] h-[200%] bg-secondary/30 rounded-full blur-[150px] animate-[pulse_8s_ease-in-out_infinite] opacity-50" />
-            <div className="absolute inset-0 bg-grain mix-blend-overlay opacity-30" />
-          </div>
+      {/* ── 06 · ADVISOR ───────────────────────────────────────────────── */}
+      <section className="relative overflow-hidden bg-primary text-[hsl(var(--primary-foreground))] grain">
+        <div className="shell relative z-10 grid grid-cols-1 items-center gap-12 py-[clamp(4rem,8vw,8rem)] lg:grid-cols-2 lg:gap-20">
+          <div>
+            <Reveal>
+              <p className="label text-[hsl(var(--secondary))]">{t.advisorCta.badge}</p>
+            </Reveal>
 
-          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 p-8 md:p-20 items-center">
-            <div className="space-y-10 text-center lg:text-left">
-              <div className="inline-flex items-center gap-3 bg-white/10 backdrop-blur-md border border-white/20 px-6 py-2.5 rounded-full shadow-2xl">
-                <Crown className="h-[20px] w-[20px] text-secondary shrink-0" aria-hidden="true" />
-                <span className="font-body text-white uppercase tracking-[0.4em] font-bold text-[12px]">
-                  {t.advisorCta.badge}
-                </span>
-              </div>
+            <h2 className="mt-6 font-display text-display-md tracking-tightest">
+              <MaskReveal>{t.advisorCta.headline1}</MaskReveal>
+              <MaskReveal delay={0.08}>
+                <span className="wonk text-[hsl(var(--secondary))]">{t.advisorCta.headline2}</span>
+              </MaskReveal>
+            </h2>
 
-              <h2 className="font-headline text-[40px] tracking-tighter leading-[0.9] text-glow break-words drop-shadow-2xl">
-                {t.advisorCta.headline1}
-                <br />
-                <span className="italic font-light text-secondary mix-blend-luminosity">
-                  {t.advisorCta.headline2}
-                </span>
-              </h2>
-              <p className="text-white/80 leading-relaxed font-body text-[18px] max-w-md mx-auto lg:mx-0 break-words drop-shadow-md">
+            <Reveal delay={0.16}>
+              <p className="mt-8 max-w-prose text-body-lg text-[hsl(var(--primary-foreground))]/70">
                 {t.advisorCta.description}
               </p>
+            </Reveal>
 
-              <div className="pt-4">
-                <Button
-                  asChild
-                  size="lg"
-                  className="group relative overflow-hidden w-full sm:w-auto inline-flex items-center justify-center bg-white text-primary hover:text-white transition-all duration-500 rounded-full h-[44px] px-[32px] uppercase tracking-[0.4em] text-[11px] font-black shadow-2xl border-0"
+            <Reveal delay={0.24}>
+              <Magnetic>
+                <Link
+                  href={`/${locale}/advisor`}
+                  className="group mt-10 inline-flex items-center gap-3 border-b border-[hsl(var(--primary-foreground))]/40 pb-2 label transition-colors hover:border-[hsl(var(--secondary))] hover:text-[hsl(var(--secondary))]"
                 >
-                  <Link href={`/${locale}/advisor`}>
-                    <span className="absolute inset-0 bg-secondary translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-0" />
-                    <span className="relative z-10 flex items-center gap-3">
-                      {t.advisorCta.cta}
-                      <ArrowRight
-                        className="h-[20px] w-[20px] group-hover:translate-x-1 transition-transform"
-                        aria-hidden="true"
-                      />
-                    </span>
-                  </Link>
-                </Button>
-              </div>
-            </div>
+                  {t.advisorCta.cta}
+                  <ArrowUpRight
+                    className="h-4 w-4 transition-transform duration-400 ease-editorial group-hover:translate-x-1 group-hover:-translate-y-1"
+                    aria-hidden="true"
+                  />
+                </Link>
+              </Magnetic>
+            </Reveal>
+          </div>
 
-            {/* Image */}
-            <div className="relative aspect-square md:aspect-[4/3] w-full overflow-hidden rounded-[2.5rem] sm:rounded-[4rem] group shadow-2xl">
+          <Reveal delay={0.1}>
+            <ParallaxFrame className="aspect-[4/5] w-full lg:aspect-square" amount={8}>
               <Image
                 src="/products/sea-moss-facts.jpg"
                 alt={t.advisorCta.advisorImageAlt}
                 fill
-                className="object-cover object-center group-hover:scale-105 transition-transform [transition-duration:10000ms] ease-out"
-                sizes="(max-width: 1024px) 100vw, 50vw"
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="object-cover duotone"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-8 sm:p-12">
-                <div className="flex items-center gap-4 text-white">
-                  <span className="relative flex items-center justify-center" aria-hidden="true">
-                    <span className="h-3 w-3 bg-secondary rounded-full absolute animate-ping opacity-75" />
-                    <span className="h-2 w-2 bg-secondary rounded-full relative" />
-                  </span>
-                  <span className="font-body uppercase tracking-[0.3em] font-bold text-[12px]">
-                    {t.advisorCta.analyzingLabel}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </FadeIn>
+            </ParallaxFrame>
+          </Reveal>
+        </div>
       </section>
     </>
   );

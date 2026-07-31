@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Home, LayoutGrid, ShoppingBag, Heart, User } from "lucide-react";
@@ -7,12 +8,19 @@ import { motion } from "framer-motion";
 import { useCartStore } from "@/lib/store/useCartStore";
 import { useCartDrawerStore } from "@/lib/store/useCartDrawerStore";
 import { useLocaleStore } from "@/lib/store/useLocaleStore";
-import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * MobileNav — Bottom navigation bar for mobile devices.
- * Features: cart icon opens drawer, i18n labels, active state animations.
+ * The mobile tab bar.
+ *
+ * Redrawn as a full-width ruled bar sitting flush to the bottom edge rather
+ * than a floating rounded pill: it matches the rest of the system, and its
+ * height is exactly `--mobile-nav-height`, which is what every `.pb-mobile-nav`
+ * clearance on the site is calculated from. The floating version was 64px tall
+ * plus a 20px offset and overlapped page content.
+ *
+ * Labels are visible rather than `sr-only`. Five unlabelled glyphs asked
+ * sighted users to guess; the design has a small-caps label style, so use it.
  */
 export function MobileNav() {
   const pathname = usePathname();
@@ -22,9 +30,7 @@ export function MobileNav() {
   const openCart = useCartDrawerStore((state) => state.open);
   const { dictionary: t, locale } = useLocaleStore();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
   const navItems = [
     { name: t.nav.home, href: `/${locale}`, icon: Home },
@@ -35,20 +41,18 @@ export function MobileNav() {
   ];
 
   return (
-    <nav aria-label={t.a11y.mainNavigation} className="md:hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-[400px]">
-      <motion.div
-        initial={{ y: 80, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", damping: 20, stiffness: 200, delay: 0.5 }}
-        className="glass shadow-[0_8px_32px_0_rgba(120,20,48,0.15)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.5)] rounded-[2rem] px-4 h-16 flex items-center justify-between backdrop-blur-2xl bg-white/70 dark:bg-black/50"
-      >
+    <nav
+      aria-label={t.a11y.mainNavigation}
+      className="fixed inset-x-0 bottom-0 z-50 rule-t bg-background/[0.97] backdrop-blur-xl pb-[env(safe-area-inset-bottom)] md:hidden"
+    >
+      <div className="grid h-[var(--mobile-nav-height)] grid-cols-5">
         {navItems.map((item) => {
           const isActive = item.isCart ? false : pathname === item.href;
           const showBadge = mounted && cartHydrated && (item.badge ?? 0) > 0;
-          
-          const handleClick = (e: React.MouseEvent) => {
+
+          const handleClick = (event: React.MouseEvent) => {
             if (item.isCart) {
-              e.preventDefault();
+              event.preventDefault();
               openCart();
             }
           };
@@ -58,36 +62,47 @@ export function MobileNav() {
               key={item.name}
               href={item.isCart ? "#" : item.href}
               onClick={handleClick}
-              aria-label={item.name}
-              aria-current={isActive ? 'page' : undefined}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "relative flex flex-col items-center justify-center min-w-[44px] min-h-[44px] w-12 h-12 transition-colors",
-                isActive ? "text-primary dark:text-primary-foreground" : "text-foreground/50 hover:text-foreground/80"
+                "relative flex flex-col items-center justify-center gap-1.5 transition-colors",
+                isActive ? "text-primary" : "text-foreground/45",
               )}
             >
-              <item.icon aria-hidden="true" className={cn("h-5 w-5 transition-all duration-300", isActive && "scale-110 drop-shadow-md")} />
-              <span className="sr-only">{item.name}</span>
               {isActive && (
                 <motion.span
                   aria-hidden="true"
                   layoutId="mobile-nav-indicator"
-                  className="absolute -bottom-0.5 h-1 w-1 rounded-full bg-primary"
-                  transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                  className="absolute inset-x-0 top-0 h-px bg-primary"
+                  transition={{ type: "spring", stiffness: 320, damping: 32 }}
                 />
               )}
-              {showBadge && (
-                <motion.span
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute top-0.5 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8px] font-bold text-white shadow-sm ring-2 ring-background"
-                >
-                  {item.badge}
-                </motion.span>
-              )}
+
+              <span className="relative">
+                <item.icon aria-hidden="true" className="h-[18px] w-[18px]" />
+                {showBadge && (
+                  <motion.span
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    aria-hidden="true"
+                    className="absolute -right-2 -top-1.5 flex h-4 w-4 items-center justify-center bg-primary text-[9px] font-semibold tabular text-primary-foreground"
+                  >
+                    {item.badge}
+                  </motion.span>
+                )}
+              </span>
+
+              {/*
+                Tighter than the site's `.label-sm`: at 390px each cell is only
+                78px wide and the Portuguese labels ("Categorias", "Favoritos")
+                overflow at the 0.22em tracking that style uses.
+              */}
+              <span className="px-1 text-center text-[0.5625rem] font-semibold uppercase leading-none tracking-[0.08em]">
+                {item.name}
+              </span>
             </Link>
           );
         })}
-      </motion.div>
+      </div>
     </nav>
   );
 }

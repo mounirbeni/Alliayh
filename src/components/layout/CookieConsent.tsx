@@ -1,154 +1,190 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Shield, ChevronDown } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useId, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ChevronDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useCookieStore } from '@/lib/store/useCookieStore';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 
 /**
- * CookieConsent — GDPR-compliant cookie consent banner.
- * Blocks non-essential trackers (analytics, marketing) until explicitly accepted.
- * Features a customizable preferences panel with toggles per category.
+ * Consent bar.
+ *
+ * Non-essential trackers stay blocked until the visitor says otherwise. It is
+ * deliberately *not* a modal: it never traps focus and never blocks the page,
+ * so it is announced as a labelled region rather than a dialog.
+ *
+ * Visually it belongs to the same system as everything else — a full-bleed bar
+ * ruled off from the page, sharp corners, label type — instead of the floating
+ * rounded card it used to be.
  */
 export function CookieConsent() {
-  const { hasConsented, showBanner, acceptAll, rejectNonEssential, savePreferences, preferences } = useCookieStore();
+  const { hasConsented, showBanner, acceptAll, rejectNonEssential, savePreferences, preferences } =
+    useCookieStore();
   const { dictionary: t } = useLocaleStore();
   const [showCustomize, setShowCustomize] = useState(false);
   const [localPrefs, setLocalPrefs] = useState(preferences);
   const [mounted, setMounted] = useState(false);
+  const titleId = useId();
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
+  useEffect(() => setLocalPrefs(preferences), [preferences]);
 
-  useEffect(() => {
-    setLocalPrefs(preferences);
-  }, [preferences]);
-
-  // Don't render until mounted (avoids hydration mismatch)
-  if (!mounted || hasConsented || !showBanner) return null;
-
-  const togglePref = (key: 'analytics' | 'marketing') => {
+  const togglePref = (key: 'analytics' | 'marketing') =>
     setLocalPrefs((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
 
+  const open = mounted && !hasConsented && showBanner;
+
+  /*
+   * The conditional lives inside AnimatePresence. Returning null above it — as
+   * this component used to — unmounts the child before AnimatePresence can see
+   * it leave, so the exit transition never ran.
+   */
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ y: 100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
-        transition={{ type: "spring", damping: 25, stiffness: 200, delay: 1 }}
-        className="fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6"
-      >
-        <div className="container mx-auto max-w-3xl">
-          <div className="bg-white/95 dark:bg-black/90 backdrop-blur-2xl border border-primary/10 rounded-3xl shadow-[0_-20px_60px_-10px_rgba(120,20,48,0.1)] p-6 md:p-8">
-            {/* Header */}
-            <div className="flex items-start gap-4">
-              <div className="h-10 w-10 rounded-2xl bg-primary/5 flex items-center justify-center shrink-0 mt-0.5">
-                <Shield className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-headline text-base md:text-lg mb-1">{t.cookies.title}</h3>
-                <p className="text-xs md:text-sm text-muted-foreground font-body leading-relaxed">
+      {open && (
+        <motion.section
+          aria-labelledby={titleId}
+          initial={{ y: '100%' }}
+          animate={{ y: 0 }}
+          exit={{ y: '100%' }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
+          className="fixed inset-x-0 bottom-0 z-[100] rule-t bg-background/[0.98] backdrop-blur-xl"
+        >
+          <div className="shell py-6">
+            <div className="grid grid-cols-1 items-start gap-x-12 gap-y-6 lg:grid-cols-12">
+              <div className="lg:col-span-6">
+                <p className="label text-foreground/45">{t.cookies.title}</p>
+                <h2 id={titleId} className="mt-3 font-display text-body-lg leading-snug">
                   {t.cookies.description}
-                </p>
+                </h2>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-4 lg:col-span-6 lg:justify-end">
+                <button
+                  type="button"
+                  onClick={acceptAll}
+                  className="label min-h-[44px] bg-primary px-8 text-primary-foreground transition-opacity hover:opacity-85"
+                >
+                  {t.cookies.acceptAll}
+                </button>
+                <button
+                  type="button"
+                  onClick={rejectNonEssential}
+                  className="label link-underline min-h-[44px] text-foreground/70 transition-colors hover:text-foreground"
+                >
+                  {t.cookies.rejectAll}
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    showCustomize
+                      ? (savePreferences(localPrefs), setShowCustomize(false))
+                      : setShowCustomize(true)
+                  }
+                  aria-expanded={showCustomize}
+                  className="label inline-flex min-h-[44px] items-center gap-2 text-foreground/45 transition-colors hover:text-foreground"
+                >
+                  {showCustomize ? t.cookies.savePreferences : t.cookies.customize}
+                  <ChevronDown
+                    className={cn('h-3 w-3 transition-transform duration-500', showCustomize && 'rotate-180')}
+                    aria-hidden="true"
+                  />
+                </button>
               </div>
             </div>
 
-            {/* Customize Panel */}
-            <AnimatePresence>
+            <AnimatePresence initial={false}>
               {showCustomize && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
+                  animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
                   className="overflow-hidden"
                 >
-                  <div className="mt-5 pt-5 border-t border-primary/10 space-y-3">
-                    {/* Necessary — always enabled */}
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-primary/5">
-                      <div>
-                        <p className="text-sm font-body font-bold">{t.cookies.necessary}</p>
-                        <p className="text-[11px] text-muted-foreground font-body">{t.cookies.necessaryDesc}</p>
-                      </div>
-                      <div className="h-6 w-11 rounded-full bg-primary flex items-center justify-end pr-0.5 cursor-not-allowed opacity-70">
-                        <div className="h-5 w-5 rounded-full bg-white shadow-sm" />
-                      </div>
-                    </div>
-
-                    {/* Analytics */}
-                    <button
-                      onClick={() => togglePref('analytics')}
-                      className="flex items-center justify-between p-3 rounded-xl bg-muted/50 w-full text-left hover:bg-muted/70 transition-colors"
-                    >
-                      <div>
-                        <p className="text-sm font-body font-bold">{t.cookies.analytics}</p>
-                        <p className="text-[11px] text-muted-foreground font-body">{t.cookies.analyticsDesc}</p>
-                      </div>
-                      <div className={`h-6 w-11 rounded-full flex items-center transition-colors duration-300 ${localPrefs.analytics ? 'bg-primary justify-end pr-0.5' : 'bg-muted-foreground/20 justify-start pl-0.5'}`}>
-                        <motion.div layout className="h-5 w-5 rounded-full bg-white shadow-sm" />
-                      </div>
-                    </button>
-
-                    {/* Marketing */}
-                    <button
-                      onClick={() => togglePref('marketing')}
-                      className="flex items-center justify-between p-3 rounded-xl bg-muted/50 w-full text-left hover:bg-muted/70 transition-colors"
-                    >
-                      <div>
-                        <p className="text-sm font-body font-bold">{t.cookies.marketing}</p>
-                        <p className="text-[11px] text-muted-foreground font-body">{t.cookies.marketingDesc}</p>
-                      </div>
-                      <div className={`h-6 w-11 rounded-full flex items-center transition-colors duration-300 ${localPrefs.marketing ? 'bg-primary justify-end pr-0.5' : 'bg-muted-foreground/20 justify-start pl-0.5'}`}>
-                        <motion.div layout className="h-5 w-5 rounded-full bg-white shadow-sm" />
-                      </div>
-                    </button>
-                  </div>
+                  <dl className="mt-8 grid grid-cols-1 rule-t sm:grid-cols-3">
+                    <ConsentRow
+                      title={t.cookies.necessary}
+                      description={t.cookies.necessaryDesc}
+                      checked
+                      locked
+                    />
+                    <ConsentRow
+                      title={t.cookies.analytics}
+                      description={t.cookies.analyticsDesc}
+                      checked={localPrefs.analytics}
+                      onToggle={() => togglePref('analytics')}
+                    />
+                    <ConsentRow
+                      title={t.cookies.marketing}
+                      description={t.cookies.marketingDesc}
+                      checked={localPrefs.marketing}
+                      onToggle={() => togglePref('marketing')}
+                    />
+                  </dl>
                 </motion.div>
               )}
             </AnimatePresence>
-
-            {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-2 mt-5">
-              <Button
-                onClick={acceptAll}
-                className="flex-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 uppercase tracking-[0.15em] text-[10px] font-bold h-11 min-h-[44px] shadow-md"
-              >
-                {t.cookies.acceptAll}
-              </Button>
-              <Button
-                onClick={rejectNonEssential}
-                variant="outline"
-                className="flex-1 rounded-full border-primary/20 hover:bg-primary/5 uppercase tracking-[0.15em] text-[10px] font-bold h-11 min-h-[44px]"
-              >
-                {t.cookies.rejectAll}
-              </Button>
-              {showCustomize ? (
-                <Button
-                  onClick={() => { savePreferences(localPrefs); setShowCustomize(false); }}
-                  variant="outline"
-                  className="flex-1 rounded-full border-primary/20 hover:bg-primary/5 uppercase tracking-[0.15em] text-[10px] font-bold h-11 min-h-[44px] gap-1"
-                >
-                  {t.cookies.savePreferences}
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => setShowCustomize(true)}
-                  variant="ghost"
-                  className="flex-1 rounded-full hover:bg-primary/5 uppercase tracking-[0.15em] text-[10px] font-bold h-11 min-h-[44px] gap-1 text-muted-foreground"
-                >
-                  {t.cookies.customize}
-                  <ChevronDown className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
           </div>
-        </div>
-      </motion.div>
+        </motion.section>
+      )}
     </AnimatePresence>
+  );
+}
+
+/**
+ * One consent category.
+ *
+ * `role="switch"` with `aria-checked` is what makes the state audible. The old
+ * pill toggles were plain buttons containing a coloured div — sighted users
+ * could see on/off, screen reader users heard only the label.
+ */
+function ConsentRow({
+  title,
+  description,
+  checked,
+  locked = false,
+  onToggle,
+}: {
+  title: string;
+  description: string;
+  checked: boolean;
+  locked?: boolean;
+  onToggle?: () => void;
+}) {
+  const content = (
+    <>
+      <div className="flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className={cn(
+            'h-3 w-3 shrink-0 border transition-colors duration-300',
+            checked ? 'border-primary bg-primary' : 'border-rule bg-transparent',
+          )}
+        />
+        <dt className="label">{title}</dt>
+      </div>
+      <dd className="mt-3 pl-6 text-body-sm text-foreground/50">{description}</dd>
+    </>
+  );
+
+  const frame =
+    'border-b border-rule py-5 sm:border-b-0 sm:border-r sm:last:border-r-0 sm:px-8 sm:first:pl-0';
+
+  if (locked) {
+    return <div className={frame}>{content}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      onClick={onToggle}
+      className={cn(frame, 'text-left transition-opacity hover:opacity-70')}
+    >
+      {content}
+    </button>
   );
 }

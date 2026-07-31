@@ -55,10 +55,10 @@ export default async function LegalPage({ params }: PageProps) {
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
 
       <div className="py-12 lg:py-24">
-        <div className="container mx-auto px-4 max-w-3xl">
+        <div className="shell">
           <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
 
-          <article className="mt-6 bg-white dark:bg-black/20 p-8 md:p-16 rounded-[4rem] border border-primary/10 shadow-lg">
+          <article className="mt-6 bg-white dark:bg-black/20 p-8 md:p-16 rule-t rule-b rule-l rule-r shadow-lg">
             <header className="mb-12 space-y-4">
               <h1 className="font-headline text-4xl md:text-5xl tracking-tight uppercase">
                 {document.title}
@@ -82,7 +82,7 @@ export default async function LegalPage({ params }: PageProps) {
               ))}
             </div>
 
-            <nav className="pt-12 mt-12 border-t border-primary/10 flex flex-wrap gap-x-6 gap-y-3">
+            <nav className="pt-12 mt-12 rule-t flex flex-wrap gap-x-6 gap-y-3">
               {siblings.map((entry) => (
                 <Link
                   key={entry.slug}

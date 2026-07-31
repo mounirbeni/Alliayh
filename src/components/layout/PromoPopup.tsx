@@ -1,85 +1,94 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { useEffect, useId, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowUpRight, X } from 'lucide-react';
 import Link from 'next/link';
+import { useCookieStore } from '@/lib/store/useCookieStore';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 
+const DISMISS_KEY = 'lueur_promo_dismissed';
+
+/**
+ * The offer card.
+ *
+ * Redrawn as a ruled specimen plate rather than a glassy floating pill: solid
+ * ground, hairline frame, the code set as an oversized numeral. It sits above
+ * the mobile nav so it never covers the tab bar.
+ */
 export function PromoPopup() {
   const [isVisible, setIsVisible] = useState(false);
   const { dictionary: t, locale } = useLocaleStore();
+  const { hasConsented, showBanner } = useCookieStore();
+  const titleId = useId();
+
+  /*
+   * Two things used to slide up over the same corner at once. The consent
+   * decision comes first — an offer stacked on top of it reads as a dark
+   * pattern and, at 1440px, physically covered the "Reject non-essential"
+   * control. The offer waits until the bar is gone.
+   */
+  const consentPending = !hasConsented && showBanner;
 
   useEffect(() => {
-    // Check if user already dismissed it in this session
-    const isDismissed = sessionStorage.getItem('lueur_promo_dismissed');
-    
-    if (!isDismissed) {
-      // Show popup after 3.5 seconds
-      const timer = setTimeout(() => {
-        setIsVisible(true);
-      }, 3500);
-      return () => clearTimeout(timer);
-    }
+    if (sessionStorage.getItem(DISMISS_KEY)) return;
+    const timer = setTimeout(() => setIsVisible(true), 3500);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleClose = () => {
     setIsVisible(false);
-    sessionStorage.setItem('lueur_promo_dismissed', 'true');
+    sessionStorage.setItem(DISMISS_KEY, 'true');
   };
 
   return (
     <AnimatePresence>
-      {isVisible && (
-        <motion.div
-          initial={{ opacity: 0, y: 50, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ duration: 0.5, ease: [0.25, 0.4, 0.25, 1] }}
-          role="complementary"
-          aria-label={t.promo.title}
-          className="fixed bottom-[88px] md:bottom-8 right-4 md:right-8 z-[60] w-[calc(100vw-2rem)] md:w-96 max-w-sm"
+      {isVisible && !consentPending && (
+        <motion.aside
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 16 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          aria-labelledby={titleId}
+          className="fixed bottom-[calc(var(--mobile-nav-height)+1rem)] right-4 z-[60] w-[calc(100vw-2rem)] max-w-[22rem] md:bottom-8 md:right-8"
         >
-          <div className="relative glass bg-white/70 dark:bg-black/40 backdrop-blur-xl border border-primary/10 p-6 rounded-[2rem] shadow-2xl overflow-hidden">
-            {/* Luminous glow effect */}
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/20 rounded-full blur-3xl pointer-events-none" />
-            
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 h-8 w-8 rounded-full bg-white/50 dark:bg-black/50 hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors z-10"
+          <div className="relative border border-rule bg-background p-8 shadow-[0_24px_60px_-32px_hsl(343_71%_12%/0.45)]">
+            <button
+              type="button"
               onClick={handleClose}
-              aria-label={t.common.close}
+              aria-label={t.promo.closePromo}
+              className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center text-foreground/40 transition-colors hover:text-foreground"
             >
               <X className="h-4 w-4" aria-hidden="true" />
-            </Button>
+            </button>
 
-            <div className="flex items-start gap-4">
-              <div className="mt-1 h-10 w-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                <Sparkles className="h-5 w-5" aria-hidden="true" />
-              </div>
-              <div className="flex flex-col gap-2 w-full pr-4">
-                <h3 className="font-headline text-lg text-primary leading-tight">
-                  {t.promo.title}
-                </h3>
-                <p className="text-xs text-muted-foreground leading-relaxed font-body">
-                  {t.promo.description} <strong className="text-primary">{t.promo.discount}</strong> {t.promo.descriptionSuffix}
-                </p>
-                <div className="mt-2 flex items-center justify-between bg-primary/5 rounded-full pl-4 pr-1 py-1 border border-primary/10">
-                  <span className="font-body text-xs font-black tracking-widest text-primary uppercase">
-                    {t.promo.code}
-                  </span>
-                  <Link href={`/${locale}/products`} onClick={handleClose}>
-                    <Button size="sm" className="h-8 rounded-full px-4 text-[10px] font-bold uppercase tracking-wider gap-1">
-                      {t.promo.shopCta} <ArrowRight className="h-3 w-3" aria-hidden="true" />
-                    </Button>
-                  </Link>
-                </div>
+            <p className="label text-primary">{t.promo.discount}</p>
+
+            <h2 id={titleId} className="mt-4 font-display text-display-xs tracking-tightest">
+              {t.promo.title}
+            </h2>
+
+            <p className="mt-3 max-w-[30ch] text-body-sm text-foreground/60">
+              {t.promo.description} {t.promo.discount} {t.promo.descriptionSuffix}
+            </p>
+
+            <div className="mt-7 border-t border-rule pt-5">
+              <div className="flex items-end justify-between gap-4">
+                <span className="numeral text-display-xs leading-none tracking-tight text-primary">
+                  {t.promo.code}
+                </span>
+                <Link
+                  href={`/${locale}/products`}
+                  onClick={handleClose}
+                  className="link-underline label inline-flex items-center gap-2 pb-1 text-primary"
+                >
+                  {t.promo.shopCta}
+                  <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </Link>
               </div>
             </div>
           </div>
-        </motion.div>
+        </motion.aside>
       )}
     </AnimatePresence>
   );

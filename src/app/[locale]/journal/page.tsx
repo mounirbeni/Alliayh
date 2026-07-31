@@ -45,26 +45,26 @@ export default async function JournalPage({ params }: PageProps) {
       <JsonLd data={breadcrumbJsonLd(crumbs)} />
 
       <section className="py-20 md:py-32 bg-primary/5 text-center px-4">
-        <div className="container mx-auto max-w-3xl space-y-6">
+        <div className="shell space-y-6">
           <div className="flex justify-center mb-6">
-            <span className="h-16 w-16 rounded-full bg-background flex items-center justify-center text-primary shadow-lg border border-primary/10">
+            <span className="h-16 w-16 rounded-full bg-background flex items-center justify-center text-primary shadow-lg rule-t rule-b rule-l rule-r">
               <BookOpen className="h-6 w-6" aria-hidden="true" />
             </span>
           </div>
-          <h1 className="font-headline text-fluid-h1 tracking-tighter uppercase">{t.journal.title}</h1>
+          <h1 className="font-headline text-display-md tracking-tightest tracking-tighter uppercase">{t.journal.title}</h1>
           <p className="text-muted-foreground font-body text-lg italic leading-relaxed max-w-2xl mx-auto">
             {t.journal.subtitle}
           </p>
         </div>
       </section>
 
-      <div className="container mx-auto px-4 pt-6">
+      <div className="shell pt-6">
         <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
       </div>
 
-      <section className="py-20 container mx-auto px-4">
+      <section className="py-20 shell">
         {featured && (
-          <article className="mb-24 relative rounded-[3rem] overflow-hidden bg-white dark:bg-black/20 border border-primary/10 shadow-sm flex flex-col lg:flex-row group transition-all hover:shadow-xl">
+          <article className="mb-24 relative overflow-hidden bg-white dark:bg-black/20 rule-t rule-b rule-l rule-r shadow-sm flex flex-col lg:flex-row group transition-all hover:shadow-xl">
             <div className="relative w-full lg:w-3/5 aspect-[4/3] lg:aspect-auto h-auto lg:min-h-[500px]">
               <Image
                 src={featured.image}
@@ -90,7 +90,7 @@ export default async function JournalPage({ params }: PageProps) {
                 </Link>
               </h2>
               <p className="text-muted-foreground italic leading-relaxed text-lg">{featured.excerpt}</p>
-              <div className="pt-6 border-t border-primary/10 flex items-center justify-between">
+              <div className="pt-6 rule-t flex items-center justify-between">
                 <span className="text-sm font-headline uppercase tracking-widest font-bold">
                   {featured.author}
                 </span>
@@ -105,7 +105,7 @@ export default async function JournalPage({ params }: PageProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {rest.map((article) => (
             <article key={article.slug} className="group relative">
-              <div className="relative aspect-[4/3] w-full rounded-[2rem] overflow-hidden mb-6 bg-primary/5">
+              <div className="relative aspect-[4/3] w-full overflow-hidden mb-6 bg-primary/5">
                 <Image
                   src={article.image}
                   alt={article.imageAlt}

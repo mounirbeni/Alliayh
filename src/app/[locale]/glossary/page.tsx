@@ -47,30 +47,30 @@ export default async function GlossaryPage({ params }: PageProps) {
         {/* Header */}
         <section className="py-24 bg-primary text-white text-center px-4 relative overflow-hidden">
            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20" />
-           <div className="container mx-auto max-w-4xl space-y-6 relative z-10">
+           <div className="shell space-y-6 relative z-10">
              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur border border-white/20 px-5 py-2 rounded-full mb-4">
                <Leaf className="h-4 w-4" aria-hidden="true" />
-               <span className="font-luxury text-[10px] uppercase tracking-widest">{t.glossary.badge}</span>
+               <span className="label text-[10px] uppercase tracking-widest">{t.glossary.badge}</span>
              </div>
              
-             <h1 className="font-headline text-5xl md:text-7xl tracking-tighter uppercase text-glow">{t.glossary.title}<br /><span className="italic font-light text-secondary">{t.glossary.titleAccent}</span></h1>
+             <h1 className="font-headline text-5xl md:text-7xl tracking-tighter uppercase">{t.glossary.title}<br /><span className="italic font-light text-secondary">{t.glossary.titleAccent}</span></h1>
              <p className="text-white/80 font-body text-lg italic leading-relaxed max-w-2xl mx-auto pt-4">
                {t.glossary.subtitle}
              </p>
            </div>
         </section>
 
-        <div className="container mx-auto px-4 pt-6">
+        <div className="shell pt-6">
           <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
         </div>
 
         {/* Glossary Grid */}
-        <section className="py-24 container mx-auto px-4 max-w-6xl">
+        <section className="py-24 shell">
            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-16">
              {t.glossary.items.map((item, index) => {
                const Icon = ICONS[index as keyof typeof ICONS] || Leaf;
                return (
-                 <div key={index} className="flex flex-col gap-6 p-8 md:p-12 rounded-[3rem] border border-primary/10 bg-white dark:bg-black/20 hover:border-primary/30 transition-all duration-500 group relative overflow-hidden">
+                 <div key={index} className="flex flex-col gap-6 p-8 md:p-12 rule-t rule-b rule-l rule-r bg-white dark:bg-black/20 hover:border-primary/30 transition-all duration-500 group relative overflow-hidden">
                    <div className="absolute top-0 right-0 -mr-8 -mt-8 w-48 h-48 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors pointer-events-none" />
                    
                    <div className="flex items-start justify-between">
@@ -78,7 +78,7 @@ export default async function GlossaryPage({ params }: PageProps) {
                        <span className="text-[10px] font-headline uppercase tracking-[0.2em] text-primary/70 font-bold bg-primary/5 px-3 py-1 rounded-full">{t.glossary.sourcedFrom} {item.origin}</span>
                        <h2 className="font-headline text-3xl md:text-4xl">{item.name}</h2>
                      </div>
-                     <div className="h-14 w-14 rounded-full bg-primary/5 flex items-center justify-center shrink-0 border border-primary/10 group-hover:scale-110 transition-transform">
+                     <div className="h-14 w-14 rounded-full bg-primary/5 flex items-center justify-center shrink-0 rule-t rule-b rule-l rule-r group-hover:scale-110 transition-transform">
                        <Icon className="h-6 w-6 text-primary" aria-hidden="true" />
                      </div>
                    </div>
@@ -87,7 +87,7 @@ export default async function GlossaryPage({ params }: PageProps) {
                      {item.description}
                    </p>
 
-                   <div className="pt-6 border-t border-primary/10 mt-auto">
+                   <div className="pt-6 rule-t mt-auto">
                      <span className="text-xs font-bold uppercase tracking-widest block mb-4">{t.glossary.benefitsTitle}</span>
                      <ul className="space-y-3">
                        {item.benefits.map((benefit, i) => (

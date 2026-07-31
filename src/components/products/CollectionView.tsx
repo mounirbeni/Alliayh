@@ -1,22 +1,11 @@
 "use client";
 
-import { useCallback, useMemo, useTransition } from 'react';
+import { useCallback, useMemo, useState, useTransition } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { Search, SlidersHorizontal, X, Loader2 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Search, X, Check } from 'lucide-react';
 import { ProductCard } from '@/components/products/ProductCard';
+import { DrawRule, MaskReveal, Reveal } from '@/components/motion/Editorial';
 import { cn } from '@/lib/utils';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
 import { formatCurrency } from '@/i18n/format';
@@ -34,14 +23,12 @@ export interface CollectionState {
 }
 
 /**
- * Collection controls + grid.
+ * Collection.
  *
- * Filtering is driven entirely by the URL. Previously the entire page was a
- * client component holding filter state in `useState`, which meant a filtered
- * view could not be linked, bookmarked, shared or indexed — and the browser
- * back button skipped straight past every refinement the customer had made.
- * Now each control writes a query parameter and the server re-renders the
- * matching set.
+ * Filtering still lives entirely in the URL — that architecture was right and
+ * is untouched. What changed is the surface: the popover-and-pill control bar
+ * became a ruled filter rail, categories read as a printed index with counts,
+ * and the refinement panel expands inline instead of floating over the grid.
  */
 export function CollectionView({
   products,
@@ -59,33 +46,28 @@ export function CollectionView({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
+  const [panelOpen, setPanelOpen] = useState(false);
 
-  /** Write (or clear) query params without adding a history entry per keystroke. */
   const setParams = useCallback(
-    (updates: Record<string, string | string[] | null>, replace = true) => {
+    (updates: Record<string, string | string[] | null>) => {
       const params = new URLSearchParams(searchParams.toString());
 
       for (const [key, value] of Object.entries(updates)) {
         params.delete(key);
         if (value === null || value === '' || (Array.isArray(value) && value.length === 0)) continue;
-        if (Array.isArray(value)) {
-          value.forEach((entry) => params.append(key, entry));
-        } else {
-          params.set(key, value);
-        }
+        if (Array.isArray(value)) value.forEach((entry) => params.append(key, entry));
+        else params.set(key, value);
       }
 
       const query = params.toString();
       startTransition(() => {
-        const url = query ? `${pathname}?${query}` : pathname;
-        if (replace) router.replace(url, { scroll: false });
-        else router.push(url, { scroll: false });
+        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
       });
     },
     [pathname, router, searchParams],
   );
 
-  const toggleInArray = (values: string[], value: string) =>
+  const toggleIn = (values: string[], value: string) =>
     values.includes(value) ? values.filter((entry) => entry !== value) : [...values, value];
 
   const sortLabels: Record<SortOption, string> = {
@@ -96,55 +78,40 @@ export function CollectionView({
     name: t.productsPage.nameAZ,
   };
 
-  /** Every refinement currently applied, as removable chips. */
-  const activeChips = useMemo(() => {
-    const chips: { key: string; label: string; clear: () => void }[] = [];
+  const chips = useMemo(() => {
+    const out: { key: string; label: string; clear: () => void }[] = [];
 
-    if (state.category !== 'all') {
-      const facet = facets.categories.find((entry) => entry.value === state.category);
-      if (facet) {
-        chips.push({
-          key: `category-${facet.value}`,
-          label: facet.label,
-          clear: () => setParams({ category: null }),
-        });
-      }
-    }
     state.actives.forEach((value) => {
       const facet = facets.actives.find((entry) => entry.value === value);
       if (facet) {
-        chips.push({
-          key: `active-${value}`,
+        out.push({
+          key: `a-${value}`,
           label: facet.label,
-          clear: () => setParams({ active: toggleInArray(state.actives, value) }),
+          clear: () => setParams({ active: toggleIn(state.actives, value) }),
         });
       }
     });
     state.concerns.forEach((value) => {
       const facet = facets.concerns.find((entry) => entry.value === value);
       if (facet) {
-        chips.push({
-          key: `concern-${value}`,
+        out.push({
+          key: `c-${value}`,
           label: facet.label,
-          clear: () => setParams({ concern: toggleInArray(state.concerns, value) }),
+          clear: () => setParams({ concern: toggleIn(state.concerns, value) }),
         });
       }
     });
     if (state.minPrice || state.maxPrice) {
-      chips.push({
+      out.push({
         key: 'price',
-        label: `${state.minPrice || facets.priceRange.min} – ${state.maxPrice || facets.priceRange.max} ${t.common.currency}`,
+        label: `${state.minPrice || facets.priceRange.min}–${state.maxPrice || facets.priceRange.max} ${t.common.currency}`,
         clear: () => setParams({ min: null, max: null }),
       });
     }
     if (state.inStockOnly) {
-      chips.push({
-        key: 'stock',
-        label: t.productsPage.inStockOnly,
-        clear: () => setParams({ stock: null }),
-      });
+      out.push({ key: 'stock', label: t.productsPage.inStockOnly, clear: () => setParams({ stock: null }) });
     }
-    return chips;
+    return out;
   }, [state, facets, setParams, t]);
 
   const clearAll = () =>
@@ -152,273 +119,268 @@ export function CollectionView({
 
   return (
     <>
-      <div className="py-12 bg-primary/5 border-b border-primary/10">
-        <div className="container mx-auto px-4 text-center space-y-4">
-          <h1 className="font-headline text-5xl md:text-6xl tracking-tight">{t.productsPage.title}</h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto italic">{t.productsPage.subtitle}</p>
-        </div>
-      </div>
+      {/* ── Masthead ─────────────────────────────────────────────────── */}
+      <header className="shell pt-[clamp(2rem,5vw,5rem)] pb-10">
+        <p className="label text-foreground/45">{t.productsPage.metaTitle.split('|')[0]?.trim()}</p>
+        {/*
+          The size lives on the <h1>, not on the mask inside it. `ch` and every
+          other measure on this element resolve against its own font-size — with
+          the size one level down, `max-w-[16ch]` was 16 characters of *body*
+          type, roughly 160px, and the display-size title wrapped into a column
+          seven lines tall.
+        */}
+        <h1 className="mt-5 max-w-[14ch] font-display text-display-lg tracking-tightest">
+          <MaskReveal>{t.productsPage.title}</MaskReveal>
+        </h1>
+        <Reveal delay={0.12}>
+          <p className="mt-6 max-w-prose text-lede text-foreground/60">{t.productsPage.subtitle}</p>
+        </Reveal>
+      </header>
 
-      <div className="container mx-auto px-4 py-12">
-        {/* Controls */}
-        <div className="flex flex-col lg:flex-row gap-6 justify-between items-center mb-8">
-          <div className="relative w-full lg:max-w-md">
-            <label htmlFor="collection-search" className="sr-only">
-              {t.productsPage.searchPlaceholder}
-            </label>
-            <Search
-              className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground"
-              aria-hidden="true"
-            />
-            <Input
-              id="collection-search"
-              type="search"
-              placeholder={t.productsPage.searchPlaceholder}
-              className="pl-12 h-14 bg-white dark:bg-black/20 rounded-full border-primary/20 shadow-sm text-sm focus:border-primary"
-              defaultValue={state.search}
-              onChange={(e) => setParams({ q: e.target.value })}
-            />
-          </div>
+      {/* ── Filter rail ──────────────────────────────────────────────── */}
+      <div className="sticky top-[var(--header-height)] z-30 bg-background/95 backdrop-blur-md">
+        <DrawRule />
 
-          <div className="flex overflow-x-auto w-full lg:w-auto items-center gap-4 snap-x pb-2 lg:pb-0 scrollbar-hide">
-            <Tabs
-              value={state.category}
-              onValueChange={(value) => setParams({ category: value === 'all' ? null : value })}
-              className="w-auto"
+        <div className="shell flex flex-wrap items-center justify-between gap-x-8 gap-y-3 py-4">
+          {/* Categories, as a printed index */}
+          <nav aria-label={t.productsPage.categories} className="scrollbar-hide -mx-1 flex max-w-full items-center gap-6 overflow-x-auto px-1">
+            <button
+              type="button"
+              onClick={() => setParams({ category: null })}
+              data-active={state.category === 'all'}
+              className={cn(
+                'label link-underline whitespace-nowrap py-1 transition-opacity',
+                state.category === 'all' ? 'text-primary' : 'text-foreground/60 hover:opacity-70',
+              )}
             >
-              <TabsList className="bg-white dark:bg-black/20 border border-primary/10 rounded-full h-14 px-2 shadow-sm">
-                <TabsTrigger
-                  value="all"
-                  className="rounded-full px-4 sm:px-6 h-10 data-[state=active]:bg-primary data-[state=active]:text-white font-headline uppercase tracking-widest text-[10px] sm:text-xs"
-                >
-                  {t.productsPage.all}
-                </TabsTrigger>
-                {/* Categories come from the catalog, so a tab can never point at
-                    an empty result set the way the hard-coded list did. */}
-                {facets.categories.map((facet) => (
-                  <TabsTrigger
-                    key={facet.value}
-                    value={facet.value}
-                    className="rounded-full px-4 sm:px-6 h-10 data-[state=active]:bg-primary data-[state=active]:text-white font-headline uppercase tracking-widest text-[10px] sm:text-xs"
-                  >
-                    {facet.label}
-                    <span className="ml-1.5 opacity-50">{facet.count}</span>
-                  </TabsTrigger>
+              {t.productsPage.all}
+              <span className="ml-1.5 tabular opacity-45">{total}</span>
+            </button>
+
+            {facets.categories.map((facet) => (
+              <button
+                key={facet.value}
+                type="button"
+                onClick={() => setParams({ category: facet.value })}
+                data-active={state.category === facet.value}
+                className={cn(
+                  'label link-underline whitespace-nowrap py-1 transition-opacity',
+                  state.category === facet.value ? 'text-primary' : 'text-foreground/60 hover:opacity-70',
+                )}
+              >
+                {facet.label}
+                <span className="ml-1.5 tabular opacity-45">{facet.count}</span>
+              </button>
+            ))}
+          </nav>
+
+          <div className="flex items-center gap-6">
+            <button
+              type="button"
+              onClick={() => setPanelOpen((open) => !open)}
+              aria-expanded={panelOpen}
+              aria-controls="filter-panel"
+              className="label link-underline py-1 text-foreground/60 transition-opacity hover:opacity-70"
+            >
+              {t.productsPage.filters}
+              {chips.length > 0 && <span className="ml-1.5 tabular text-primary">({chips.length})</span>}
+            </button>
+
+            <label className="label flex items-center gap-2 text-foreground/60">
+              <span className="sr-only sm:not-sr-only">{t.productsPage.sortBy}</span>
+              <select
+                aria-label={t.a11y.sortResults}
+                value={state.sort}
+                onChange={(e) => setParams({ sort: e.target.value === 'featured' ? null : e.target.value })}
+                className="label cursor-pointer border-0 bg-transparent py-1 pr-5 text-foreground focus:outline-none focus-visible:underline"
+              >
+                {SORT_OPTIONS.map((option) => (
+                  <option key={option} value={option} className="font-body normal-case tracking-normal">
+                    {sortLabels[option]}
+                  </option>
                 ))}
-              </TabsList>
-            </Tabs>
+              </select>
+            </label>
           </div>
         </div>
 
-        {/* Advanced Filters Bar */}
-        <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-12 p-6 bg-white dark:bg-black/20 border border-primary/10 rounded-[2rem] shadow-sm overflow-hidden w-full">
-          <div className="flex overflow-x-auto w-full snap-x pb-2 lg:pb-0 lg:flex-wrap items-center gap-4 scrollbar-hide">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-12 rounded-full border-primary/20 hover:border-primary px-6 flex gap-2 uppercase tracking-widest text-xs font-bold shrink-0"
-                >
-                  <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
-                  {t.productsPage.filters}
-                  {activeChips.length > 0 && (
-                    <Badge className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center border-none">
-                      {activeChips.length}
-                    </Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-80 p-6 rounded-[2rem] border-primary/10 shadow-xl" align="start">
-                <div className="space-y-6">
-                  <h2 className="font-headline uppercase tracking-widest text-sm border-b border-primary/10 pb-2">
-                    {t.productsPage.filterOptions}
-                  </h2>
+        {/* Inline refinement panel — expands in place rather than floating. */}
+        <AnimatePresence initial={false}>
+          {panelOpen && (
+            <motion.div
+              id="filter-panel"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+              className="overflow-hidden rule-t"
+            >
+              <div className="shell grid grid-cols-1 gap-x-12 gap-y-10 py-10 md:grid-cols-3">
+                <fieldset>
+                  <legend className="label text-foreground/45">{t.productsPage.keyIngredients}</legend>
+                  <ul className="mt-5 space-y-2.5">
+                    {facets.actives.map((facet) => {
+                      const on = state.actives.includes(facet.value);
+                      return (
+                        <li key={facet.value}>
+                          <button
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => setParams({ active: toggleIn(state.actives, facet.value) })}
+                            className="group flex w-full items-center gap-3 text-left text-body-sm"
+                          >
+                            <span
+                              aria-hidden="true"
+                              className={cn(
+                                'flex h-4 w-4 shrink-0 items-center justify-center border transition-colors',
+                                on ? 'border-primary bg-primary text-primary-foreground' : 'border-rule',
+                              )}
+                            >
+                              {on && <Check className="h-3 w-3" />}
+                            </span>
+                            <span className={cn('flex-1', on ? 'text-primary' : 'text-foreground/70 group-hover:text-foreground')}>
+                              {facet.label}
+                            </span>
+                            <span className="tabular text-label text-foreground/35">{facet.count}</span>
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </fieldset>
 
-                  {/* Price Range */}
-                  <fieldset className="space-y-4">
-                    <legend className="text-xs uppercase tracking-widest text-muted-foreground font-bold">
-                      {t.productsPage.priceRange}
-                    </legend>
-                    <div className="flex items-center gap-4">
-                      <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
-                          {t.common.currency}
-                        </span>
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min={facets.priceRange.min}
-                          max={facets.priceRange.max}
-                          aria-label={t.productsPage.min}
-                          placeholder={String(facets.priceRange.min)}
-                          className="pl-6 h-10 rounded-xl"
-                          defaultValue={state.minPrice}
-                          onChange={(e) => setParams({ min: e.target.value })}
-                        />
-                      </div>
-                      <span className="text-muted-foreground" aria-hidden="true">–</span>
-                      <div className="relative flex-1">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
-                          {t.common.currency}
-                        </span>
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min={facets.priceRange.min}
-                          max={facets.priceRange.max}
-                          aria-label={t.productsPage.max}
-                          placeholder={String(facets.priceRange.max)}
-                          className="pl-6 h-10 rounded-xl"
-                          defaultValue={state.maxPrice}
-                          onChange={(e) => setParams({ max: e.target.value })}
-                        />
-                      </div>
-                    </div>
-                  </fieldset>
+                <fieldset>
+                  <legend className="label text-foreground/45">{t.productsPage.concerns}</legend>
+                  <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-2.5">
+                    {facets.concerns.map((facet) => {
+                      const on = state.concerns.includes(facet.value);
+                      return (
+                        <li key={facet.value}>
+                          <button
+                            type="button"
+                            aria-pressed={on}
+                            onClick={() => setParams({ concern: toggleIn(state.concerns, facet.value) })}
+                            className={cn(
+                              'link-underline text-body-sm transition-colors',
+                              on ? 'text-primary' : 'text-foreground/65 hover:text-foreground',
+                            )}
+                            data-active={on}
+                          >
+                            {facet.label}
+                          </button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </fieldset>
 
-                  {/* Key actives — derived from the catalog */}
-                  <fieldset className="space-y-3">
-                    <legend className="text-xs uppercase tracking-widest text-muted-foreground font-bold">
-                      {t.productsPage.keyIngredients}
-                    </legend>
-                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
-                      {facets.actives.map((facet) => (
-                        <label
-                          key={facet.value}
-                          className="flex items-center gap-3 text-sm cursor-pointer py-1"
-                        >
-                          <Checkbox
-                            checked={state.actives.includes(facet.value)}
-                            onCheckedChange={() =>
-                              setParams({ active: toggleInArray(state.actives, facet.value) })
-                            }
-                          />
-                          <span className="flex-1">{facet.label}</span>
-                          <span className="text-muted-foreground text-xs">{facet.count}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </fieldset>
-
-                  {/* Concerns */}
-                  <fieldset className="space-y-3">
-                    <legend className="text-xs uppercase tracking-widest text-muted-foreground font-bold">
-                      {t.productsPage.concerns}
-                    </legend>
-                    <div className="flex flex-wrap gap-2">
-                      {facets.concerns.map((facet) => (
-                        <button
-                          key={facet.value}
-                          type="button"
-                          aria-pressed={state.concerns.includes(facet.value)}
-                          onClick={() => setParams({ concern: toggleInArray(state.concerns, facet.value) })}
-                          className={cn(
-                            'px-3 py-1.5 rounded-full border text-[11px] transition-colors',
-                            state.concerns.includes(facet.value)
-                              ? 'bg-primary text-white border-primary'
-                              : 'border-primary/20 hover:border-primary',
-                          )}
-                        >
-                          {facet.label}
-                        </button>
-                      ))}
-                    </div>
-                  </fieldset>
-
-                  <label className="flex items-center gap-3 text-sm cursor-pointer">
-                    <Checkbox
-                      checked={state.inStockOnly}
-                      onCheckedChange={(checked) => setParams({ stock: checked ? '1' : null })}
+                <fieldset>
+                  <legend className="label text-foreground/45">{t.productsPage.priceRange}</legend>
+                  <div className="mt-5 flex items-center gap-4">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      aria-label={t.productsPage.min}
+                      placeholder={String(facets.priceRange.min)}
+                      defaultValue={state.minPrice}
+                      onChange={(e) => setParams({ min: e.target.value })}
+                      className="tabular w-full border-0 border-b border-rule bg-transparent pb-2 text-body-md focus:border-primary focus:outline-none"
                     />
-                    {t.productsPage.inStockOnly}
-                  </label>
+                    <span aria-hidden="true" className="text-foreground/35">—</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      aria-label={t.productsPage.max}
+                      placeholder={String(facets.priceRange.max)}
+                      defaultValue={state.maxPrice}
+                      onChange={(e) => setParams({ max: e.target.value })}
+                      className="tabular w-full border-0 border-b border-rule bg-transparent pb-2 text-body-md focus:border-primary focus:outline-none"
+                    />
+                  </div>
 
-                  <Button
-                    variant="ghost"
+                  <button
+                    type="button"
+                    aria-pressed={state.inStockOnly}
+                    onClick={() => setParams({ stock: state.inStockOnly ? null : '1' })}
+                    className="group mt-6 flex items-center gap-3 text-body-sm"
+                  >
+                    <span
+                      aria-hidden="true"
+                      className={cn(
+                        'flex h-4 w-4 shrink-0 items-center justify-center border transition-colors',
+                        state.inStockOnly ? 'border-primary bg-primary text-primary-foreground' : 'border-rule',
+                      )}
+                    >
+                      {state.inStockOnly && <Check className="h-3 w-3" />}
+                    </span>
+                    <span className={state.inStockOnly ? 'text-primary' : 'text-foreground/70'}>
+                      {t.productsPage.inStockOnly}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={clearAll}
-                    className="w-full rounded-full uppercase tracking-widest text-[10px] font-bold"
+                    className="label link-underline mt-8 block text-foreground/45 hover:text-primary"
                   >
                     {t.productsPage.clearAllFilters}
-                  </Button>
-                </div>
-              </PopoverContent>
-            </Popover>
+                  </button>
+                </fieldset>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            {/* Active filter chips */}
-            {activeChips.map((chip) => (
+        <DrawRule />
+      </div>
+
+      {/* ── Applied refinements + count ──────────────────────────────── */}
+      <div className="shell flex flex-wrap items-center justify-between gap-4 py-6">
+        <ul className="flex flex-wrap items-center gap-x-5 gap-y-2">
+          {chips.map((chip) => (
+            <li key={chip.key}>
               <button
-                key={chip.key}
                 type="button"
                 onClick={chip.clear}
                 aria-label={`${t.productsPage.removeFilter}: ${chip.label}`}
-                className="shrink-0 h-12 pl-5 pr-3 rounded-full border border-primary/20 bg-primary/5 text-primary flex items-center gap-2 text-[11px] uppercase tracking-widest font-bold hover:bg-primary hover:text-white transition-colors"
+                className="group inline-flex items-center gap-2 label text-primary"
               >
                 {chip.label}
-                <X className="h-3.5 w-3.5" aria-hidden="true" />
+                <X className="h-3 w-3 opacity-50 transition-opacity group-hover:opacity-100" aria-hidden="true" />
               </button>
+            </li>
+          ))}
+        </ul>
+
+        <p className="label tabular text-foreground/45" aria-live="polite">
+          {products.length} / {total}
+        </p>
+      </div>
+
+      {/* ── Grid ─────────────────────────────────────────────────────── */}
+      <div className={cn('shell pb-[clamp(4rem,9vw,9rem)] transition-opacity duration-300', isPending && 'opacity-40')}>
+        {products.length === 0 ? (
+          <div className="flex flex-col items-center gap-6 py-28 text-center">
+            <Search className="h-8 w-8 text-primary/25" aria-hidden="true" />
+            <h2 className="font-display text-display-sm tracking-editorial">{t.productsPage.noProducts}</h2>
+            <p className="max-w-prose text-body-md text-foreground/55">{t.productsPage.noProductsDesc}</p>
+            <button type="button" onClick={clearAll} className="label link-underline mt-2 text-primary">
+              {t.productsPage.clearAllFilters}
+            </button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((product, i) => (
+              <Reveal key={product.id} delay={Math.min(i, 5) * 0.06}>
+                <ProductCard product={product} index={i} priority={i < 3} />
+              </Reveal>
             ))}
           </div>
-
-          <div className="flex items-center gap-4 shrink-0">
-            <span className="text-xs uppercase tracking-widest text-muted-foreground font-bold whitespace-nowrap" aria-live="polite">
-              {t.productsPage.showing} {products.length} {t.productsPage.of} {total}
-            </span>
-            <Select
-              value={state.sort}
-              onValueChange={(value) => setParams({ sort: value === 'featured' ? null : value })}
-            >
-              <SelectTrigger
-                aria-label={t.a11y.sortResults}
-                className="h-12 w-[190px] rounded-full border-primary/20 uppercase tracking-widest text-[10px] font-bold"
-              >
-                <SelectValue placeholder={t.productsPage.sortBy} />
-              </SelectTrigger>
-              <SelectContent className="rounded-2xl">
-                {SORT_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option} className="text-xs uppercase tracking-widest">
-                    {sortLabels[option]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Grid */}
-        <div className={cn('transition-opacity duration-200', isPending && 'opacity-50')}>
-          {products.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-24 text-center gap-6">
-              <Search className="h-12 w-12 text-primary/20" aria-hidden="true" />
-              <div className="space-y-2 max-w-md">
-                <h2 className="font-headline text-2xl">{t.productsPage.noProducts}</h2>
-                <p className="text-muted-foreground italic text-sm">{t.productsPage.noProductsDesc}</p>
-              </div>
-              <Button
-                onClick={clearAll}
-                className="rounded-full bg-primary uppercase tracking-widest text-[10px] font-bold h-12 px-8"
-              >
-                {t.productsPage.clearAllFilters}
-              </Button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-              {products.map((product, index) => (
-                <ProductCard key={product.id} product={product} priority={index < 4} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {isPending && (
-          <span className="sr-only" role="status">
-            <Loader2 aria-hidden="true" /> {t.common.loading}
-          </span>
         )}
 
         <p className="sr-only">
-          {t.productsPage.showing} {products.length} {t.productsPage.of} {total}{' '}
-          {t.productsPage.products}. {formatCurrency(facets.priceRange.min, locale)} –{' '}
-          {formatCurrency(facets.priceRange.max, locale)}
+          {t.productsPage.showing} {products.length} {t.productsPage.of} {total} {t.productsPage.products}.{' '}
+          {formatCurrency(facets.priceRange.min, locale)} – {formatCurrency(facets.priceRange.max, locale)}
         </p>
       </div>
     </>

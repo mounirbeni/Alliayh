@@ -84,12 +84,12 @@ export default async function JournalArticlePage({ params }: PageProps) {
         ]}
       />
 
-      <div className="container mx-auto px-4 pt-6">
+      <div className="shell pt-6">
         <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
       </div>
 
       <article>
-        <header className="pt-16 pb-12 text-center container mx-auto px-4 max-w-4xl space-y-8">
+        <header className="pt-16 pb-12 text-center shell space-y-8">
           <Link
             href={`/${locale}/journal`}
             className="inline-flex items-center gap-2 text-[10px] font-headline uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors mb-4"
@@ -119,8 +119,8 @@ export default async function JournalArticlePage({ params }: PageProps) {
           </p>
         </header>
 
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="relative aspect-[16/9] w-full rounded-[3rem] overflow-hidden mb-16">
+        <div className="shell">
+          <div className="relative aspect-[16/9] w-full overflow-hidden mb-16">
             <Image
               src={article.image}
               alt={article.imageAlt[locale]}
@@ -144,11 +144,11 @@ export default async function JournalArticlePage({ params }: PageProps) {
       </article>
 
       {related.length > 0 && (
-        <section className="mt-32 pt-24 border-t border-primary/10 bg-primary/5">
-          <div className="container mx-auto px-4">
+        <section className="mt-32 pt-24 rule-t bg-primary/5">
+          <div className="shell">
             <div className="text-center mb-16 space-y-4">
-              <span className="text-primary font-luxury text-sm">{t.journal.curatedFor}</span>
-              <h2 className="font-headline text-fluid-h2 tracking-tighter uppercase">
+              <span className="text-primary label text-sm">{t.journal.curatedFor}</span>
+              <h2 className="font-headline text-display-sm tracking-tightest tracking-tighter uppercase">
                 {t.journal.shopTheRitual}
               </h2>
             </div>

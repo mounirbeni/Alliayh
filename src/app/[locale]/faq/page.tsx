@@ -42,7 +42,7 @@ export default async function FAQPage({ params }: PageProps) {
       {/* FAQPage structured data makes these answers eligible for rich results. */}
       <JsonLd data={[faqJsonLd([...t.faq.items]), breadcrumbJsonLd(crumbs)]} />
 
-      <div className="container mx-auto px-4 max-w-3xl">
+      <div className="shell">
         <Breadcrumbs items={crumbs} label={t.a11y.breadcrumb} />
 
         <div className="text-center my-16 space-y-4">
@@ -50,13 +50,13 @@ export default async function FAQPage({ params }: PageProps) {
           <p className="text-muted-foreground font-body italic text-lg">{t.faq.subtitle}</p>
         </div>
 
-        <div className="bg-white dark:bg-black/20 p-8 md:p-12 rounded-[3rem] border border-primary/10 shadow-lg">
+        <div className="bg-white dark:bg-black/20 p-8 md:p-12 rule-t rule-b rule-l rule-r shadow-lg">
           <Accordion type="single" collapsible className="w-full">
             {t.faq.items.map((faq, index) => (
               <AccordionItem
                 key={faq.question}
                 value={`item-${index}`}
-                className="border-b border-primary/10 last:border-0 py-2"
+                className="rule-b last:border-0 py-2"
               >
                 <AccordionTrigger className="font-headline text-lg hover:text-primary hover:no-underline text-left">
                   {faq.question}

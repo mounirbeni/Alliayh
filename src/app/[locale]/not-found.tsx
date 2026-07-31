@@ -18,7 +18,7 @@ export default function NotFound() {
 
   return (
     <SiteShell className="selection:bg-primary/10" mainClassName="flex items-center justify-center py-24">
-      <div className="container mx-auto px-4 max-w-2xl text-center space-y-8">
+      <div className="shell text-center space-y-8">
         <div className="flex justify-center mb-8">
           <span
             aria-hidden="true"
@@ -28,7 +28,7 @@ export default function NotFound() {
           </span>
         </div>
 
-        <p className="font-headline text-7xl tracking-tighter text-glow text-primary">404</p>
+        <p className="font-headline text-7xl tracking-tighter text-primary">404</p>
         <h1 className="font-headline text-3xl">{t.common.notFound}</h1>
 
         <p className="text-muted-foreground font-body leading-relaxed max-w-md mx-auto italic">

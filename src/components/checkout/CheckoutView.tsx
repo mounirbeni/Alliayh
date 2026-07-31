@@ -60,7 +60,10 @@ export function CheckoutView() {
       title: t.checkout.orderProcessed,
       description: t.checkout.redirecting,
     });
-    router.push(`/${locale}`);
+    // Was `/${locale}` — the toast promised a confirmation and then dropped the
+    // customer on the home page, leaving /checkout/success unreachable and the
+    // bag still full.
+    router.push(`/${locale}/checkout/success`);
   };
 
   return (

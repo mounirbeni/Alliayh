@@ -4,10 +4,11 @@ import { useEffect } from 'react';
 import { useAuthStore } from '@/lib/store/useAuthStore';
 
 /**
- * Subscribes the app to Firebase auth state for its lifetime.
+ * Resolves the server session once, on mount.
  *
- * Mounted once in the root layout so every surface reads the same live session,
- * and so signing out in one tab is reflected in the others.
+ * Mounted in the root layout so every surface reads the same answer. The store
+ * it fills is only a reflection of the HttpOnly session cookie — the server
+ * re-verifies that cookie on every protected read regardless of what this says.
  */
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const initialise = useAuthStore((state) => state.initialise);

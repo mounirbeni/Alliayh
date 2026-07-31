@@ -37,7 +37,7 @@ export function AccountView({ products, orders }: { products: Product[]; orders:
 
   const [address, setAddress] = useState('');
 
-  // Redirect only once Firebase has reported the real auth state, otherwise a
+  // Redirect only once the server session check has returned, otherwise a
   // signed-in visitor is bounced to /login on every hard refresh.
   useEffect(() => {
     if (!isReady) return;

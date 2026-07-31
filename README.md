@@ -2,7 +2,7 @@
 
 Bilingual (pt-PT / en-GB) storefront for the Lueur Skin botanical skincare and
 wellness range. Built with Next.js 15 (App Router), React 19, Tailwind CSS,
-Radix primitives and Genkit.
+Radix primitives and the Gemini API.
 
 ## Quick start
 
@@ -19,7 +19,7 @@ npm run dev                  # http://localhost:9002
 | `npm run start` | Serve the production build |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | Next.js ESLint |
-| `npm run genkit:dev` | Genkit developer UI for the advisor flow |
+| `npm run db:migrate` | Apply `src/lib/db/schema.sql` to `DATABASE_URL` |
 
 ## Architecture
 
@@ -38,6 +38,9 @@ src/
     products/          ProductCard, CollectionView, ProductDetailView
     <feature>/         One client view per route that needs interactivity
   lib/
+    auth/              Password hashing, sessions, sign-in/up server actions
+    db/                Postgres client and schema
+    orders/            Order + inventory domain, Postgres and in-memory adapters
     catalog/           Product domain: data, taxonomy, queries, facets
     journal.ts         Editorial content, localised
     legal.ts           Legal documents, localised
@@ -48,7 +51,7 @@ src/
   i18n/
     config.ts          Locale constants — edge-safe, no dictionary payload
     dictionaries/      pt.ts defines the shape; en.ts must match it exactly
-  ai/flows/            Genkit advisor flow, grounded in the catalog
+  ai/flows/            Advisor flow, grounded in the catalog
 ```
 
 ### Principles
@@ -113,40 +116,60 @@ model key.
 
 ## Persistence and accounts
 
-Both run on Firebase, selected automatically when credentials are present and
-falling back to in-memory (orders) or disabled (accounts) when they are not — so
-a contributor without a Firebase project can still work on the storefront.
+No third-party backend. Both run on plain Postgres reached through a single
+`DATABASE_URL`, so the app runs unchanged on Neon, Supabase, Railway, Render,
+RDS or a database you host yourself — switching provider is a connection string,
+not a rewrite. When `DATABASE_URL` is absent, orders fall back to in-memory
+(with a startup warning) and accounts report as unavailable, so the storefront
+still works for a contributor without a database.
 
-**Orders and inventory** live in Firestore:
+Apply the schema with `npm run db:migrate`. Every statement is idempotent, so it
+is safe on every deploy.
 
-| Collection | Document | Written by |
+### Orders and inventory
+
+| Table | Key | Written by |
 | --- | --- | --- |
-| `orders` | one per Stripe Checkout Session id | the webhook |
-| `inventory` | `{ sold: number }` per product id | the webhook, via atomic `increment` |
+| `orders` | Stripe Checkout Session id | the webhook |
+| `inventory` | product id, `sold` counter | the webhook |
 
 Keying orders by session id is what makes the webhook idempotent *across
-instances*: a replay lands on the same document and the `create` fails instead
-of double-counting a sale. `increment` is applied server-side, so concurrent
-sales of the same product cannot overwrite each other.
+instances*: a replayed event collides on the primary key, `ON CONFLICT DO
+NOTHING` discards the insert, and stock is not moved twice. Inventory is
+incremented by the database inside a transaction, so concurrent sales of the
+same product cannot overwrite each other.
 
-Both collections are written only through the Admin SDK, so `firestore.rules`
-denies all client access. `orders` holds names and delivery addresses; order
-history reaches the account page only through a server route that verifies the
-session cookie first.
+Money is stored in minor units as integers — keeping euros as a float invites
+the classic `38.249999999`.
 
-**Authentication** is Firebase Auth (email/password):
+### Authentication
 
-1. The browser signs in and receives an ID token.
-2. `POST /api/auth/session` verifies that token with the Admin SDK — including a
-   recency check, so a stolen long-lived token cannot be upgraded into a
-   five-day session — and issues an HttpOnly session cookie.
-3. Server Components call `getSessionUser()`, which re-verifies the cookie and
-   checks for revocation on every read.
+Owned by the application; no identity provider is involved.
 
-Signing out clears the cookie *and* revokes the refresh tokens, so a session
-cannot outlive it on another device.
+- **Passwords** are hashed with scrypt from Node's standard library — memory-hard,
+  so GPU cracking stays expensive. Parameters are N=2^16, r=8, p=2: one of
+  OWASP's listed configurations, ~64 MB and ~390 ms per hash. That memory figure
+  is deliberate — the higher-memory variant (~128 MB) exhausts a 512 MB
+  serverless function after a few concurrent sign-ins, long before CPU matters.
+  The stored value carries its own cost parameters (`scrypt$N$r$p$salt$hash`),
+  so they can be raised later without invalidating existing accounts;
+  `needsRehash` upgrades a hash on the next successful sign-in.
+- **Sessions** are opaque 256-bit tokens, not JWTs — a JWT cannot be revoked
+  before expiry without a server-side denylist, at which point its statelessness
+  is gone. Only the SHA-256 of the token is stored, so reading the `sessions`
+  table does not let anyone impersonate a customer; the raw token lives solely
+  in the HttpOnly cookie.
+- **Enumeration resistance**: sign-in spends the same time on an unknown address
+  as on a known one (`fakeVerify`) and returns one generic error either way.
+  Registration is the only place that says "this address is taken", because the
+  alternative is an account the customer can never use.
+- **Rate limiting** is per-process. It is a guardrail against credential stuffing
+  from one source, not a distributed defence — move it to a shared store before
+  running more than one instance.
 
-Deploy the rules with `firebase deploy --only firestore:rules`.
+**Not implemented yet:** password reset. It needs an outbound email service,
+which this deployment does not have. The link was removed rather than left as a
+button that silently does nothing.
 
 ## The AI advisor
 
@@ -156,6 +179,12 @@ model is unreachable — including when `GOOGLE_GENAI_API_KEY` is unset — a
 deterministic concern matcher answers instead, so the page always returns a
 usable result. The server action in `app/[locale]/advisor/actions.ts` adds a
 per-client rate limit (in-process; move it to a shared store before scaling out).
+
+It calls the Gemini API directly with a response schema, so the reply is shaped
+server-side rather than parsed out of prose — and is still validated with zod
+afterwards, because a schema-constrained reply is not the same as a trustworthy
+one. This replaced Genkit, which was pulling ~74 Firebase packages and 594
+modules in total to serve a single prompt.
 
 ## Design system
 
@@ -178,8 +207,11 @@ active navigation.
 ## Deployment
 
 Set `NEXT_PUBLIC_SITE_URL` — canonical URLs, hreflang alternates, the sitemap
-and JSON-LD all derive from it. Firebase App Hosting settings live in
-`apphosting.yaml`.
+and JSON-LD all derive from it.
+
+Nothing here is tied to a specific host. The app needs a Node runtime (the
+Stripe webhook and password hashing both require it, so an Edge-only target will
+not do) and a Postgres reachable from it. Run `npm run db:migrate` on deploy.
 
 ## Legal copy
 

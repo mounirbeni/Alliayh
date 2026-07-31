@@ -19,31 +19,20 @@ const withPWA = withPWAInit({
 const isDev = process.env.NODE_ENV === 'development';
 
 /**
- * Firebase Auth talks to Google's identity endpoints from the browser. With a
- * bare `connect-src 'self'` every sign-in is blocked by the policy before it
- * leaves the page, so these origins have to be allowed explicitly.
+ * No third-party origin is contacted from the browser.
  *
- * Stripe needs nothing here: hosted checkout is a top-level navigation, not a
- * fetch, so it is unaffected by connect-src.
+ * Authentication is server actions against our own origin, and Stripe's hosted
+ * checkout is reached by a top-level navigation rather than a fetch — so
+ * `connect-src 'self'` is sufficient and nothing needs to be allow-listed.
  */
-const FIREBASE_CONNECT_SRC = [
-  'https://identitytoolkit.googleapis.com',
-  'https://securetoken.googleapis.com',
-  'https://firebaseinstallations.googleapis.com',
-];
-
-/** The auth domain hosts the iframe Firebase uses to persist auth state. */
-const authDomain = process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
-const FIREBASE_FRAME_SRC = authDomain ? [`https://${authDomain}`] : [];
-
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self' data:",
-  `connect-src 'self' ${FIREBASE_CONNECT_SRC.join(' ')}`,
-  `frame-src 'self' ${FIREBASE_FRAME_SRC.join(' ')}`.trim(),
+  "connect-src 'self'",
+  "frame-src 'self'",
   "frame-ancestors 'none'",
   "base-uri 'self'",
   // Stripe's hosted checkout is reached by navigation, but keep form posts to

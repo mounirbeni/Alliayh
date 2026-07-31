@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAuthStore, type AuthErrorCode } from '@/lib/store/useAuthStore';
+import { useAuthStore } from '@/lib/store/useAuthStore';
+import type { AuthErrorCode } from '@/lib/auth/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, ArrowRight } from 'lucide-react';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
@@ -12,16 +13,16 @@ import { useLocaleStore } from '@/lib/store/useLocaleStore';
 /**
  * Sign in.
  *
- * Credentials are now checked by Firebase. The previous handler called an
- * `api.auth.login()` that returned a hard-coded user for any non-empty email
- * and password — every visitor who typed anything was "signed in".
+ * The submitted credentials go straight to a server action; the password never
+ * reaches any third party and is discarded within the request that checks it.
+ * The previous handler called an `api.auth.login()` that returned a hard-coded
+ * user for any non-empty email and password.
  */
 export function LoginView() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const isReady = useAuthStore((state) => state.isReady);
   const signIn = useAuthStore((state) => state.signIn);
-  const resetPassword = useAuthStore((state) => state.resetPassword);
   const { toast } = useToast();
   const { dictionary: t, locale } = useLocaleStore();
 
@@ -63,17 +64,6 @@ export function LoginView() {
       description: errorMessage(result.code),
       variant: 'destructive',
     });
-  };
-
-  const handleForgotPassword = async () => {
-    if (!email) {
-      toast({ title: t.authErrors.invalidCredentials, variant: 'destructive' });
-      return;
-    }
-    await resetPassword(email);
-    // Always the same message, whether or not the account exists — otherwise
-    // this form becomes an account-enumeration oracle.
-    toast({ title: t.authErrors.passwordResetSent });
   };
 
   if (!isReady || isAuthenticated) return null;
@@ -128,13 +118,9 @@ export function LoginView() {
               </p>
             </div>
 
-            <button
-              type="button"
-              onClick={handleForgotPassword}
-              className="text-[11px] uppercase tracking-widest font-bold text-muted-foreground hover:text-primary transition-colors"
-            >
-              {t.authErrors.forgotPassword}
-            </button>
+            {/* Password reset needs an outbound email service, which this
+                deployment does not have yet. A button that silently did nothing
+                would be worse than not offering it — see the README. */}
           </form>
         </div>
       </div>

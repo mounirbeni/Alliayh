@@ -1,15 +1,15 @@
 import 'server-only';
-import { isFirebaseAdminConfigured } from '@/lib/firebase/admin';
-import { FirestoreInventoryStore, FirestoreOrderStore, withEmailIndex } from './firestore';
+import { isDatabaseConfigured } from '@/lib/db/client';
+import { PostgresInventoryStore, PostgresOrderStore } from './postgres';
 import type { InventoryStore, Order, OrderLine, OrderStore } from './types';
 
 /**
  * Persistence selection.
  *
- * Firestore is used whenever credentials are present; otherwise the in-memory
+ * Postgres is used whenever `DATABASE_URL` is set; otherwise the in-memory
  * adapters below keep the storefront working for a contributor without a
- * Firebase project. The in-memory pair is honest about its limits — state is
- * lost on restart and is not shared between instances — so it is a development
+ * database. The in-memory pair is honest about its limits — state is lost on
+ * restart and is not shared between instances — so it is a development
  * convenience, never the production path.
  */
 
@@ -51,45 +51,25 @@ class MemoryInventoryStore implements InventoryStore {
   }
 }
 
-/**
- * Adds the lowercased email index Firestore queries need, then delegates.
- * Wrapping keeps that storage detail out of the domain type.
- */
-class IndexedOrderStore implements OrderStore {
-  constructor(private readonly inner: OrderStore) {}
+const usingDatabase = isDatabaseConfigured();
 
-  get(sessionId: string) {
-    return this.inner.get(sessionId);
-  }
-
-  recordPaid(order: Order) {
-    return this.inner.recordPaid(withEmailIndex(order));
-  }
-
-  listByEmail(email: string, limit?: number) {
-    return this.inner.listByEmail(email, limit);
-  }
-}
-
-const usingFirestore = isFirebaseAdminConfigured();
-
-if (!usingFirestore && process.env.NODE_ENV === 'production') {
+if (!usingDatabase && process.env.NODE_ENV === 'production') {
   console.warn(
-    '[orders] No Firebase credentials found — orders and inventory are being kept in memory. ' +
+    '[orders] DATABASE_URL is not set — orders and inventory are being kept in memory. ' +
       'They will be lost on restart and are not shared between instances. See .env.example.',
   );
 }
 
-export const orderStore: OrderStore = usingFirestore
-  ? new IndexedOrderStore(new FirestoreOrderStore())
+export const orderStore: OrderStore = usingDatabase
+  ? new PostgresOrderStore()
   : new MemoryOrderStore();
 
-export const inventoryStore: InventoryStore = usingFirestore
-  ? new FirestoreInventoryStore()
+export const inventoryStore: InventoryStore = usingDatabase
+  ? new PostgresInventoryStore()
   : new MemoryInventoryStore();
 
 /** True when orders survive a restart. Surfaced in diagnostics and the README. */
-export const isPersistent = usingFirestore;
+export const isPersistent = usingDatabase;
 
 /** Order references are what the customer quotes in an email; keep them short. */
 export function generateOrderReference(): string {

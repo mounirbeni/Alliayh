@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { useAuthStore, type AuthErrorCode } from '@/lib/store/useAuthStore';
+import { useAuthStore } from '@/lib/store/useAuthStore';
+import type { AuthErrorCode } from '@/lib/auth/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Mail, User, ArrowRight } from 'lucide-react';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
@@ -12,9 +13,9 @@ import { useLocaleStore } from '@/lib/store/useLocaleStore';
 /**
  * Create an account.
  *
- * Firebase creates and owns the credential. The password is never seen by this
- * application, and the account is only considered created once the server has
- * issued a verified session cookie.
+ * The password is hashed with scrypt on the server and never stored in any
+ * reversible form. The account exists only once the server has written the user
+ * row and issued a session cookie.
  */
 export function RegisterView() {
   const router = useRouter();

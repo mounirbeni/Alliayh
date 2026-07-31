@@ -2,30 +2,26 @@
 /**
  * @fileOverview Catalog-grounded skincare advisor.
  *
- * The previous prompt asked the model to "recommend up to 3 Lueur Skin
+ * The original prompt asked the model to "recommend up to 3 Lueur Skin
  * products" without ever telling it what Lueur Skin sells. With four products
- * in the catalog and none of them named in the prompt, every recommendation was
- * invented: plausible-sounding serums and cleansers that cannot be bought, and
- * no way to link a result to a product page.
+ * in the catalog and none named in the prompt, every recommendation was
+ * invented: plausible serums and cleansers that cannot be bought, with no way
+ * to link a result to a product page.
  *
- * This version:
- *   - injects the real catalog into the prompt,
- *   - constrains the model to return catalog ids,
- *   - discards any id that is not in the catalog,
- *   - answers in the visitor's language,
- *   - falls back to a deterministic concern match when the model is
- *     unavailable, so the feature degrades instead of erroring.
+ * This version injects the real catalog, constrains the model to catalog ids,
+ * discards anything it invents anyway, answers in the visitor's language, and
+ * falls back to a deterministic concern match when the model is unavailable —
+ * so the feature degrades instead of erroring.
  */
 
-import { z } from 'genkit';
-import { ai } from '@/ai/genkit';
+import { Type } from '@google/genai';
+import { z } from 'zod';
+import { GEMINI_MODEL, getGemini, isGeminiConfigured } from '@/lib/ai/gemini';
 import { getProducts, CONCERNS } from '@/lib/catalog';
 import { LOCALES, type Locale } from '@/i18n';
 
-const SkinTypeSchema = z.enum(['oily', 'dry', 'combination', 'sensitive', 'normal']);
-
 const SkincareAdvisorInputSchema = z.object({
-  skinType: SkinTypeSchema,
+  skinType: z.enum(['oily', 'dry', 'combination', 'sensitive', 'normal']),
   /** Concern keys from the shared taxonomy — not free text. */
   concerns: z.array(z.enum(CONCERNS)).min(1).max(CONCERNS.length),
   goals: z.array(z.string().min(1).max(60)).max(6),
@@ -33,17 +29,20 @@ const SkincareAdvisorInputSchema = z.object({
 });
 export type SkincareAdvisorInput = z.infer<typeof SkincareAdvisorInputSchema>;
 
-const RecommendationSchema = z.object({
-  productId: z.string().describe('The id of a product from the provided catalog. Never invent one.'),
-  reason: z.string().describe("Why this product suits the visitor's profile, in two sentences."),
-  usageAdvice: z.string().describe('How to use it for this profile, in one or two sentences.'),
+/** Validates whatever the model returns before any of it is trusted. */
+const ModelOutputSchema = z.object({
+  intro: z.string().min(1).max(400),
+  recommendations: z
+    .array(
+      z.object({
+        productId: z.string().min(1).max(64),
+        reason: z.string().min(1).max(600),
+        usageAdvice: z.string().min(1).max(600),
+      }),
+    )
+    .min(1)
+    .max(3),
 });
-
-const SkincareAdvisorOutputSchema = z.object({
-  intro: z.string().describe("One elegant sentence summarising the visitor's profile."),
-  recommendations: z.array(RecommendationSchema).min(1).max(3),
-});
-export type SkincareAdvisorOutput = z.infer<typeof SkincareAdvisorOutputSchema>;
 
 /** A recommendation joined to the real product record, ready to render. */
 export interface ResolvedRecommendation {
@@ -76,45 +75,77 @@ const FALLBACK_INTRO: Record<Locale, string> = {
   en: 'Based on your skin type and the concerns you selected, we have matched the rituals in the collection that fit your profile most closely.',
 };
 
-const advisorPrompt = ai.definePrompt({
-  name: 'skincareAdvisorPrompt',
-  input: {
-    schema: SkincareAdvisorInputSchema.extend({
-      catalogJson: z.string(),
-      languageName: z.string(),
-    }),
+/**
+ * Response schema handed to the model.
+ *
+ * Gemini enforces this server-side, so the reply is already shaped correctly —
+ * there is no JSON-in-a-code-fence to parse out of prose. It is still validated
+ * with zod afterwards, because a schema-constrained reply is not the same as a
+ * trustworthy one.
+ */
+const RESPONSE_SCHEMA = {
+  type: Type.OBJECT,
+  properties: {
+    intro: {
+      type: Type.STRING,
+      description: "One elegant sentence summarising the visitor's profile.",
+    },
+    recommendations: {
+      type: Type.ARRAY,
+      minItems: '1',
+      maxItems: '3',
+      items: {
+        type: Type.OBJECT,
+        properties: {
+          productId: {
+            type: Type.STRING,
+            description: 'An id copied exactly from the provided catalog. Never invent one.',
+          },
+          reason: {
+            type: Type.STRING,
+            description: "Why this product suits the visitor's profile, in two sentences.",
+          },
+          usageAdvice: {
+            type: Type.STRING,
+            description: 'How to use it for this profile, in one or two sentences.',
+          },
+        },
+        required: ['productId', 'reason', 'usageAdvice'],
+      },
+    },
   },
-  output: { schema: SkincareAdvisorOutputSchema },
-  prompt: `You are the lead aesthetician for "Lueur Skin by Alliyah", a botanical skincare and wellness brand.
+  required: ['intro', 'recommendations'],
+};
+
+function buildPrompt(input: SkincareAdvisorInput, catalogJson: string): string {
+  return `You are the lead aesthetician for "Lueur Skin by Alliyah", a botanical skincare and wellness brand.
 
 You may ONLY recommend products from this catalog. Never invent a product, and never
 return an id that does not appear here:
 
-{{{catalogJson}}}
+${catalogJson}
 
 Visitor profile
-  Skin type: {{{skinType}}}
-  Concerns: {{#each concerns}}{{{this}}}, {{/each}}
-  Goals: {{#each goals}}{{{this}}}, {{/each}}
+  Skin type: ${input.skinType}
+  Concerns: ${input.concerns.join(', ')}
+  Goals: ${input.goals.join(', ') || '(none stated)'}
 
 Instructions
-1. Write every field in {{{languageName}}}.
+1. Write every field in ${LANGUAGE_NAMES[input.locale]}.
 2. Recommend between one and three products, most relevant first. Fewer strong
    matches is better than three padded ones.
 3. "productId" must be copied exactly from the catalog above.
 4. Reference the visitor's actual concerns and the product's real ingredients and
    benefits. Do not claim to treat medical conditions.
-5. Tone: elegant, warm, precise. No hard selling.`,
-});
+5. Tone: elegant, warm, precise. No hard selling.`;
+}
 
 /**
  * Deterministic matcher used when the model is unreachable or unusable.
  * Scores each product by concern overlap, then by rating.
  */
 function fallbackRecommendations(input: SkincareAdvisorInput): AdvisorResult {
-  const products = getProducts(input.locale);
-
-  const ranked = products
+  const ranked = getProducts(input.locale)
     .map((product) => ({
       product,
       score: product.concerns.filter((concern) => input.concerns.includes(concern)).length,
@@ -141,15 +172,18 @@ function fallbackRecommendations(input: SkincareAdvisorInput): AdvisorResult {
   };
 }
 
-const advisorFlow = ai.defineFlow(
-  {
-    name: 'skincareAdvisorFlow',
-    inputSchema: SkincareAdvisorInputSchema,
-    outputSchema: SkincareAdvisorOutputSchema,
-  },
-  async (input) => {
-    const products = getProducts(input.locale);
+/**
+ * Public entry point. Always resolves: on any model failure the deterministic
+ * matcher answers instead, so the page never reaches a dead end.
+ */
+export async function skincareAdvisor(rawInput: unknown): Promise<AdvisorResult> {
+  const input = SkincareAdvisorInputSchema.parse(rawInput);
+  const products = getProducts(input.locale);
+  const byId = new Map(products.map((product) => [product.id, product]));
 
+  if (!isGeminiConfigured()) return fallbackRecommendations(input);
+
+  try {
     // Only the fields the model needs to reason with — not the whole record.
     const catalogJson = JSON.stringify(
       products.map((product) => ({
@@ -168,30 +202,27 @@ const advisorFlow = ai.defineFlow(
       2,
     );
 
-    const { output } = await advisorPrompt({
-      ...input,
-      catalogJson,
-      languageName: LANGUAGE_NAMES[input.locale],
+    const response = await getGemini().models.generateContent({
+      model: GEMINI_MODEL,
+      contents: buildPrompt(input, catalogJson),
+      config: {
+        responseMimeType: 'application/json',
+        responseSchema: RESPONSE_SCHEMA,
+        temperature: 0.7,
+      },
     });
 
-    if (!output) throw new Error('Advisor returned no output');
-    return output;
-  },
-);
+    const text = response.text;
+    if (!text) return fallbackRecommendations(input);
 
-/**
- * Public entry point. Always resolves: on any model failure the deterministic
- * matcher answers instead, so the page never reaches a dead end.
- */
-export async function skincareAdvisor(rawInput: unknown): Promise<AdvisorResult> {
-  const input = SkincareAdvisorInputSchema.parse(rawInput);
-  const byId = new Map(getProducts(input.locale).map((product) => [product.id, product]));
-
-  try {
-    const output = await advisorFlow(input);
+    const parsed = ModelOutputSchema.safeParse(JSON.parse(text));
+    if (!parsed.success) {
+      console.error('[advisor] model output failed validation:', parsed.error.issues);
+      return fallbackRecommendations(input);
+    }
 
     // Drop anything the model invented rather than rendering a broken link.
-    const resolved = output.recommendations
+    const resolved = parsed.data.recommendations
       .map((recommendation): ResolvedRecommendation | null => {
         const product = byId.get(recommendation.productId);
         if (!product) return null;
@@ -212,7 +243,7 @@ export async function skincareAdvisor(rawInput: unknown): Promise<AdvisorResult>
 
     if (resolved.length === 0) return fallbackRecommendations(input);
 
-    return { intro: output.intro, recommendations: resolved, usedFallback: false };
+    return { intro: parsed.data.intro, recommendations: resolved, usedFallback: false };
   } catch (error) {
     console.error('[advisor] falling back to deterministic matching:', error);
     return fallbackRecommendations(input);

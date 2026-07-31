@@ -18,6 +18,7 @@ import {
   type ProductCategory,
   type SortOption,
 } from '@/lib/catalog';
+import { getAvailability } from '@/lib/orders/availability';
 import { breadcrumbJsonLd, buildMetadata, itemListJsonLd } from '@/lib/seo';
 
 type PageProps = {
@@ -83,6 +84,7 @@ export default async function ProductsPage({ params, searchParams }: PageProps) 
   const maxPrice = readOne(query.max);
   const inStockOnly = readOne(query.stock) === '1';
 
+  const availability = await getAvailability();
   const products = queryProducts(
     {
       search,
@@ -95,7 +97,12 @@ export default async function ProductsPage({ params, searchParams }: PageProps) 
       inStockOnly,
     },
     locale,
-  );
+    // Apply live stock after filtering so an item that just sold out still
+    // appears — greyed and unbuyable — rather than vanishing mid-session.
+  ).map((product) => {
+    const stock = availability[product.id] ?? product.stock;
+    return { ...product, stock, inStock: stock > 0 };
+  });
 
   const state: CollectionState = {
     search,

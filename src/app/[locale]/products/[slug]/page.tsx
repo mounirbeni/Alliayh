@@ -6,6 +6,7 @@ import { ProductDetailView } from '@/components/products/ProductDetailView';
 import { JsonLd } from '@/components/seo/JsonLd';
 import { getDictionary, isValidLocale, LOCALES } from '@/i18n';
 import { CATALOG, getProduct, getRelatedProducts } from '@/lib/catalog';
+import { getLiveProduct } from '@/lib/orders/availability';
 import { breadcrumbJsonLd, buildMetadata, productJsonLd } from '@/lib/seo';
 
 type PageProps = { params: Promise<{ locale: string; slug: string }> };
@@ -42,7 +43,9 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const { locale, slug } = await params;
   if (!isValidLocale(locale)) notFound();
 
-  const product = getProduct(slug, locale);
+  // Stock reflects sales recorded by the Stripe webhook, not just the opening
+  // figure declared in the catalog.
+  const product = await getLiveProduct(slug, locale);
   if (!product) notFound();
 
   // Legacy numeric URLs (/products/1) resolve, then redirect to the slug so a

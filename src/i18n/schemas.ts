@@ -6,21 +6,17 @@ import * as z from 'zod';
 import type { Dictionary } from './dictionaries/pt';
 
 /**
- * Creates a fully localized checkout schema.
- * Every error message is pulled from the translation dictionary.
+ * Checkout contact schema.
+ *
+ * Card and address fields used to live here — `cardNumber`, `expiry`, `cvc` —
+ * because the storefront rendered its own payment form. Those are gone: Stripe
+ * collects payment and shipping details on its hosted checkout, so no card data
+ * is ever validated, held or transmitted by this application.
  */
 export function getCheckoutSchema(t: Dictionary) {
   const v = t.validation;
   return z.object({
-    firstName: z.string().min(2, v.firstNameTooShort),
-    lastName: z.string().min(2, v.lastNameTooShort),
     email: z.string().email(v.invalidEmail),
-    address: z.string().min(5, v.addressTooShort),
-    city: z.string().min(2, v.cityRequired),
-    zipCode: z.string().min(4, v.zipCodeInvalid),
-    cardNumber: z.string().regex(/^[0-9]{16}$/, v.cardNumberInvalid),
-    expiry: z.string().regex(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/, v.expiryInvalid),
-    cvc: z.string().regex(/^[0-9]{3,4}$/, v.cvcInvalid),
   });
 }
 

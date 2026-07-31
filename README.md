@@ -84,6 +84,40 @@ satisfies `Dictionary`, then fill in the `Record<Locale, …>` maps in
 `lib/catalog/data.ts`, `lib/catalog/taxonomy.ts`, `lib/journal.ts` and
 `lib/legal.ts`. TypeScript will point at every one that needs filling.
 
+## Payments and orders
+
+Checkout runs on **Stripe Checkout** (hosted). The storefront never renders a
+card field and no card data reaches this application — which also means Apple
+Pay, Google Pay and local European methods come for free.
+
+The flow:
+
+1. `createCheckoutSession` (`app/[locale]/checkout/actions.ts`) receives **only
+   product ids and quantities**. It rebuilds every line and price from the
+   catalog, re-checks live stock, and hands Stripe the amounts it computed
+   itself. A tampered request cannot change what is charged.
+2. The customer pays on Stripe and returns to `/checkout/success?session_id=…`.
+3. `/api/webhooks/stripe` verifies the signature on the raw body, records the
+   order and decrements inventory. **This** is what makes an order real — the
+   browser's return is only a convenience.
+4. The confirmation page reads the order from the store, falling back to
+   retrieving the Stripe session. It therefore survives a refresh, a shared
+   link and a redeploy.
+
+Webhook delivery is at-least-once, so `recordPaid` is idempotent and stock only
+moves on the first delivery of an event.
+
+**Persistence.** `lib/orders/store.ts` ships an in-memory adapter: fine for
+development and a single instance, but state is lost on restart and is not
+shared between instances, so inventory drifts once you scale out. Implement
+`OrderStore` and `InventoryStore` against Firestore (the project already depends
+on `firebase` and targets Firebase App Hosting) and swap the two exports at the
+bottom of that file — nothing else needs to change.
+
+**Demo mode.** With no `STRIPE_SECRET_KEY`, checkout records a clearly-labelled
+demo order instead of dead-ending, the same way the advisor degrades without a
+model key.
+
 ## The AI advisor
 
 `src/ai/flows/ai-powered-skincare-advisor-flow.ts` injects the real catalog into

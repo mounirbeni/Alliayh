@@ -24,7 +24,7 @@ import type { Product } from '@/lib/catalog';
  *
  *   1. a full-bleed hero whose headline rises out of its own mask,
  *   2. a marquee that turns the value props into a moving rule,
- *   3. a sticky philosophy split — text holds while imagery scrolls past it,
+ *   3. a balanced philosophy split over a full-width pillar index,
  *   4. the collection as a numbered catalogue,
  *   5. testimonials as pull-quotes, not cards,
  *   6. an inverted closing panel for the advisor.
@@ -71,7 +71,7 @@ export function HomeView({ products }: { products: Product[] }) {
           style={reduce ? undefined : { scale: heroScale, opacity: heroFade }}
         >
           <Image
-            src="/products/glow-tea.jpg"
+            src="/products/glow-tea-front.jpg"
             alt={t.hero.heroImageAlt}
             fill
             priority
@@ -157,60 +157,69 @@ export function HomeView({ products }: { products: Product[] }) {
         </Marquee>
       </section>
 
-      {/* ── 03 · PHILOSOPHY (sticky split) ─────────────────────────────── */}
+      {/* ── 03 · PHILOSOPHY ────────────────────────────────────────────── */}
+      {/*
+        Two balanced columns, then the pillars full width beneath them.
+        This was a 5/7 split with a sticky left column: the text ran out after
+        ~600px while the right column carried an image plus the whole pillar
+        list, leaving roughly 1100px of empty page beside it. Nothing about that
+        void read as considered — it read as unfinished.
+      */}
       <section className="section shell">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-5">
-            <div className="lg:sticky lg:top-[calc(var(--header-height)+3rem)]">
-              <Reveal>
-                <p className="label text-foreground/45">{t.philosophy.badge}</p>
-              </Reveal>
+        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12 lg:gap-16">
+          <div className="lg:col-span-6">
+            <Reveal>
+              <p className="label text-foreground/45">{t.philosophy.badge}</p>
+            </Reveal>
 
-              <h2 className="mt-6 font-display text-display-md tracking-tightest">
-                <MaskReveal>{t.philosophy.headline1}</MaskReveal>
-                <MaskReveal delay={0.08}>
-                  <span className="wonk text-primary">{t.philosophy.headline2}</span>
-                </MaskReveal>
-              </h2>
+            <h2 className="mt-6 font-display text-display-md tracking-tightest">
+              <MaskReveal>{t.philosophy.headline1}</MaskReveal>
+              <MaskReveal delay={0.08}>
+                <span className="wonk text-primary">{t.philosophy.headline2}</span>
+              </MaskReveal>
+            </h2>
 
-              <Reveal delay={0.15}>
-                <blockquote className="mt-8 max-w-prose border-l border-primary/30 pl-6 font-display text-lede italic text-foreground/70">
-                  {t.philosophy.quote}
-                </blockquote>
-              </Reveal>
-            </div>
+            <Reveal delay={0.15}>
+              <blockquote className="mt-10 max-w-prose border-l border-primary/30 pl-6 font-display text-lede italic text-foreground/70">
+                {t.philosophy.quote}
+              </blockquote>
+            </Reveal>
           </div>
 
-          <div className="lg:col-span-7">
-            <ParallaxFrame className="aspect-[4/5] w-full" amount={9}>
+          <div className="lg:col-span-6">
+            {/*
+              A packshot on a white sweep, so it is contained on a tinted plate
+              rather than cropped to fill. `object-cover` in a tall frame sliced
+              the lid off the jar.
+            */}
+            <ParallaxFrame className="aspect-square w-full rule-t rule-b rule-l rule-r bg-white" amount={9}>
               <Image
-                src="/products/sea-moss-gummies.jpg"
+                src="/products/sea-moss-front.jpg"
                 alt={t.philosophy.philosophyImageAlt}
                 fill
-                sizes="(max-width: 1024px) 100vw, 55vw"
-                className="object-cover duotone"
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="object-contain duotone p-8"
               />
             </ParallaxFrame>
-
-            {/* Pillars as a ruled index, not four icon boxes. */}
-            <dl className="mt-12">
-              {pillars.map((pillar, i) => (
-                <Reveal key={pillar.title} delay={i * 0.06}>
-                  <div className="grid grid-cols-[3rem_1fr] items-baseline gap-x-4 gap-y-2 py-6 rule-t sm:grid-cols-[4rem_1fr_1.2fr] sm:gap-x-8">
-                    <span aria-hidden="true" className="numeral text-label text-foreground/30">
-                      {String(i + 1).padStart(2, '0')}
-                    </span>
-                    <dt className="font-display text-display-xs tracking-editorial">{pillar.title}</dt>
-                    <dd className="col-span-2 text-body-sm text-foreground/60 sm:col-span-1">
-                      {pillar.desc}
-                    </dd>
-                  </div>
-                </Reveal>
-              ))}
-              <DrawRule />
-            </dl>
           </div>
         </div>
+
+        {/* Pillars as a ruled index across the full measure. */}
+        <dl className="mt-[clamp(3.5rem,7vw,7rem)] grid grid-cols-1 gap-x-10 sm:grid-cols-2 lg:grid-cols-4">
+          {pillars.map((pillar, i) => (
+            <Reveal key={pillar.title} delay={i * 0.06}>
+              <div className="h-full pt-6 rule-t">
+                <span aria-hidden="true" className="numeral block text-label text-foreground/30">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <dt className="mt-4 font-display text-display-xs leading-[1.1] tracking-editorial">
+                  {pillar.title}
+                </dt>
+                <dd className="mt-3 pb-8 text-body-sm text-foreground/60">{pillar.desc}</dd>
+              </div>
+            </Reveal>
+          ))}
+        </dl>
       </section>
 
       {/* ── 04 · THE COLLECTION ────────────────────────────────────────── */}
@@ -245,7 +254,7 @@ export function HomeView({ products }: { products: Product[] }) {
 
         <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((product, i) => (
-            <Reveal key={product.id} delay={i * 0.07}>
+            <Reveal key={product.id} delay={i * 0.07} className="h-full">
               <ProductCard product={product} index={i} priority={i < 2} />
             </Reveal>
           ))}
@@ -324,14 +333,24 @@ export function HomeView({ products }: { products: Product[] }) {
             </Reveal>
           </div>
 
+          {/*
+            The photograph is a packshot on a white sweep. Dropped straight onto
+            the burgundy it read as a white rectangle someone forgot to mask —
+            and `object-cover` cropped the pouch on top of that. Framing it as a
+            deliberate light plate inset into the panel is honest about what the
+            asset is, and looks intended rather than composited by accident.
+          */}
           <Reveal delay={0.1}>
-            <ParallaxFrame className="aspect-[4/5] w-full lg:aspect-square" amount={8}>
+            <ParallaxFrame
+              className="aspect-square w-full border border-[hsl(var(--secondary))]/25 bg-white"
+              amount={8}
+            >
               <Image
-                src="/products/sea-moss-facts.jpg"
+                src="/products/glow-tea-front.jpg"
                 alt={t.advisorCta.advisorImageAlt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 45vw"
-                className="object-cover duotone"
+                className="object-contain duotone p-8"
               />
             </ParallaxFrame>
           </Reveal>

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     path: '/advisor',
     title: t.advisor.metaTitle,
     description: t.advisor.metaDescription,
-    image: '/products/sea-moss-facts.jpg',
+    image: '/products/sea-moss-front.jpg',
   });
 }
 

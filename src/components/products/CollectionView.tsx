@@ -369,10 +369,16 @@ export function CollectionView({
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
+          /*
+           * Two columns, not three. The house carries four products: a 3-up grid
+           * put three on one row and stranded the fourth beside two thirds of
+           * empty page. Two large plates per row stays balanced for any even
+           * catalogue and gives the photography room to be looked at.
+           */
+          <div className="grid grid-cols-1 gap-x-12 gap-y-20 sm:grid-cols-2">
             {products.map((product, i) => (
-              <Reveal key={product.id} delay={Math.min(i, 5) * 0.06}>
-                <ProductCard product={product} index={i} priority={i < 3} />
+              <Reveal key={product.id} delay={Math.min(i, 5) * 0.06} className="h-full">
+                <ProductCard product={product} index={i} priority={i < 2} />
               </Reveal>
             ))}
           </div>

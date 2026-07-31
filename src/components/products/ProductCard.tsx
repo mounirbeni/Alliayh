@@ -64,12 +64,21 @@ export function ProductCard({ product, index, className, priority = false }: Pro
 
   return (
     <article
-      className={cn('group relative flex flex-col', className)}
+      /* `h-full` so `mt-auto` on the price row has a full-height box to push
+         against — grid items stretch, but the animation wrapper in between does
+         not pass that height down on its own. */
+      className={cn('group relative flex h-full flex-col', className)}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
       {/* Plate */}
-      <div className="relative aspect-[4/5] overflow-hidden rule-t rule-b rule-l rule-r bg-muted/25">
+      {/*
+        The plate is padded and the photograph is *contained*, not cropped.
+        These are packshots on a white sweep: `object-cover` in a tall frame was
+        slicing the top off every jar and the bottom off every pouch, which is
+        the fastest way to make a catalogue look careless.
+      */}
+      <div className="relative aspect-square overflow-hidden rule-t rule-b rule-l rule-r bg-white p-6">
         <Link href={product.href} className="absolute inset-0 z-0" tabIndex={-1} aria-hidden="true">
           <Image
             src={product.image}
@@ -78,7 +87,7 @@ export function ProductCard({ product, index, className, priority = false }: Pro
             priority={priority}
             sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 30vw"
             className={cn(
-              'object-cover duotone transition-transform duration-1200 ease-editorial',
+              'object-contain duotone transition-transform duration-1200 ease-editorial',
               active && 'scale-[1.04]',
               !product.inStock && 'opacity-55 grayscale',
             )}
@@ -99,7 +108,7 @@ export function ProductCard({ product, index, className, priority = false }: Pro
                 alt=""
                 fill
                 sizes="(max-width: 640px) 90vw, (max-width: 1024px) 45vw, 30vw"
-                className="object-cover duotone"
+                className="object-contain duotone"
               />
             </span>
           )}
@@ -158,7 +167,12 @@ export function ProductCard({ product, index, className, priority = false }: Pro
           {product.tagline}
         </p>
 
-        <div className="mt-4 flex items-end justify-between gap-4 pt-3 rule-t">
+        {/*
+          `mt-auto` pins the price row to the bottom of the card. Without it the
+          row sat directly under the tagline, so a two-line product name pushed
+          one card's rule 40px below its neighbours' and the grid read as ragged.
+        */}
+        <div className="mt-auto flex items-end justify-between gap-4 pt-4 rule-t">
           <p className="tabular font-display text-body-lg text-primary">
             {formatCurrency(product.price, locale)}
             {product.compareAtPrice && (

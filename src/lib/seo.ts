@@ -28,7 +28,7 @@ export function buildMetadata({
   path = '',
   title,
   description,
-  image = '/products/glow-tea.jpg',
+  image = '/products/glow-tea-front.jpg',
   type = 'website',
   keywords,
   noIndex = false,

@@ -38,7 +38,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     slug: 'alchemy-of-sea-moss',
     date: '2026-03-15',
     author: 'Alliyah',
-    image: '/products/sea-moss-facts.jpg',
+    image: '/products/glow-tea-front.jpg',
     imageAlt: {
       pt: 'Musgo marinho irlandês seco sobre uma superfície de pedra clara',
       en: 'Dried Irish sea moss on a pale stone surface',
@@ -81,7 +81,7 @@ Acreditamos que a beleza visível resulta da saúde. Integrar musgo marinho selv
     slug: 'morning-rituals-radiant-skin',
     date: '2026-02-28',
     author: 'Alliyah',
-    image: '/products/glow-tea-instructions.jpg',
+    image: '/products/sea-moss-front.jpg',
     imageAlt: {
       pt: 'Chávena de chá em infusão junto a uma janela ao amanhecer',
       en: 'A cup of tea steeping beside a window at dawn',
@@ -132,7 +132,7 @@ Trate isto como um ritual e não como uma tarefa. Massaje bem os produtos, respi
     slug: 'botanical-defense',
     date: '2026-02-10',
     author: 'Alliyah',
-    image: '/products/glow-tea.jpg',
+    image: '/products/glow-tea-front.jpg',
     imageAlt: {
       pt: 'Folhas e flores botânicas dispostas sobre linho claro',
       en: 'Botanical leaves and flowers arranged on pale linen',

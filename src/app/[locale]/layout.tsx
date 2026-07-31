@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: LayoutParams): Promise<Metada
       description: t.meta.ogDescription,
       siteName: SITE.legalName,
       url: absoluteUrl(`/${locale}`),
-      images: [{ url: absoluteUrl('/products/glow-tea.jpg'), width: 1200, height: 630 }],
+      images: [{ url: absoluteUrl('/products/glow-tea-front.jpg'), width: 1200, height: 630 }],
     },
   };
 }

@@ -113,16 +113,23 @@ export function ProductDetailView({ product, related }: { product: Product; rela
             {product.images.map((image, i) => (
               <ParallaxFrame
                 key={image.src}
-                className={cn('w-full rule-t rule-b rule-l rule-r', i === 0 ? 'aspect-[4/5]' : 'aspect-square')}
+                className={cn(
+                  'w-full rule-t rule-b rule-l rule-r bg-white',
+                  'aspect-square',
+                )}
                 amount={i === 0 ? 6 : 8}
               >
+                {/* Contained, not cropped — see ProductCard. */}
                 <Image
                   src={image.src}
                   alt={image.alt}
                   fill
                   priority={i === 0}
                   sizes="(max-width: 1024px) 100vw, 58vw"
-                  className={cn('object-cover duotone', !product.inStock && 'grayscale opacity-70')}
+                  className={cn(
+                    'object-contain duotone p-8 sm:p-12',
+                    !product.inStock && 'grayscale opacity-70',
+                  )}
                 />
               </ParallaxFrame>
             ))}
@@ -506,7 +513,7 @@ export function ProductDetailView({ product, related }: { product: Product; rela
 
           <div className="grid grid-cols-1 gap-x-8 gap-y-16 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item, i) => (
-              <Reveal key={item.id} delay={i * 0.07}>
+              <Reveal key={item.id} delay={i * 0.07} className="h-full">
                 <ProductCard product={item} index={i} />
               </Reveal>
             ))}

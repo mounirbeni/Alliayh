@@ -19,26 +19,32 @@ const SEA_MOSS_GUMMIES: CatalogProduct = {
   featured: true,
   concerns: ['clarity', 'vitality', 'radiance'],
   actives: ['sea-moss', 'bladderwrack', 'burdock-root', 'vitamin-c', 'zinc', 'vitamin-d'],
+  /*
+   * Front of pack first. The files used to be named for the wrong products
+   * entirely — `sea-moss-gummies.jpg` was a photograph of the tea pouch's back
+   * label — so every hero slot on the site rendered legal small print. They are
+   * now named for what they actually show.
+   */
   images: [
     {
-      src: '/products/sea-moss-gummies.jpg',
+      src: '/products/sea-moss-front.jpg',
       alt: {
         pt: 'Frasco de gomas de musgo marinho Lueur Skin sobre fundo claro',
         en: 'Jar of Lueur Skin sea moss gummies on a soft neutral background',
       },
     },
     {
-      src: '/products/sea-moss-usage.jpg',
+      src: '/products/sea-moss-side.jpg',
       alt: {
-        pt: 'Instruções de utilização das gomas de musgo marinho',
-        en: 'Usage instructions for the sea moss gummies',
+        pt: 'Modo de utilização das gomas de musgo marinho',
+        en: 'Suggested use panel on the sea moss gummies jar',
       },
     },
     {
-      src: '/products/sea-moss-facts.jpg',
+      src: '/products/sea-moss-back.jpg',
       alt: {
-        pt: 'Tabela nutricional e benefícios do musgo marinho',
-        en: 'Nutritional panel and benefits of sea moss',
+        pt: 'Tabela nutricional e ingredientes das gomas de musgo marinho',
+        en: 'Supplement facts and ingredients on the sea moss gummies jar',
       },
     },
   ],
@@ -105,17 +111,17 @@ const GLOW_TEA: CatalogProduct = {
   actives: ['cassia', 'coix', 'mulberry', 'goji', 'rose', 'white-grass-root'],
   images: [
     {
-      src: '/products/glow-tea.jpg',
+      src: '/products/glow-tea-front.jpg',
       alt: {
-        pt: 'Chá Lueur Glow servido numa chávena de porcelana',
-        en: 'Lueur Glow Tea served in a porcelain cup',
+        pt: 'Saqueta do Chá Lueur Glow sobre fundo claro',
+        en: 'Lueur Glow Tea pouch on a soft neutral background',
       },
     },
     {
-      src: '/products/glow-tea-instructions.jpg',
+      src: '/products/glow-tea-back.jpg',
       alt: {
-        pt: 'Instruções de infusão do Chá Lueur Glow',
-        en: 'Brewing instructions for Lueur Glow Tea',
+        pt: 'Instruções de infusão e tabela nutricional do Chá Lueur Glow',
+        en: 'Brewing instructions and nutritional panel on the Lueur Glow Tea pouch',
       },
     },
   ],
@@ -183,24 +189,24 @@ const SEA_MOSS_DUO: CatalogProduct = {
   actives: ['sea-moss', 'bladderwrack', 'burdock-root', 'vitamin-c', 'zinc'],
   images: [
     {
-      src: '/products/sea-moss-usage.jpg',
+      src: '/products/sea-moss-front.jpg',
       alt: {
         pt: 'Conjunto de dois frascos de gomas de musgo marinho',
         en: 'Two-jar bundle of sea moss gummies',
       },
     },
     {
-      src: '/products/sea-moss-gummies.jpg',
+      src: '/products/sea-moss-side.jpg',
       alt: {
-        pt: 'Frasco de gomas de musgo marinho Lueur Skin',
-        en: 'Lueur Skin sea moss gummies jar',
+        pt: 'Modo de utilização das gomas de musgo marinho',
+        en: 'Suggested use panel on the sea moss gummies jar',
       },
     },
     {
-      src: '/products/sea-moss-facts.jpg',
+      src: '/products/sea-moss-back.jpg',
       alt: {
         pt: 'Tabela nutricional das gomas de musgo marinho',
-        en: 'Nutritional panel for the sea moss gummies',
+        en: 'Supplement facts for the sea moss gummies',
       },
     },
   ],
@@ -266,17 +272,17 @@ const GLOW_TEA_DUO: CatalogProduct = {
   actives: ['cassia', 'coix', 'mulberry', 'goji', 'rose'],
   images: [
     {
-      src: '/products/glow-tea-instructions.jpg',
+      src: '/products/glow-tea-front.jpg',
       alt: {
-        pt: 'Conjunto duplo do Chá Lueur Glow com instruções',
-        en: 'Lueur Glow Tea double bundle with brewing card',
+        pt: 'Conjunto duplo do Chá Lueur Glow',
+        en: 'Lueur Glow Tea double bundle',
       },
     },
     {
-      src: '/products/glow-tea.jpg',
+      src: '/products/glow-tea-back.jpg',
       alt: {
-        pt: 'Chá Lueur Glow servido numa chávena de porcelana',
-        en: 'Lueur Glow Tea served in a porcelain cup',
+        pt: 'Instruções de infusão do Chá Lueur Glow',
+        en: 'Brewing instructions for Lueur Glow Tea',
       },
     },
   ],

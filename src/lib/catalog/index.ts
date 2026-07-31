@@ -63,7 +63,7 @@ export function resolveProduct(product: CatalogProduct, locale: Locale): Product
     featured: product.featured,
     concerns: product.concerns,
     actives: product.actives,
-    image: primary?.src ?? '/products/sea-moss-gummies.jpg',
+    image: primary?.src ?? '/products/sea-moss-front.jpg',
     imageAlt: primary?.alt[locale] ?? content.name,
     images: product.images.map((image) => ({
       src: image.src,

@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     path: '/about',
     title: t.about.metaTitle,
     description: t.about.metaDescription,
-    image: '/products/sea-moss-facts.jpg',
+    image: '/products/sea-moss-front.jpg',
   });
 }
 
@@ -51,7 +51,7 @@ export default async function AboutPage({ params }: PageProps) {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-32">
             <div className="relative aspect-[4/5] overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)]">
               <Image 
-                src="/products/sea-moss-facts.jpg"
+                src="/products/sea-moss-front.jpg"
                 alt={t.about.founderImageAlt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"
@@ -82,7 +82,7 @@ export default async function AboutPage({ params }: PageProps) {
 
             <div className="relative aspect-square overflow-hidden group shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] lg:order-2 order-1">
               <Image 
-                src="/products/glow-tea.jpg"
+                src="/products/glow-tea-front.jpg"
                 alt={t.about.ingredientsImageAlt}
                 fill
                 sizes="(max-width: 1024px) 100vw, 50vw"

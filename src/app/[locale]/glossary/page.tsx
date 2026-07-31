@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     path: '/glossary',
     title: `${t.glossary.title} ${t.glossary.titleAccent}`,
     description: t.glossary.subtitle,
-    image: '/products/sea-moss-facts.jpg',
+    image: '/products/sea-moss-front.jpg',
   });
 }
 

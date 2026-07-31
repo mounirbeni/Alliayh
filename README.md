@@ -19,7 +19,8 @@ npm run dev                  # http://localhost:9002
 | `npm run start` | Serve the production build |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | Next.js ESLint |
-| `npm run db:migrate` | Apply `src/lib/db/schema.sql` to `DATABASE_URL` |
+| `npm run db:migrate` | Apply `src/lib/db/schema.sql` |
+| `npm run db:check` | Verify the database layer end to end |
 
 ## Architecture
 
@@ -123,8 +124,18 @@ not a rewrite. When `DATABASE_URL` is absent, orders fall back to in-memory
 (with a startup warning) and accounts report as unavailable, so the storefront
 still works for a contributor without a database.
 
-Apply the schema with `npm run db:migrate`. Every statement is idempotent, so it
-is safe on every deploy.
+Apply the schema with `npm run db:migrate`, then `npm run db:check` to verify
+it end to end — it exercises webhook-replay idempotency, concurrent inventory
+increments, exact money round-trips, case-insensitive email uniqueness and
+session expiry, and removes everything it wrote. Every schema statement is
+idempotent, so migrating on each deploy is safe.
+
+**Connection poolers.** A transaction-mode pooler (Neon's `-pooler` host,
+Supabase's `pgbouncer=true`) hands out a different backend per transaction, so
+server-side prepared statements — which postgres.js uses by default — break
+against it, typically as intermittent errors only under concurrency. The client
+detects a pooled URL and disables preparation. Set `DATABASE_URL_UNPOOLED` to
+the direct endpoint so migrations run off the pooler.
 
 ### Orders and inventory
 
@@ -141,6 +152,14 @@ same product cannot overwrite each other.
 
 Money is stored in minor units as integers — keeping euros as a float invites
 the classic `38.249999999`.
+
+**Availability fails soft.** If the database is unreachable, product pages fall
+back to the catalog's declared stock and log a warning, rather than erroring.
+The catalog needs no database to render, so an outage — or simply building in an
+environment that cannot reach the database — should not take down every product
+page. Checkout re-checks stock before taking money and the webhook is the
+authority on what sold, so the degraded mode is "may briefly offer something low
+on stock", not "may oversell silently".
 
 ### Authentication
 

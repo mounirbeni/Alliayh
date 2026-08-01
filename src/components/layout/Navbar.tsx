@@ -134,16 +134,31 @@ export function Navbar() {
             </nav>
           </div>
 
-          {/* Centre — wordmark */}
+          {/* Centre — mark + wordmark */}
           <Link
             href={`/${locale}`}
             aria-label={t.nav.goToHome}
-            className="group shrink-0 text-center"
+            className="group flex shrink-0 items-center gap-2.5 transition-opacity duration-400 hover:opacity-70 md:gap-3.5"
           >
-            <span className="block font-display text-[1.375rem] leading-none tracking-editorial text-primary transition-opacity duration-400 group-hover:opacity-70 md:text-[1.625rem]">
-              Lueur&nbsp;Skin
+            {/*
+              `alt=""` on purpose: the mark and the wordmark say the same thing,
+              and the link already carries an accessible name. Announcing the
+              brand twice is noise for anyone using a screen reader.
+            */}
+            <Image
+              src="/brand/lueur-mark.png"
+              alt=""
+              width={640}
+              height={587}
+              priority
+              className="h-8 w-auto md:h-10"
+            />
+            <span className="text-left">
+              <span className="block font-display text-[1.25rem] leading-none tracking-editorial text-primary md:text-[1.5rem]">
+                Lueur&nbsp;Skin
+              </span>
+              <span className="label-sm mt-1 block text-foreground/45">By Alliyah</span>
             </span>
-            <span className="label-sm mt-1 block text-foreground/45">By Alliyah</span>
           </Link>
 
           {/* Right — utilities */}

@@ -66,6 +66,6 @@ export const config = {
      * Everything except Next internals, API routes, PWA/SEO assets served from
      * /public, and any path that carries a file extension.
      */
-    '/((?!api|_next/static|_next/image|favicon.ico|icon.svg|manifest.webmanifest|robots.txt|sitemap.xml|sw.js|workbox-|icons/|products/|.*\\..*).*)',
+    '/((?!api|_next/static|_next/image|favicon.ico|manifest.webmanifest|robots.txt|sitemap.xml|sw.js|workbox-|icons/|products/|.*\\..*).*)',
   ],
 };

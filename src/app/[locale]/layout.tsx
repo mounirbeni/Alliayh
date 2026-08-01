@@ -43,10 +43,12 @@ export async function generateMetadata({ params }: LayoutParams): Promise<Metada
     creator: SITE.founder,
     publisher: SITE.legalName,
     formatDetection: { telephone: false, address: false, email: false },
-    icons: {
-      icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
-      apple: [{ url: '/icons/icon-192x192.png', sizes: '192x192' }],
-    },
+    /*
+     * Icons are left to the app-directory file convention — `src/app/icon.png`
+     * and `src/app/apple-icon.png`, both generated from the house mark. Naming
+     * them here as well emitted a second, hand-written <link> that still
+     * pointed at the placeholder SVG this replaced.
+     */
     robots: {
       index: true,
       follow: true,

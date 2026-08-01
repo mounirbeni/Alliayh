@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Instagram, ArrowUpRight, ArrowRight } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useLocaleStore } from '@/lib/store/useLocaleStore';
@@ -174,19 +175,30 @@ export function Footer() {
 
       <div className="shell">
         <DrawRule />
-        <div className="flex flex-col items-start justify-between gap-4 py-8 md:flex-row md:items-center">
-          <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            {legal.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className="label-sm text-foreground/45 transition-colors hover:text-primary"
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
+        <div className="flex flex-col items-start justify-between gap-6 py-8 md:flex-row md:items-center">
+          <div className="flex items-center gap-5">
+            {/* The house mark, signing off. Decorative here — the copyright
+                line beside it already names the brand in text. */}
+            <Image
+              src="/brand/lueur-mark.png"
+              alt=""
+              width={640}
+              height={587}
+              className="h-9 w-auto shrink-0"
+            />
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {legal.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="label-sm text-foreground/45 transition-colors hover:text-primary"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
           <p className="label-sm text-foreground/40">{t.footer.copyright}</p>
         </div>
       </div>

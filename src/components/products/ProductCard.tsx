@@ -32,9 +32,20 @@ interface ProductCardProps {
   className?: string;
   /** Set on above-the-fold cards so the first paint is not lazy. */
   priority?: boolean;
+  /**
+   * Smaller metadata, for rails where several cards share a column and the
+   * display-size name of the full card would tower over its own photograph.
+   */
+  compact?: boolean;
 }
 
-export function ProductCard({ product, index, className, priority = false }: ProductCardProps) {
+export function ProductCard({
+  product,
+  index,
+  className,
+  priority = false,
+  compact = false,
+}: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem);
   const openCart = useCartDrawerStore((state) => state.open);
   const toggleWishlist = useWishlistStore((state) => state.toggleWishlist);
@@ -157,13 +168,23 @@ export function ProductCard({ product, index, className, priority = false }: Pro
       <div className="flex flex-1 flex-col pt-4">
         <p className="label-sm text-foreground/45">{product.categoryLabel}</p>
 
-        <h3 className="mt-2 font-display text-display-xs leading-[1.08] tracking-editorial">
+        <h3
+          className={cn(
+            'mt-2 font-display tracking-editorial',
+            compact ? 'text-body-lg leading-snug' : 'text-display-xs leading-[1.08]',
+          )}
+        >
           <Link href={product.href} className="after:absolute after:inset-0 after:content-['']">
             {product.name}
           </Link>
         </h3>
 
-        <p className="mt-2 line-clamp-2 max-w-[42ch] text-body-sm text-foreground/55">
+        <p
+          className={cn(
+            'mt-2 line-clamp-2 max-w-[42ch] text-foreground/55',
+            compact ? 'text-[0.8125rem] leading-snug' : 'text-body-sm',
+          )}
+        >
           {product.tagline}
         </p>
 
@@ -172,8 +193,18 @@ export function ProductCard({ product, index, className, priority = false }: Pro
           row sat directly under the tagline, so a two-line product name pushed
           one card's rule 40px below its neighbours' and the grid read as ragged.
         */}
-        <div className="mt-auto flex items-end justify-between gap-4 pt-4 rule-t">
-          <p className="tabular font-display text-body-lg text-primary">
+        <div
+          className={cn(
+            'mt-auto flex items-end justify-between gap-4 rule-t',
+            compact ? 'pt-3' : 'pt-4',
+          )}
+        >
+          <p
+            className={cn(
+              'tabular font-display text-primary',
+              compact ? 'text-body-md' : 'text-body-lg',
+            )}
+          >
             {formatCurrency(product.price, locale)}
             {product.compareAtPrice && (
               <span className="ml-2 align-middle text-body-sm text-foreground/40 line-through">

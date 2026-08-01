@@ -1,3 +1,4 @@
+import { AnnouncementBar } from '@/components/layout/AnnouncementBar';
 import { Navbar } from '@/components/layout/Navbar';
 import { Footer } from '@/components/layout/Footer';
 import { cn } from '@/lib/utils';
@@ -21,6 +22,7 @@ export function SiteShell({
 }) {
   return (
     <div className={cn('min-h-screen flex flex-col bg-background', className)}>
+      <AnnouncementBar />
       <Navbar />
       <main id="main-content" tabIndex={-1} className={cn('flex-1 w-full', mainClassName)}>
         {children}

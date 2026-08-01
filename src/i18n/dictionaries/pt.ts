@@ -38,18 +38,88 @@ export const pt = {
     toggleTheme: 'Alternar tema',
     goToAccount: 'Ir para a conta',
     goToHome: 'Ir para o início',
+    // Barra principal, pela ordem definida no design.
+    shop: 'Loja',
+    about: 'Sobre',
+    ingredients: 'Ingredientes',
+    contact: 'Contacto',
+  },
+
+  // — Announcement bar —
+  announcement: {
+    promise: 'Fórmulas naturais que respeitam a sua pele e o planeta.',
+    shipping: 'Entrega rápida na Europa',
   },
 
   // — Hero Section —
   hero: {
     badge: 'Lueur Skin by Alliyah',
-    headline1: 'Brilho',
-    headline2: 'Interior',
-    subtitle: 'Sea Moss · Chá Luminoso · Bem-Estar Botânico',
-    ctaShop: 'Explorar Coleção',
-    ctaStory: 'Consultor de Pele',
+    headline1: 'Skincare que respeita a sua pele,',
+    headline2: 'inspirada na natureza.',
+    subtitle: 'Fórmulas naturais e eficazes para uma pele luminosa todos os dias.',
+    ctaShop: 'Descobrir produtos',
+    ctaStory: 'Saber mais',
     scroll: 'Descobrir',
-    heroImageAlt: 'Lueur Skin aura radiante',
+    heroImageAlt:
+      'Sérum, creme e cleanser Lueur Skin sobre uma bandeja de mármore entre flores cor-de-rosa',
+    marks: {
+      botanical: 'Ingredientes vegetais',
+      crueltyFree: 'Cruelty Free',
+      clean: 'Fórmulas limpas',
+      allSkin: 'Para todos os tipos de pele',
+    },
+  },
+
+  // — Trust strip —
+  trust: {
+    shippingTitle: 'Entrega rápida',
+    shippingDesc: 'para toda a Europa',
+    paymentTitle: 'Pagamento seguro',
+    paymentDesc: 'e protegido',
+    supportTitle: 'Apoio ao cliente',
+    supportDesc: 'sempre disponível',
+  },
+
+  // — Category rail —
+  categoryRail: {
+    title: 'Descubra o que a sua pele vai amar',
+    cleansing: 'Limpeza',
+    serums: 'Séruns',
+    hydration: 'Hidratação',
+    treatments: 'Tratamentos',
+    kits: 'Kits & Sets',
+    new: 'Novidades',
+  },
+
+  // — Favourites panel —
+  favourites: {
+    badge: 'Os nossos favoritos',
+    headline: 'Resultados visíveis, ingredientes que fazem a diferença.',
+    cta: 'Ver todos os produtos',
+    previous: 'Produtos anteriores',
+    next: 'Produtos seguintes',
+  },
+
+  // — Plant-based banner —
+  plantBased: {
+    badge: 'Plant-based beauty',
+    headline: 'Beleza que cuida de si e do planeta.',
+    body: 'Selecionamos os melhores ingredientes vegetais para fórmulas eficazes, sensoriais e conscientes.',
+    cta: 'Saber mais sobre a nossa missão',
+    sealTop: 'Natural',
+    sealBottom: 'Plant based',
+    imageAlt: 'Flores cor-de-rosa em luz natural suave',
+  },
+
+  // — Why choose —
+  whyChoose: {
+    title: 'Porque escolher Lueur Skin?',
+    naturalTitle: 'Ingredientes naturais',
+    naturalDesc: 'Fórmulas à base de plantas, cuidadosamente selecionadas.',
+    loveTitle: 'Feito com amor',
+    loveDesc: 'Desenvolvido com dedicação para realçar a sua beleza natural.',
+    consciousTitle: 'Beleza consciente',
+    consciousDesc: 'Sustentável, cruelty free e amiga do ambiente.',
   },
 
   // — Value Propositions —
@@ -670,6 +740,7 @@ export const pt = {
     home: 'Início',
     products: 'Coleção',
     retry: 'Tentar novamente',
+    comingSoon: 'Em breve',
   },
 
   // — Error Boundaries —

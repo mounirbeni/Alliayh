@@ -40,18 +40,88 @@ export const en: Dictionary = {
     toggleTheme: 'Toggle theme',
     goToAccount: 'Go to account',
     goToHome: 'Go to home',
+    // Primary bar, in the order the design sets them.
+    shop: 'Shop',
+    about: 'About',
+    ingredients: 'Ingredients',
+    contact: 'Contact',
+  },
+
+  // — Announcement bar —
+  announcement: {
+    promise: 'Natural formulas that respect your skin and the planet.',
+    shipping: 'Fast delivery across Europe',
   },
 
   // — Hero Section —
   hero: {
     badge: 'Lueur Skin by Alliyah',
-    headline1: 'Glow',
-    headline2: 'Within',
-    subtitle: 'Sea Moss · Glow Tea · Botanical Wellness',
-    ctaShop: 'Shop the Collection',
-    ctaStory: 'Skin Advisor',
+    headline1: 'Skincare that respects your skin,',
+    headline2: 'inspired by nature.',
+    subtitle: 'Natural, effective formulas for luminous skin every day.',
+    ctaShop: 'Discover products',
+    ctaStory: 'Learn more',
     scroll: 'Discover',
-    heroImageAlt: 'Lueur Skin radiant aura',
+    heroImageAlt:
+      'Lueur Skin radiance serum, nourishing cream and cleanser on a marble tray among pink blossom',
+    marks: {
+      botanical: 'Plant-based ingredients',
+      crueltyFree: 'Cruelty free',
+      clean: 'Clean formulas',
+      allSkin: 'For every skin type',
+    },
+  },
+
+  // — Trust strip —
+  trust: {
+    shippingTitle: 'Fast delivery',
+    shippingDesc: 'across all of Europe',
+    paymentTitle: 'Secure payment',
+    paymentDesc: 'and protected',
+    supportTitle: 'Customer support',
+    supportDesc: 'always available',
+  },
+
+  // — Category rail —
+  categoryRail: {
+    title: 'Discover what your skin will love',
+    cleansing: 'Cleansing',
+    serums: 'Serums',
+    hydration: 'Hydration',
+    treatments: 'Treatments',
+    kits: 'Kits & Sets',
+    new: 'New in',
+  },
+
+  // — Favourites panel —
+  favourites: {
+    badge: 'Our favourites',
+    headline: 'Visible results, ingredients that make the difference.',
+    cta: 'See all products',
+    previous: 'Previous products',
+    next: 'Next products',
+  },
+
+  // — Plant-based banner —
+  plantBased: {
+    badge: 'Plant-based beauty',
+    headline: 'Beauty that cares for you and for the planet.',
+    body: 'We select the finest plant ingredients for formulas that are effective, sensorial and conscious.',
+    cta: 'Learn more about our mission',
+    sealTop: 'Natural',
+    sealBottom: 'Plant based',
+    imageAlt: 'Pink blossom in soft daylight',
+  },
+
+  // — Why choose —
+  whyChoose: {
+    title: 'Why choose Lueur Skin?',
+    naturalTitle: 'Natural ingredients',
+    naturalDesc: 'Plant-based formulas, carefully selected.',
+    loveTitle: 'Made with love',
+    loveDesc: 'Developed with dedication to bring out your natural beauty.',
+    consciousTitle: 'Conscious beauty',
+    consciousDesc: 'Sustainable, cruelty free and kind to the environment.',
   },
 
   // — Value Propositions —
@@ -672,6 +742,7 @@ export const en: Dictionary = {
     home: 'Home',
     products: 'Collection',
     retry: 'Try again',
+    comingSoon: 'Coming soon',
   },
 
   // — Error Boundaries —

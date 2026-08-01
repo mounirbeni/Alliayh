@@ -79,87 +79,102 @@ export function Navbar() {
     router.push(pathname.replace(new RegExp(`^/${locale}`), `/${next}`) || `/${next}`);
   };
 
+  // The primary bar, in the order the design sets it. `Home` is included
+  // because the design marks the current section, and without it the home page
+  // is the one page whose nav shows nothing active.
   const links = [
-    { href: `/${locale}/products`, label: t.nav.collection },
-    { href: `/${locale}/advisor`, label: t.nav.advisor },
-    { href: `/${locale}/about`, label: t.nav.story },
-    { href: `/${locale}/journal`, label: t.nav.journal },
+    { href: `/${locale}`, label: t.nav.home, exact: true },
+    { href: `/${locale}/products`, label: t.nav.shop },
+    { href: `/${locale}/about`, label: t.nav.about },
+    { href: `/${locale}/glossary`, label: t.nav.ingredients },
+    { href: `/${locale}/contact`, label: t.nav.contact },
   ];
 
-  const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`);
+  // `/pt` is a prefix of every other route, so the home link needs an exact
+  // match or it would report itself as current on every page.
+  const isCurrent = (href: string, exact = false) =>
+    exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
 
   return (
     <>
       <motion.header
         animate={{ y: hidden ? '-100%' : '0%' }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        /*
+         * Sticky rather than fixed. The announcement strip above it should
+         * scroll away while the masthead pins, which a fixed element cannot do
+         * without JavaScript juggling its `top`. Sticky also removes the spacer
+         * div the fixed version needed, and every `top-[var(--header-height)]`
+         * offset elsewhere stays correct because the masthead pins at exactly
+         * that height.
+         */
         className={cn(
-          'fixed inset-x-0 top-0 z-50 transition-colors duration-500',
-          scrolled ? 'bg-background/[0.92] backdrop-blur-md rule-b' : 'bg-transparent',
+          'sticky top-0 z-50 bg-background transition-shadow duration-500',
+          scrolled && 'rule-b shadow-[0_1px_24px_-12px_hsl(343_71%_12%/0.35)]',
         )}
         style={{ height: 'var(--header-height)' }}
       >
         <div className="shell flex h-full items-center justify-between gap-6">
-          {/* Left — menu on mobile, contents on desktop */}
-          <div className="flex flex-1 items-center gap-8">
+          {/* Left — menu on mobile, mark + wordmark */}
+          <div className="flex flex-1 items-center gap-2">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
               aria-label={t.nav.menu}
               aria-expanded={mobileOpen}
               aria-haspopup="dialog"
-              className="label -ml-1 flex min-h-[44px] items-center gap-2 px-1 md:hidden"
+              className="label -ml-1 flex min-h-[44px] items-center gap-2 px-1 lg:hidden"
             >
               <Menu className="h-4 w-4" aria-hidden="true" />
             </button>
 
-            <nav aria-label={t.a11y.mainNavigation} className="hidden md:block">
-              <ul className="flex items-center gap-7 lg:gap-10">
-                {links.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      aria-current={isCurrent(link.href) ? 'page' : undefined}
-                      data-active={isCurrent(link.href)}
-                      className={cn(
-                        'label link-underline py-2 transition-opacity duration-400',
-                        isCurrent(link.href) ? 'text-primary' : 'hover:opacity-60',
-                      )}
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
+            <Link
+              href={`/${locale}`}
+              aria-label={t.nav.goToHome}
+              className="group flex shrink-0 items-center gap-2.5 transition-opacity duration-400 hover:opacity-70 md:gap-3.5"
+            >
+              {/*
+                `alt=""` on purpose: the mark and the wordmark say the same
+                thing, and the link already carries an accessible name.
+                Announcing the brand twice is noise on a screen reader.
+              */}
+              <Image
+                src="/brand/lueur-mark.png"
+                alt=""
+                width={640}
+                height={587}
+                priority
+                className="h-9 w-auto md:h-11"
+              />
+              <span className="hidden text-left sm:block">
+                <span className="block font-display text-[1.25rem] leading-none tracking-editorial text-primary md:text-[1.4rem]">
+                  Lueur&nbsp;Skin
+                </span>
+                <span className="label-sm mt-1 block text-foreground/45">By Alliyah</span>
+              </span>
+            </Link>
           </div>
 
-          {/* Centre — mark + wordmark */}
-          <Link
-            href={`/${locale}`}
-            aria-label={t.nav.goToHome}
-            className="group flex shrink-0 items-center gap-2.5 transition-opacity duration-400 hover:opacity-70 md:gap-3.5"
-          >
-            {/*
-              `alt=""` on purpose: the mark and the wordmark say the same thing,
-              and the link already carries an accessible name. Announcing the
-              brand twice is noise for anyone using a screen reader.
-            */}
-            <Image
-              src="/brand/lueur-mark.png"
-              alt=""
-              width={640}
-              height={587}
-              priority
-              className="h-8 w-auto md:h-10"
-            />
-            <span className="text-left">
-              <span className="block font-display text-[1.25rem] leading-none tracking-editorial text-primary md:text-[1.5rem]">
-                Lueur&nbsp;Skin
-              </span>
-              <span className="label-sm mt-1 block text-foreground/45">By Alliyah</span>
-            </span>
-          </Link>
+          {/* Centre — primary navigation */}
+          <nav aria-label={t.a11y.mainNavigation} className="hidden lg:block">
+            <ul className="flex items-center gap-7 xl:gap-10">
+              {links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    aria-current={isCurrent(link.href, link.exact) ? 'page' : undefined}
+                    data-active={isCurrent(link.href, link.exact)}
+                    className={cn(
+                      'label link-underline whitespace-nowrap py-2 transition-opacity duration-400',
+                      isCurrent(link.href, link.exact) ? 'text-primary' : 'hover:opacity-60',
+                    )}
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
 
           {/* Right — utilities */}
           <div className="flex flex-1 items-center justify-end gap-1 sm:gap-3">
@@ -215,19 +230,26 @@ export function Navbar() {
               aria-label={
                 cartHydrated && cartItemsCount > 0 ? `${t.nav.cart} (${cartItemsCount})` : t.nav.cart
               }
-              className="label flex min-h-[44px] items-center gap-2 px-1 transition-opacity hover:opacity-60"
+              className="relative flex min-h-[44px] min-w-[44px] items-center justify-center transition-opacity hover:opacity-60"
             >
               <ShoppingBag className="h-4 w-4" aria-hidden="true" />
-              <span aria-hidden="true" className="tabular w-3 text-left">
-                {cartHydrated && cartItemsCount > 0 ? cartItemsCount : ''}
-              </span>
+              {/*
+                Rendered only once the cart store has rehydrated. Showing a
+                count before then makes the server-rendered zero flash to the
+                real number on first paint.
+              */}
+              {cartHydrated && (
+                <span
+                  aria-hidden="true"
+                  className="tabular absolute right-1 top-1.5 flex h-4 min-w-[1rem] items-center justify-center rounded-full bg-primary px-1 text-[9px] font-semibold leading-none text-primary-foreground"
+                >
+                  {cartItemsCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
       </motion.header>
-
-      {/* Spacer so content starts below the fixed masthead. */}
-      <div aria-hidden="true" style={{ height: 'var(--header-height)' }} />
 
       {/* ── MOBILE MENU ────────────────────────────────────────────────── */}
       <AnimatePresence>
